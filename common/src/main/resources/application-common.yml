@@ -1,0 +1,29 @@
+spring:
+  profiles:
+    group:
+      local:  common, local
+      dev:  common, dev
+      prod:  common, prod
+---
+spring:
+  config:
+    activate:
+      on-profile: "common"
+
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/${LOCAL_DBNAME}
+    username: ${LOCAL_DBUSER}
+    password: ${LOCAL_DBPASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show_sql: true
+      format_sql: true
+      use_sql_comments: true
+
+  jwt:
+    secret:
+      key: ${JWT_SECRET_KEY}

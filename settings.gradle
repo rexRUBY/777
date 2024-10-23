@@ -1,0 +1,6 @@
+rootProject.name = '777'
+
+include 'common'
+include 'api'
+include 'batch'
+include 'streaming'
