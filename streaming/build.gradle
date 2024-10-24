@@ -5,4 +5,11 @@ dependencies {
 
     implementation project(':common')
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // json
+    implementation 'org.json:json:20210307'
+    implementation 'com.google.code.gson:gson:2.8.9'
 }
