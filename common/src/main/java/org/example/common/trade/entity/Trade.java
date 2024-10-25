@@ -18,10 +18,10 @@ public class Trade extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private TradeType tradeType;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private TradeFor tradeFor;
 
     @Column(name = "amount")
@@ -38,7 +38,7 @@ public class Trade extends Timestamped {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "coin_id")
+    @JoinColumn(name = "crypto_id")
     private Crypto crypto;
 
     public Trade(User user, Crypto crypto, String tradeType,String tradeFor,Double amount, Long price,Long totalPrice,Long moneyFrom) {

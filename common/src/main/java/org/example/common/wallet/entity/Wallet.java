@@ -22,6 +22,9 @@ public class Wallet extends Timestamped {
     @Column(name = "crypto_symbol")
     private String cryptoSymbol;
 
+    @Column(name = "crypto_price")
+    private Long cryptoPrice;
+
     @Column(name = "cash")
     private Long cash;
 
@@ -35,13 +38,22 @@ public class Wallet extends Timestamped {
         this.cryptoSymbol = cryptoSymbol;
         this.cash=cash;
     }
-
-    public void update(Double l, long cash) {
-        this.amount=l;
+    public Wallet(User user, Double amount, String cryptoSymbol,Long cryptoPrice,Long cash) {
+        this.user = user;
+        this.amount = amount;
+        this.cryptoSymbol = cryptoSymbol;
+        this.cryptoPrice = cryptoPrice;
         this.cash=cash;
     }
 
-    public void updateCash(double v) {
+    public void update(Double l, long cash,Long cryptoPrice) {
+        this.amount=l;
+        this.cash=cash;
+        this.cryptoPrice =cryptoPrice;
+    }
+
+    public void updateCash(double v,Long cryptoPrice) {
         this.cash=this.cash+ (long)v;
+        this.cryptoPrice =cryptoPrice;
     }
 }
