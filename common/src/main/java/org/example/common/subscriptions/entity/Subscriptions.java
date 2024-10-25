@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.common.common.entity.Timestamped;
 import org.example.common.crypto.entity.Crypto;
+import org.example.common.trade.enums.TradeType;
 import org.example.common.user.entity.User;
 
 @Getter
@@ -17,6 +18,12 @@ public class Subscriptions extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private Subscribe subscribe;
+
+    @Column(name="final_price")
+    private Long finalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_user_id") // 구독할 사람 Id
@@ -39,6 +46,12 @@ public class Subscriptions extends Timestamped {
         subscriptions.followerUser = followerUser;
         subscriptions.crypto = crypto;
         subscriptions.cryptoAmount = cryptoAmount;
+        subscriptions.subscribe=Subscribe.ON;
         return subscriptions;
+    }
+
+    public void checkout(long price) {
+        this.finalPrice= (long)(price*cryptoAmount);
+        this.subscribe=Subscribe.OFF;
     }
 }

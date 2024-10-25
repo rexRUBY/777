@@ -2,13 +2,13 @@ package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.batch.entity.Ranking;
-
 import org.example.batch.processor.rankingProcessor.RankingRateProcessBtc;
 import org.example.batch.processor.rankingProcessor.RankingRateProcessEth;
 import org.example.batch.repository.RankingRepository;
-import org.example.common.user.repository.UserRepository;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.data.RepositoryItemReader;
@@ -22,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Map;
 
-import static org.example.batch.config.countConfig.count;
 import static org.example.batch.config.countConfig.setCount;
 
 @Configuration
@@ -31,20 +30,10 @@ public class RankingRateBatch {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
-    private final UserRepository userRepository;
     private final RankingRateProcessBtc rankingRateProcessBtc;
     private final RankingRateProcessEth rankingRateProcessEth;
 
     private final RankingRepository rankingRepository;
-
-    // 순위 배치 프로세스를 위한 메인 작업(Job)을 정의
-    @Bean
-    public Job secondJob() {
-        return new JobBuilder("secondJob", jobRepository)
-                .start(firstRateStep())
-                .next(secondRateStep())
-                .build();
-    }
 
     // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의, 청크 크기는 10으로 설정
     @Bean

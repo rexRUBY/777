@@ -1,5 +1,7 @@
 package org.example.batch.schedule;
 
+import org.example.batch.config.JobCompletionNotificationListener;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
@@ -12,16 +14,17 @@ import java.util.Date;
 
 @Configuration
 public class FirstSchedule {
-
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
+    private final JobCompletionNotificationListener jobCompletionNotificationListener;
 
-    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry) {
+    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry, JobCompletionNotificationListener jobCompletionNotificationListener) {
         this.jobLauncher = jobLauncher;
         this.jobRegistry = jobRegistry;
+        this.jobCompletionNotificationListener = jobCompletionNotificationListener;
     }
 
-    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "* * * * * *", zone = "Asia/Seoul")
     public void runFirstJob() throws Exception {
 
         System.out.println("first schedule start");
@@ -33,6 +36,8 @@ public class FirstSchedule {
                 .addString("date", date)
                 .toJobParameters();
 
-        jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
+        JobExecution jobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
+
+        jobCompletionNotificationListener.afterJob(jobExecution);
     }
 }

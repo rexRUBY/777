@@ -7,6 +7,7 @@ import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.subscriptions.entity.Subscriptions;
+import org.example.common.subscriptions.repository.BillingRepository;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
 import org.example.common.trade.dto.request.TradeRequestDto;
 import org.example.common.trade.dto.response.TradeResponseDto;
@@ -35,6 +36,7 @@ public class TradeService {
     private final UserRepository userRepository;
     private final CryptoRepository cryptoRepository;
     private final WalletRepository walletRepository;
+    private final BillingRepository billingRepository;
     private final WalletHistoryRepository walletHistoryRepository;
     private final SubscriptionsRepository subscriptionsRepository;
     private final RedisTemplate<String, Long> redisTemplate;
@@ -101,7 +103,10 @@ public class TradeService {
             userWallet.updateCash(totalPrice*0.1,price);
             followerWallet.updateCash(totalPrice*0.9,price);
             tradeRepository.save(trade);
+            subscriptions.checkout(price);
+            billingRepository.save(subscriptions);
             subscriptionsRepository.delete(subscriptions);
+
             WalletHistory walletHistory = new WalletHistory(userWallet);
             WalletHistory walletHistory1 = new WalletHistory(followerWallet);
 
