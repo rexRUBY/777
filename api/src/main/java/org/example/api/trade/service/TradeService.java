@@ -6,6 +6,7 @@ import org.example.common.common.dto.AuthUser;
 import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
+import org.example.common.subscriptions.entity.Billing;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.BillingRepository;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
@@ -21,12 +22,12 @@ import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
 import org.example.common.wallet.repository.WalletHistoryRepository;
 import org.example.common.wallet.repository.WalletRepository;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.example.common.webclient.Util.DateTimeUtil;
+import org.example.common.webclient.service.CryptoWebService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +40,15 @@ public class TradeService {
     private final BillingRepository billingRepository;
     private final WalletHistoryRepository walletHistoryRepository;
     private final SubscriptionsRepository subscriptionsRepository;
-    private final RedisTemplate<String, Long> redisTemplate;
+    private final CryptoWebService cryptoWebService;
+
 
     @Transactional
     public TradeResponseDto postTrade(AuthUser authUser, long cryptoId, TradeRequestDto tradeRequestDto) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(()->new NullPointerException("no such user"));
         Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("no such crypto"));
 
-        Long price = Optional.ofNullable(redisTemplate.opsForValue().get(crypto.getSymbol())).orElse(0L);
+        Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(),DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
 
         Wallet wallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(),crypto.getSymbol());
         if(tradeRequestDto.getTradeType().equals(TradeType.Authority.BUY)){
@@ -92,7 +94,7 @@ public class TradeService {
         }
 
         //subscription 찾아와서 코인 종류 뽑고 tradeRequest에서 코인갯수체크(갯수보다많으면 throw)/ type=sell로 통일 으로
-        Long price = Optional.ofNullable(redisTemplate.opsForValue().get(crypto.getSymbol())).orElse(0L);
+        Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(),DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
         Long totalPrice = (long)(price * tradeRequestDto.getAmount());
 
         Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(),crypto.getSymbol());
@@ -104,7 +106,8 @@ public class TradeService {
             followerWallet.updateCash(totalPrice*0.9,price);
             tradeRepository.save(trade);
             subscriptions.checkout(price);
-            billingRepository.save(subscriptions);
+            Billing billing = Billing.of(subscriptions);
+            billingRepository.save(billing);
             subscriptionsRepository.delete(subscriptions);
 
             WalletHistory walletHistory = new WalletHistory(userWallet);

@@ -24,20 +24,29 @@ public class FirstSchedule {
         this.jobCompletionNotificationListener = jobCompletionNotificationListener;
     }
 
-    @Scheduled(cron = "* * * * * *", zone = "Asia/Seoul")
-    public void runFirstJob() throws Exception {
-
-        System.out.println("first schedule start");
+    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
+    public void runJobs() throws Exception {
+        System.out.println("Job schedule start");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
         String date = dateFormat.format(new Date());
 
+        // JobParameters 설정
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("date", date)
                 .toJobParameters();
 
-        JobExecution jobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
+        // 첫 번째 Job 실행
+        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
+        jobCompletionNotificationListener.afterJob(firstJobExecution);
 
-        jobCompletionNotificationListener.afterJob(jobExecution);
+        // 두 번째 Job 실행
+        JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
+        jobCompletionNotificationListener.afterJob(secondJobExecution);
+
+        // 세 번째 Job 실행
+        JobExecution thirdJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
+        jobCompletionNotificationListener.afterJob(thirdJobExecution);
     }
+
 }

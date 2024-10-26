@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.batch.entity.Ranking;
 import org.example.batch.repository.RankingRepository;
 import org.example.batch.service.RankingCalculationService;
-import org.example.common.user.entity.User;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -45,11 +44,11 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
         // eth 랭킹 처리
         String ethKey2 = ranking.getUserEmail() + "_eth" +time+"_ranked";
         if (executionContext.containsKey(ethKey2)&&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "eth",time)) {
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "ETH",time)) {
             throw new IllegalStateException("duplicated");
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking,"eth");
+        rankingCalculationService.setRank(ranking,"ETH");
         executionContext.put(ethKey2, true); // 중복 체크용
         return ranking;
     }

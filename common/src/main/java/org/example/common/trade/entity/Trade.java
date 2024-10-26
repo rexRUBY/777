@@ -19,18 +19,20 @@ public class Trade extends Timestamped {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "trade_type")
     private TradeType tradeType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "trade_for")
     private TradeFor tradeFor;
 
     @Column(name = "amount")
     private Double amount;
     @Column(name = "price")
     private Long price;
-    @Column(name = "totalPrice")
+    @Column(name = "total_price")
     private Long totalPrice;
-    @Column(name = "moneyFrom")
+    @Column(name = "money_from")
     private Long moneyFrom;
 
     @ManyToOne

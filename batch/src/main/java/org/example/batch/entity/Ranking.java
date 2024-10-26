@@ -31,7 +31,6 @@ public class Ranking extends Timestamped {
         this.userEmail = userEmail;
         this.cryptoSymbol=cryptoSymbol;
         this.yield = yield;
-
     }
 
     public void update(Long count) {

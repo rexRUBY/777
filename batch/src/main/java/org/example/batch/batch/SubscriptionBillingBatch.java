@@ -5,14 +5,15 @@ import org.example.batch.processor.subscriptionBillingProccessor.BtcSubscription
 import org.example.batch.processor.subscriptionBillingProccessor.EthSubscriptionBillingProccessor;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
-import org.example.common.wallet.entity.Wallet;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
@@ -32,11 +33,10 @@ public class SubscriptionBillingBatch {
 
     //구독정보를 초작하기위한 job
     @Bean
-    public Job secondJob(Step firstDeleteStep) {
-        return new JobBuilder("secondJob", jobRepository)
+    public Job firstJob() {
+        return new JobBuilder("firstJob", jobRepository)
                 .start(firstBillingStep())
                 .next(secondBillingStep())
-                .next(firstDeleteStep)
                 .build();
     }
 
@@ -44,18 +44,20 @@ public class SubscriptionBillingBatch {
     @Bean
     public Step firstBillingStep() {//btc 정보 계산용
         return new StepBuilder("firstBillingStep", jobRepository)
-                .<User, Wallet>chunk(10, platformTransactionManager)
+                .<User, User>chunk(10, platformTransactionManager)
                 .reader(beforeBillingReader()) // User 데이터를 읽어옴
                 .processor(btcSubscriptionBillingProccessor) // User 데이터를 subscription으로 변환
+                .writer(afterBillingWriter()) // 변환된 Wallet 데이터를 저장
                 .build();
     }
 
     @Bean
     public Step secondBillingStep() {//eth 정보 계산용
         return new StepBuilder("secondBillingStep", jobRepository)
-                .<User, Wallet>chunk(10, platformTransactionManager)
+                .<User, User>chunk(10, platformTransactionManager)
                 .reader(beforeBillingReader()) // User 데이터를 읽어옴
                 .processor(ethSubscriptionBillingProccessor) // User 데이터를 Ranking으로 변환
+                .writer(afterBillingWriter()) // 변환된 Wallet 데이터를 저장
                 .build();
     }
 
@@ -70,4 +72,13 @@ public class SubscriptionBillingBatch {
                 .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();
     }
+    // 처리된 Ranking 데이터를 데이터베이스에 저장하기 위한 설정을 정의
+    @Bean
+    public RepositoryItemWriter<User> afterBillingWriter() {
+        return new RepositoryItemWriterBuilder<User>()
+                .repository(userRepository)
+                .methodName("save") // walletRepository save 메서드를 사용하여 데이터 저장
+                .build();
+    }
+
 }

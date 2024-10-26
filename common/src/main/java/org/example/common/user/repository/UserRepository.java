@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    @Query("SELECT u FROM User u " +
+    @Query("SELECT distinct u FROM User u " +
             "LEFT JOIN FETCH u.tradeList  " + // User와 Trade 조인
             "LEFT JOIN  u.walletHistoryList ") // User와 WalletHistory 조인
     Page<User> findAllJoinTradeJoinWallet(Pageable pageable);

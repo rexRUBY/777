@@ -2,7 +2,6 @@ package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.batch.entity.Ranking;
-
 import org.example.batch.processor.rankingRateProcessor.RankingRateProcessBtc;
 import org.example.batch.processor.rankingRateProcessor.RankingRateProcessEth;
 import org.example.batch.repository.RankingRepository;

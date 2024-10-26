@@ -59,4 +59,9 @@ public class Wallet extends Timestamped {
     public void billing(double v) {
         this.cash=this.cash+ (long)v;
     }
+
+    public void minusCoin(Double cryptoAmount) {
+        this.amount=amount-cryptoAmount;
+    }
+
 }

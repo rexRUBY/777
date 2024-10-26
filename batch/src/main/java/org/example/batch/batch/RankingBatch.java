@@ -36,8 +36,8 @@ public class RankingBatch {
 
     // 순위 배치 프로세스를 위한 메인 작업(Job)을 정의
     @Bean
-    public Job firstJob(Step firstRateStep, Step secondRateStep) {
-        return new JobBuilder("firstJob", jobRepository)
+    public Job thirdJob(Step firstRateStep, Step secondRateStep) {
+        return new JobBuilder("thirdJob", jobRepository)
                 .start(firstStep())
                 .next(secondStep())
                 .next(firstRateStep)

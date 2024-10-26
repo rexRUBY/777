@@ -40,13 +40,13 @@ public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepEx
         String userEmail = user.getEmail();
         String ethKey = user.getEmail() + "_eth" + time;
         if (executionContext.containsKey(ethKey)&&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "eth",time)) {
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "ETH",time)) {
             throw new IllegalStateException("duplicated");
         }
-        double ethYield = rankingCalculationService.calculateYield(user, "eth");
+        double ethYield = rankingCalculationService.calculateYield(user, "ETH");
         executionContext.put(ethKey,true);
 
-        return new Ranking(userEmail,"eth",ethYield);
+        return new Ranking(userEmail,"ETH",ethYield);
     }
 
     @Override

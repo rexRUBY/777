@@ -44,13 +44,13 @@ public class RankingProcessorBtc implements ItemProcessor<User, Ranking>, StepEx
         // BTC 랭킹 처리
         String btcKey = user.getEmail() + "_btc" +time;
         if (executionContext.containsKey(btcKey)&&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "btc",time)) {
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "BTC",time)) {
             throw new IllegalStateException("duplicated");
         }
 
-        double btcYield = rankingCalculationService.calculateYield(user, "btc");
+        double btcYield = rankingCalculationService.calculateYield(user, "BTC");
         executionContext.put(btcKey, true); // 중복 체크용
-        return new Ranking(userEmail,"btc",btcYield);
+        return new Ranking(userEmail,"BTC",btcYield);
     }
 
     @Override

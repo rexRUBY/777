@@ -10,4 +10,5 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
     List<Wallet> findAllByUserId(Long userId);
 
     Wallet findByUserIdAndCryptoSymbol(Long id, String symbol);
+
 }

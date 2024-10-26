@@ -4,6 +4,7 @@ import org.example.batch.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
 import org.example.common.user.entity.User;
+import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +26,19 @@ public class RankingCalculationService {
         WalletHistory lastMonthWallet = findClosestLastMonthWallet(user.getWalletHistoryList(), cryptoSymbol);
         WalletHistory nowWallet = findClosestThisMonthWallet(user.getWalletHistoryList(), cryptoSymbol);
 
-        // 한 달 전 또는 현재 지갑 기록이 없는 경우 예외를 발생시킴
+        /*// 한 달 전 또는 현재 지갑 기록이 없는 경우 예외를 발생시킴
         if (lastMonthWallet == null || nowWallet == null) {
             throw new RuntimeException(String.format("한달전 %s 지갑의 기록이 없습니다.", cryptoSymbol));
+        }*/
+        if(lastMonthWallet == null){
+            Wallet wallet = user.getWalletList().stream()
+                    .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("지갑이 없습니다."));
+            lastMonthWallet= new WalletHistory(wallet);
+        }
+        if(nowWallet == null){
+            nowWallet=lastMonthWallet;
         }
 
         // 수익률을 계산하여 반환
@@ -44,9 +55,11 @@ public class RankingCalculationService {
     // 다른 사용자를 위한 거래 금액을 계산하는 메서드
     private double calculateOtherPrice(List<Trade> tradeList, String cryptoSymbol) {
         // 전월의 첫 번째 날 계산 (예: 오늘이 10월 25일이면, 9월 1일을 계산)
-        LocalDate startDate = LocalDate.now().withDayOfMonth(1).minusMonths(1);
+        //LocalDate startDate = LocalDate.now().withDayOfMonth(1).minusMonths(1);
+        LocalDate startDate = LocalDate.now();
         // 현재 달의 첫 번째 날 계산 (예: 10월 1일)
-        LocalDate endDate = LocalDate.now().withDayOfMonth(1);
+        //LocalDate endDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = LocalDate.now().plusDays(1);
         return tradeList.stream()
                 .filter(t -> t.getCrypto().getSymbol().equals(cryptoSymbol) && t.getTradeFor().equals(TradeFor.OTHER))
                 .filter(w -> {
@@ -78,7 +91,8 @@ public class RankingCalculationService {
     }*/
     private WalletHistory findClosestThisMonthWallet(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
         // 이번 달의 첫 번째 날
-        LocalDate firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1);
+        //LocalDate firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1);
+        LocalDate firstDayOfCurrentMonth = LocalDate.now().plusDays(1);
 
         return walletHistoryList.stream()
                 .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
@@ -87,13 +101,16 @@ public class RankingCalculationService {
                 .orElse(null);
     }
     private WalletHistory findClosestLastMonthWallet(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
-        // 이번 달의 첫 번째 날
-        LocalDate firstDayOfCurrentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        // 저번 달의 첫 번째 날
+        //LocalDate firstDayOfCurrentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        LocalDate firstDayOfCurrentMonth = LocalDate.now();
 
         return walletHistoryList.stream()
                 .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
-                .filter(w -> w.getModifiedAt().toLocalDate().isBefore(firstDayOfCurrentMonth))
-                .max(Comparator.comparing(WalletHistory::getModifiedAt)) // 저번달1일 이전의 가장 최신의 지갑찾기
+                /*.filter(w -> w.getModifiedAt().toLocalDate().isBefore(firstDayOfCurrentMonth))
+                .max(Comparator.comparing(WalletHistory::getModifiedAt)) // 저번달1일 이전의 가장 최신의 지갑찾기*/
+                .filter(w -> w.getModifiedAt().toLocalDate().equals(firstDayOfCurrentMonth))
+                .min(Comparator.comparing(WalletHistory::getModifiedAt))
                 .orElse(null);
     }
 

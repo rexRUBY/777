@@ -2,10 +2,13 @@ package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.batch.processor.deleteSubscriptionsBilledProccessor.DeleteSubscriptionsBilledProccessor;
+import org.example.common.subscriptions.entity.Billing;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.BillingRepository;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
@@ -27,6 +30,14 @@ public class DeleteBilledSubscriptionBatch {
     private final SubscriptionsRepository subscriptionsRepository;
     private final BillingRepository billingRepository;
 
+    //구독정보를 초작하기위한 job
+    @Bean
+    public Job secondJob() {
+        return new JobBuilder("secondJob", jobRepository)
+                .start(firstDeleteStep())
+                .build();
+    }
+
     // 구독 데이터를 읽고 처리 후 Billing에 저장하고 Subscriptions에서 삭제하는 단계를 정의, 청크 크기는 10으로 설정
     @Bean
     public Step firstDeleteStep() {
@@ -46,17 +57,18 @@ public class DeleteBilledSubscriptionBatch {
                 .pageSize(10) // 한 번에 10개의 구독 데이터를 읽어옴
                 .methodName("findAll") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
-                .sorts(Map.of("yield", Sort.Direction.DESC)) // 구독 데이터를 'yield' 기준으로 내림차순 정렬
+                .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();
     }
 
-    // 처리된 구독 데이터를 Billing에 저장하고 Subscriptions에서 삭제하기 위한 설정을 정의
     @Bean
     public ItemWriter<Subscriptions> afterDeleteWriter() {
-        return items -> {
-            for (Subscriptions subscription : items) {
-                // BillingRepository에 구독 데이터 저장
-                billingRepository.save(subscription);
+        return subscriptions -> {
+            for (Subscriptions subscription : subscriptions) {
+                // Billing 객체 생성
+                Billing billing = Billing.of(subscription); // Billing 생성 메서드 호출
+                billingRepository.save(billing); // BillingRepository에 저장
+
                 // SubscriptionsRepository에서 구독 데이터 삭제
                 subscriptionsRepository.delete(subscription);
             }
