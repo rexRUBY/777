@@ -10,9 +10,9 @@ import org.example.common.user.entity.User;
 
 @Getter
 @Entity
-@Table(name = "subscriptions")
+@Table(name = "billing")
 @NoArgsConstructor
-public class Subscriptions extends Timestamped {
+public class Billing extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,18 +40,15 @@ public class Subscriptions extends Timestamped {
     @Column(name = "crypto_amount")
     private Double cryptoAmount;
 
-    public static Subscriptions of(User followingUser, User followerUser, Crypto crypto, Double cryptoAmount) {
-        Subscriptions subscriptions = new Subscriptions();
-        subscriptions.followingUser = followingUser;
-        subscriptions.followerUser = followerUser;
-        subscriptions.crypto = crypto;
-        subscriptions.cryptoAmount = cryptoAmount;
-        subscriptions.subscribe=Subscribe.ON;
-        return subscriptions;
+    public static Billing of(Subscriptions subscriptions) {
+        Billing billing = new Billing();
+        billing.followingUser = subscriptions.getFollowingUser();
+        billing.followerUser = subscriptions.getFollowerUser();
+        billing.crypto = subscriptions.getCrypto();
+        billing.cryptoAmount = subscriptions.getCryptoAmount();
+        billing.finalPrice= subscriptions.getFinalPrice();
+        billing.subscribe=Subscribe.OFF;
+        return billing;
     }
 
-    public void checkout(long price) {
-        this.finalPrice= (long)(price*cryptoAmount);
-        this.subscribe=Subscribe.OFF;
-    }
 }
