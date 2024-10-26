@@ -33,8 +33,8 @@ public class SubscriptionBillingBatch {
 
     //구독정보를 초작하기위한 job
     @Bean
-    public Job firstJob() {
-        return new JobBuilder("firstJob", jobRepository)
+    public Job secondJob() {
+        return new JobBuilder("secondJob", jobRepository)
                 .start(firstBillingStep())
                 .next(secondBillingStep())
                 .build();

@@ -32,8 +32,8 @@ public class DeleteBilledSubscriptionBatch {
 
     //구독정보를 초작하기위한 job
     @Bean
-    public Job secondJob() {
-        return new JobBuilder("secondJob", jobRepository)
+    public Job thirdJob() {
+        return new JobBuilder("thirdJob", jobRepository)
                 .start(firstDeleteStep())
                 .build();
     }
