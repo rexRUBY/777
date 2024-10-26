@@ -3,6 +3,7 @@ package org.example.api.subscriptions.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.api.subscriptions.service.SubscriptionsService;
+import org.example.common.auth.dto.request.UnFollowResponse;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.subscriptions.dto.FollowerListResponse;
 import org.example.common.subscriptions.dto.FollowingListResponse;
@@ -37,5 +38,11 @@ public class SubscriptionsController {
     public ResponseEntity<FollowerListResponse> getFollower(
             @AuthenticationPrincipal AuthUser authUser) {
         return ResponseEntity.ok(subscriptionsService.getFollower(authUser));
+    }
+
+    @DeleteMapping("/{subscriptionsId}")
+    public ResponseEntity<UnFollowResponse> unFollowing(@AuthenticationPrincipal AuthUser authUser,
+                                                        @PathVariable long subscriptionsId){
+        return ResponseEntity.ok(subscriptionsService.unFollowing(authUser,subscriptionsId));
     }
 }
