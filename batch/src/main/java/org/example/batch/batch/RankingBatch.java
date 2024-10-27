@@ -40,15 +40,15 @@ public class RankingBatch {
         return new JobBuilder("firstJob", jobRepository)
                 .start(firstStep())
                 .next(secondStep())
-                .next(firstRateStep)
-                .next(secondRateStep)
+                .next(firstRateStep) // RankingRateBatch 의 firstRateStep
+                .next(secondRateStep) // RankingRateBatch 의 secondRateStep
                 .build();
     }
 
     // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의, 청크 크기는 10으로 설정
     @Bean
     public Step firstStep() {//btc 정보 계산용
-            return new StepBuilder("firstStep", jobRepository)
+        return new StepBuilder("firstStep", jobRepository)
                 .<User, Ranking>chunk(10, platformTransactionManager)
                 .reader(beforeReader()) // User 데이터를 읽어옴
                 .processor(rankingProcessorBtc) // User 데이터를 Ranking으로 변환
@@ -83,7 +83,7 @@ public class RankingBatch {
     public RepositoryItemWriter<Ranking> afterWriter() {
         return new RepositoryItemWriterBuilder<Ranking>()
                 .repository(rankingRepository)
-                .methodName("save") // RankingRepository의 saveAll 메서드를 사용하여 데이터 저장
+                .methodName("save") // RankingRepository의 save 메서드를 사용하여 데이터 저장
                 .build();
     }
 

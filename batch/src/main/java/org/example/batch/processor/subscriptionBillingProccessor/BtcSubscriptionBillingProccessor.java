@@ -11,6 +11,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @StepScope
@@ -37,16 +38,15 @@ public class BtcSubscriptionBillingProccessor implements ItemProcessor<User, Use
         String userEmail = user.getEmail();
         log.info(userEmail);
         // eth 랭킹 처리
-        String btcBillKey = userEmail + "_billed_btc" +time;
+        String btcBillKey = userEmail + "_billed_btc" + time;
         if (executionContext.containsKey(btcBillKey)) {
             throw new IllegalStateException("duplicated");
         }
 //      rank.update()
-        subscriptionBillingService.billCheck(user,"BTC");
+        subscriptionBillingService.billCheck(user, "BTC");
         executionContext.put(btcBillKey, true); // 중복 체크용
         return user;
     }
-
 
 
 }

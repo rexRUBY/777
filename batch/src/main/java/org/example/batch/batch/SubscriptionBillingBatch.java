@@ -31,7 +31,7 @@ public class SubscriptionBillingBatch {
     private final BtcSubscriptionBillingProccessor btcSubscriptionBillingProccessor;
     private final EthSubscriptionBillingProccessor ethSubscriptionBillingProccessor;
 
-    //구독정보를 초작하기위한 job
+    // 구독정보를 조작하기위한 job
     @Bean
     public Job secondJob() {
         return new JobBuilder("secondJob", jobRepository)
@@ -57,7 +57,7 @@ public class SubscriptionBillingBatch {
                 .<User, User>chunk(10, platformTransactionManager)
                 .reader(beforeBillingReader()) // User 데이터를 읽어옴
                 .processor(ethSubscriptionBillingProccessor) // User 데이터를 Ranking으로 변환
-                .writer(afterBillingWriter()) // 변환된 Wallet 데이터를 저장
+                .writer(afterBillingWriter()) // 변환된 User 데이터를 저장
                 .build();
     }
 
@@ -72,12 +72,13 @@ public class SubscriptionBillingBatch {
                 .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();
     }
+
     // 처리된 Ranking 데이터를 데이터베이스에 저장하기 위한 설정을 정의
     @Bean
     public RepositoryItemWriter<User> afterBillingWriter() {
         return new RepositoryItemWriterBuilder<User>()
                 .repository(userRepository)
-                .methodName("save") // walletRepository save 메서드를 사용하여 데이터 저장
+                .methodName("save") // userRepository save 메서드를 사용하여 데이터 저장
                 .build();
     }
 

@@ -11,6 +11,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @StepScope
@@ -37,17 +38,16 @@ public class EthSubscriptionBillingProccessor implements ItemProcessor<User, Use
         String userEmail = user.getEmail();
         log.info(userEmail);
         // eth 랭킹 처리
-        String ethBillKey = userEmail + "_billed_eth" +time;
+        String ethBillKey = userEmail + "_billed_eth" + time;
         if (executionContext.containsKey(ethBillKey)) {
             throw new IllegalStateException("duplicated");
         }
 //      rank.update()
-        subscriptionBillingService.billCheck(user,"ETH");
+        subscriptionBillingService.billCheck(user, "ETH");
         executionContext.put(ethBillKey, true); // 중복 체크용
 
         return user;
     }
-
 
 
 }
