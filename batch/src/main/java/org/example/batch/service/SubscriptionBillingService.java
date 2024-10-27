@@ -3,7 +3,7 @@ package org.example.batch.service;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.user.entity.User;
 import org.example.common.wallet.entity.Wallet;
-import org.example.common.webclient.Util.DateTimeUtil;
+import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
 import org.springframework.stereotype.Component;
 

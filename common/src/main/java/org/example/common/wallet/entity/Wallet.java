@@ -32,12 +32,6 @@ public class Wallet extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Wallet(User user, Double amount, String cryptoSymbol,Long cash) {
-        this.user = user;
-        this.amount = amount;
-        this.cryptoSymbol = cryptoSymbol;
-        this.cash=cash;
-    }
     public Wallet(User user, Double amount, String cryptoSymbol,Long cryptoPrice,Long cash) {
         this.user = user;
         this.amount = amount;
