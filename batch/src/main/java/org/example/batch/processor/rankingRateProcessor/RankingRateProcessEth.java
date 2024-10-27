@@ -13,6 +13,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @StepScope
@@ -42,13 +43,13 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
         // eth 랭킹 처리
-        String ethKey2 = ranking.getUserEmail() + "_eth" +time+"_ranked";
-        if (executionContext.containsKey(ethKey2)&&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "ETH",time)) {
+        String ethKey2 = ranking.getUserEmail() + "_eth" + time + "_ranked";
+        if (executionContext.containsKey(ethKey2) &&
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "ETH", time)) {
             throw new IllegalStateException("duplicated");
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking,"ETH");
+        rankingCalculationService.setRank(ranking, "ETH");
         executionContext.put(ethKey2, true); // 중복 체크용
         return ranking;
     }

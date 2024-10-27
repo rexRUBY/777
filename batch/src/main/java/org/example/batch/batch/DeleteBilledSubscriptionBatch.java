@@ -30,7 +30,7 @@ public class DeleteBilledSubscriptionBatch {
     private final SubscriptionsRepository subscriptionsRepository;
     private final BillingRepository billingRepository;
 
-    //구독정보를 초작하기위한 job
+    //구독정보를 삭제하고 Billing을 추가하기위한 job
     @Bean
     public Job thirdJob() {
         return new JobBuilder("thirdJob", jobRepository)
@@ -57,7 +57,7 @@ public class DeleteBilledSubscriptionBatch {
                 .pageSize(10) // 한 번에 10개의 구독 데이터를 읽어옴
                 .methodName("findAll") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
-                .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
+                .sorts(Map.of("id", Sort.Direction.ASC)) // subscriptions 데이터를 ID 기준으로 오름차순 정렬
                 .build();
     }
 

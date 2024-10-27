@@ -1,9 +1,9 @@
 package org.example.batch.config;
 
-public class countConfig {
+public class CountConfig {
     public static Long count;
 
     public static void setCount(Long count) {
-        countConfig.count = count;
+        CountConfig.count = count;
     }
 }

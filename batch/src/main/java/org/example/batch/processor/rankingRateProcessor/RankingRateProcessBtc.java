@@ -13,6 +13,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @StepScope
@@ -42,13 +43,13 @@ public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, S
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
         // BTC 랭킹 처리
-        String btcKey2 = ranking.getUserEmail() + "_btc" +time+"_ranked";
+        String btcKey2 = ranking.getUserEmail() + "_btc" + time + "_ranked";
         if (executionContext.containsKey(btcKey2) &&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "BTC",time)) {
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "BTC", time)) {
             throw new IllegalStateException("duplicated");
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking,"BTC");
+        rankingCalculationService.setRank(ranking, "BTC");
         executionContext.put(btcKey2, true); // 중복 체크용
 
         return ranking;

@@ -1,5 +1,6 @@
 package org.example.batch.processor.rankingProcessor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.batch.entity.Ranking;
 import org.example.batch.repository.RankingRepository;
 import org.example.batch.service.RankingCalculationService;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 @Component
 @StepScope
+@Slf4j
 public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepExecutionListener {
 
     private final RankingRepository rankingRepository;
@@ -36,17 +38,17 @@ public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepEx
 
     @Override
     public Ranking process(User user) throws Exception {
+        log.info("process start eth");
         LocalDateTime time = LocalDateTime.now();
         String userEmail = user.getEmail();
         String ethKey = user.getEmail() + "_eth" + time;
-        if (executionContext.containsKey(ethKey)&&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "ETH",time)) {
+        if (executionContext.containsKey(ethKey) &&
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "ETH", time)) {
             throw new IllegalStateException("duplicated");
         }
         double ethYield = rankingCalculationService.calculateYield(user, "ETH");
-        executionContext.put(ethKey,true);
-
-        return new Ranking(userEmail,"ETH",ethYield);
+        executionContext.put(ethKey, true); // 중복 체크용
+        return new Ranking(userEmail, "ETH", ethYield);
     }
 
     @Override
