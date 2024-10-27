@@ -50,7 +50,6 @@ public class RankingCalculationService {
         if (ranking.getCryptoSymbol().equals(crtproSymbol) && ranking.getRanked().equals(Ranked.ON)) {
             ranking.update(count);
             count++;
-
         }
     }
 
