@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.common.common.entity.Timestamped;
+import org.example.common.subscriptions.entity.Subscribe;
 
 @Entity
 @Getter
@@ -21,6 +22,10 @@ public class Ranking extends Timestamped {
     @Column(name = "user_email")
     private String userEmail;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ranked")
+    private Ranked ranked= Ranked.ON;
+
     @Column(name = "crypto_symbol")
     private String cryptoSymbol;
 
@@ -35,5 +40,6 @@ public class Ranking extends Timestamped {
 
     public void update(Long count) {
         this.userRank=count;
+        this.ranked=Ranked.OFF;
     }
 }

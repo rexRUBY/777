@@ -16,7 +16,7 @@ import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.repository.WalletRepository;
-import org.example.common.webclient.Util.DateTimeUtil;
+import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

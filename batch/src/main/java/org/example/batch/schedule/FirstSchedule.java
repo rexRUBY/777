@@ -1,6 +1,6 @@
 package org.example.batch.schedule;
 
-import org.example.batch.config.JobCompletionNotificationListener;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -16,19 +16,17 @@ import java.util.Date;
 public class FirstSchedule {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
-    private final JobCompletionNotificationListener jobCompletionNotificationListener;
 
-    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry, JobCompletionNotificationListener jobCompletionNotificationListener) {
+    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry) {
         this.jobLauncher = jobLauncher;
         this.jobRegistry = jobRegistry;
-        this.jobCompletionNotificationListener = jobCompletionNotificationListener;
     }
 
     @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String date = dateFormat.format(new Date());
 
         // JobParameters 설정
@@ -38,15 +36,13 @@ public class FirstSchedule {
 
         // 첫 번째 Job 실행
         JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
-        jobCompletionNotificationListener.afterJob(firstJobExecution);
-
-        // 두 번째 Job 실행
-        JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
-        jobCompletionNotificationListener.afterJob(secondJobExecution);
-
-        // 세 번째 Job 실행
-        JobExecution thirdJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
-        jobCompletionNotificationListener.afterJob(thirdJobExecution);
+        if (firstJobExecution.getStatus() == BatchStatus.COMPLETED) {
+            // 두 번째 Job 실행
+            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
+            if (secondJobExecution.getStatus() == BatchStatus.COMPLETED) {
+                // 세 번째 Job 실행
+                JobExecution thirdJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
+            }
+        }
     }
-
 }

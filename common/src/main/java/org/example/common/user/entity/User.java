@@ -32,7 +32,7 @@ public class User extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "user_status")
     private boolean userStatus = true; // 유저 상태 (true: 활성, false: 탈퇴)
 
     @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)//나를 팔로우 하는사람들과의 팔로우목록 // 내가 신청받는것
