@@ -1,5 +1,6 @@
 package org.example.batch.service;
 
+import org.example.batch.entity.Ranked;
 import org.example.batch.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
@@ -46,9 +47,10 @@ public class RankingCalculationService {
     }
 
     public void setRank(Ranking ranking, String crtproSymbol){
-        if(ranking.getCryptoSymbol().equals(crtproSymbol)){
+        if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
         ranking.update(count);
         count++;
+
         }
     }
 
