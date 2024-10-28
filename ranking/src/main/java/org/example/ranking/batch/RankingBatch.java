@@ -1,12 +1,12 @@
-package com.sparta.ranking.batch;
+package org.example.ranking.batch;
 
-import com.sparta.ranking.entity.Ranking;
-import com.sparta.ranking.proccessor.rankingProcessor.RankingProcessorBtc;
-import com.sparta.ranking.proccessor.rankingProcessor.RankingProcessorEth;
-import com.sparta.ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
+import org.example.ranking.entity.Ranking;
+import org.example.ranking.proccessor.rankingProcessor.RankingProcessorBtc;
+import org.example.ranking.proccessor.rankingProcessor.RankingProcessorEth;
+import org.example.ranking.repository.RankingRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
+
 
 import java.util.Map;
 

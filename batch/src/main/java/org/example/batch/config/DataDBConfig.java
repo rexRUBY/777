@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = {"org.example.batch.repository","org.example.common"},
+        basePackages = {"org.example.common"},
         entityManagerFactoryRef = "dataEntityManager",
         transactionManagerRef = "dataTransactionManager"
 )

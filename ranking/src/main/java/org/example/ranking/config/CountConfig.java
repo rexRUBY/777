@@ -1,4 +1,4 @@
-package com.sparta.ranking.config;
+package org.example.ranking.config;
 
 public class CountConfig {
     public static Long count;

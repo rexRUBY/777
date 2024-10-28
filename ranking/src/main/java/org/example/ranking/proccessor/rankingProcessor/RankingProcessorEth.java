@@ -1,10 +1,10 @@
-package com.sparta.ranking.proccessor.rankingProcessor;
+package org.example.ranking.proccessor.rankingProcessor;
 
 
-import com.sparta.ranking.entity.Ranking;
-import com.sparta.ranking.repository.RankingRepository;
-import com.sparta.ranking.service.RankingCalculationService;
 import org.example.common.user.entity.User;
+import org.example.ranking.entity.Ranking;
+import org.example.ranking.repository.RankingRepository;
+import org.example.ranking.service.RankingCalculationService;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;

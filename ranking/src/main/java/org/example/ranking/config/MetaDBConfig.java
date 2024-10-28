@@ -1,4 +1,4 @@
-package com.sparta.ranking.config;
+package org.example.ranking.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;

@@ -1,4 +1,4 @@
-package com.sparta.ranking.schedule;
+package org.example.ranking.schedule;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;

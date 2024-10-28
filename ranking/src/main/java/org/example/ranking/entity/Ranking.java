@@ -1,4 +1,4 @@
-package com.sparta.ranking.entity;
+package org.example.ranking.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

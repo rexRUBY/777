@@ -1,6 +1,6 @@
-package com.sparta.ranking.repository;
+package org.example.ranking.repository;
 
-import com.sparta.ranking.entity.Ranking;
+import org.example.ranking.entity.Ranking;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;

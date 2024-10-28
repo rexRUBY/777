@@ -1,11 +1,12 @@
-package com.sparta.ranking.batch;
+package org.example.ranking.batch;
 
-import com.sparta.ranking.config.CountConfig;
-import com.sparta.ranking.entity.Ranking;
-import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessBtc;
-import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessEth;
-import com.sparta.ranking.repository.RankingRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.example.ranking.config.CountConfig;
+import org.example.ranking.entity.Ranking;
+import org.example.ranking.proccessor.rankingRateProcessor.RankingRateProcessBtc;
+import org.example.ranking.proccessor.rankingRateProcessor.RankingRateProcessEth;
+import org.example.ranking.repository.RankingRepository;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
+
 
 import java.util.Map;
 

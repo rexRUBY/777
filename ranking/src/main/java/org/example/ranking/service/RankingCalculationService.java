@@ -1,14 +1,14 @@
-package com.sparta.ranking.service;
+package org.example.ranking.service;
 
-import com.sparta.ranking.config.CountConfig;
 
-import com.sparta.ranking.entity.Ranked;
-import com.sparta.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
 import org.example.common.user.entity.User;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
+import org.example.ranking.config.CountConfig;
+import org.example.ranking.entity.Ranked;
+import org.example.ranking.entity.Ranking;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
