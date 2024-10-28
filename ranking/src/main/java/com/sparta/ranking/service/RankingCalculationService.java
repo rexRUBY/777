@@ -1,7 +1,9 @@
-package org.example.batch.service;
+package com.sparta.ranking.service;
 
-import org.example.batch.entity.Ranked;
-import org.example.batch.entity.Ranking;
+import com.sparta.ranking.config.countConfig;
+
+import com.sparta.ranking.entity.Ranked;
+import com.sparta.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
 import org.example.common.user.entity.User;
@@ -13,7 +15,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.example.batch.config.countConfig.count;
 
 @Component
 public class RankingCalculationService {
@@ -48,8 +49,8 @@ public class RankingCalculationService {
 
     public void setRank(Ranking ranking, String crtproSymbol){
         if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
-        ranking.update(count);
-        count++;
+        ranking.update(countConfig.count);
+        countConfig.count++;
 
         }
     }

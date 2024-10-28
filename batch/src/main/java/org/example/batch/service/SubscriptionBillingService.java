@@ -7,6 +7,7 @@ import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -19,23 +20,34 @@ public class SubscriptionBillingService {
     }
 
     public void billCheck(User user, String cryptoSymbol) {
-        List<Subscriptions> followingList = user.getSubscriptionsIFollow(); // 내가 팔로우 누른 구독증
-        List<Subscriptions> followerList = user.getSubscriptionsBeingFollowed(); // 나를 상대로 팔로우 누른 구독증
+        Long price = cryptoWebService.getCryptoValueAsLong(cryptoSymbol, DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
-        Long price = cryptoWebService.getCryptoValueAsLong(cryptoSymbol, DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
+        List<Subscriptions> followingList = getFilteredSubscriptions(user.getSubscriptionsIFollow(), price);
+        List<Subscriptions> followerList = getFilteredSubscriptions(user.getSubscriptionsBeingFollowed(), price);
 
-        // followingList가 null이 아니고 비어있지 않은 경우에만 처리
-        if (followingList != null && !followingList.isEmpty()) {
-            processSubscriptions(followingList, user, cryptoSymbol, 0.9);
+        // followingList가 비어있지 않은 경우에만 처리
+        if (!followingList.isEmpty()) {
+            processSubscriptions(followingList, user, cryptoSymbol, 0.9, price);
         }
 
-        // followerList가 null이 아니고 비어있지 않은 경우에만 처리
-        if (followerList != null && !followerList.isEmpty()) {
-            processSubscriptions(followerList, user, cryptoSymbol, 0.1);
+        // followerList가 비어있지 않은 경우에만 처리
+        if (!followerList.isEmpty()) {
+            processSubscriptions(followerList, user, cryptoSymbol, 0.1, price);
         }
     }
 
-    private void processSubscriptions(List<Subscriptions> subscriptionsList, User user, String cryptoSymbol, double percentage) {
+    private List<Subscriptions> getFilteredSubscriptions(List<Subscriptions> subscriptions, Long price) {
+        return subscriptions.stream()
+                .filter(s -> {
+                    LocalDate createdAt = s.getCreatedAt().toLocalDate();
+                    return (createdAt.isEqual(LocalDate.now().minusMonths(1))) || // 현재로부터 한 달 전과 동일
+                            (createdAt.isAfter(LocalDate.now().minusMonths(1)) && // 한 달 이후이고
+                                    (s.getNowPrice() * 1.05) <= price); // 가격 조건
+                })
+                .toList(); // 필터링된 구독증 목록
+    }
+
+    private void processSubscriptions(List<Subscriptions> subscriptionsList, User user, String cryptoSymbol, double percentage, long price) {
         Wallet wallet = user.getWalletList().stream()
                 .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
                 .findFirst()
@@ -44,11 +56,9 @@ public class SubscriptionBillingService {
         subscriptionsList.stream()
                 .filter(s -> s.getCrypto().getSymbol().equals(cryptoSymbol))
                 .forEach(s -> {
-                    Long price = cryptoWebService.getCryptoValueAsLong(cryptoSymbol, DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
                     Long totalPrice = (long) (s.getCryptoAmount() * price);
-                    s.checkout(totalPrice);
+                    s.checkout(price);
                     wallet.billing(totalPrice * percentage);
                 });
     }
-
 }

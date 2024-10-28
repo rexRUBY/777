@@ -1,10 +1,11 @@
-package org.example.batch.batch;
+package com.sparta.ranking.batch;
 
+import com.sparta.ranking.config.countConfig;
+import com.sparta.ranking.entity.Ranking;
+import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessBtc;
+import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessEth;
+import com.sparta.ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
-import org.example.batch.entity.Ranking;
-import org.example.batch.processor.rankingRateProcessor.RankingRateProcessBtc;
-import org.example.batch.processor.rankingRateProcessor.RankingRateProcessEth;
-import org.example.batch.repository.RankingRepository;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
@@ -22,7 +23,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Map;
 
-import static org.example.batch.config.countConfig.setCount;
 
 @Configuration
 @RequiredArgsConstructor
@@ -83,7 +83,7 @@ public class RankingRateBatch {
         return new StepExecutionListener() {
             @Override
             public void beforeStep(StepExecution stepExecution) {
-                setCount(1L); // 스텝 시작 시 count를 초기화
+                countConfig.setCount(1L); // 스텝 시작 시 count를 초기화
             }
 
             @Override

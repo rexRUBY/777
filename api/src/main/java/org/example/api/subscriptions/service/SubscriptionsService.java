@@ -53,10 +53,11 @@ public class SubscriptionsService {
         if(userWallet.getAmount()< followingRequest.getCryptoAmount()){
             throw new InvalidRequestException("you don't have such amount of coin");
         }
+        Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
 
         userWallet.minusCoin(followingRequest.getCryptoAmount());
 
-        Subscriptions subscriptions = Subscriptions.of(followingUser, user, crypto, followingRequest.getCryptoAmount());
+        Subscriptions subscriptions = Subscriptions.of(followingUser, user, crypto, followingRequest.getCryptoAmount(),price);
         subscriptionsRepository.save(subscriptions);
         
         return new FollowingResponse(subscriptions.getFollowingUser().getName(), subscriptions.getCrypto().getSymbol());

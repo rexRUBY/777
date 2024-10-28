@@ -55,7 +55,7 @@ public class DeleteBilledSubscriptionBatch {
         return new RepositoryItemReaderBuilder<Subscriptions>()
                 .name("beforeDeleteReader") // 리더의 이름 설정
                 .pageSize(10) // 한 번에 10개의 구독 데이터를 읽어옴
-                .methodName("findAll") // subscriptionsRepository의 메서드 이름
+                .methodName("findAllBySubscribe") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
                 .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();

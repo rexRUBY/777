@@ -1,4 +1,4 @@
-package org.example.batch.config;
+package com.sparta.ranking.config;
 
 public class countConfig {
     public static Long count;

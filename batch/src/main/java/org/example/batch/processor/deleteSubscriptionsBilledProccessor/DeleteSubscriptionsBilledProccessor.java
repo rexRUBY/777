@@ -16,7 +16,7 @@ public class DeleteSubscriptionsBilledProccessor implements ItemProcessor<Subscr
     public Subscriptions  process(Subscriptions subscriptions) throws Exception {
         log.info("process start subscriptiopn billing");
 
-        if(!subscriptions.getSubscribe().equals(Subscribe.OFF)){
+        if(subscriptions.getSubscribe().equals(Subscribe.ON)){
             throw new IllegalStateException("it is not billed");
         }
 

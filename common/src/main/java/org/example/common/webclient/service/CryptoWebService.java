@@ -20,7 +20,7 @@ public class CryptoWebService {
                 .bodyToMono(CryptoWebResponse.class);
     }*/
     public Long getCryptoValueAsLong(String coin, String date, String time) {
-        String url = "http://3.36.61.198:8080/get-crypto-value?coin=" + coin + "&date=" + date + "&time=" + time;
+        String url = "http://13.125.231.198:8080/get-crypto-value?coin=" + coin + "&date=" + date + "&time=" + time;
 
         return webClient.get()
                 .uri(url)

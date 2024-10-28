@@ -1,10 +1,10 @@
-package org.example.batch.batch;
+package com.sparta.ranking.batch;
 
+import com.sparta.ranking.entity.Ranking;
+import com.sparta.ranking.proccessor.rankingProcessor.RankingProcessorBtc;
+import com.sparta.ranking.proccessor.rankingProcessor.RankingProcessorEth;
+import com.sparta.ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
-import org.example.batch.entity.Ranking;
-import org.example.batch.processor.rankingProcessor.RankingProcessorBtc;
-import org.example.batch.processor.rankingProcessor.RankingProcessorEth;
-import org.example.batch.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.springframework.batch.core.Job;
