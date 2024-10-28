@@ -1,12 +1,12 @@
-package org.example.batch.batch;
+package org.example.ranking.batch;
 
 import lombok.RequiredArgsConstructor;
-import org.example.batch.entity.Ranking;
-import org.example.batch.processor.rankingProcessor.RankingProcessorBtc;
-import org.example.batch.processor.rankingProcessor.RankingProcessorEth;
-import org.example.batch.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
+import org.example.ranking.entity.Ranking;
+import org.example.ranking.proccessor.rankingProcessor.RankingProcessorBtc;
+import org.example.ranking.proccessor.rankingProcessor.RankingProcessorEth;
+import org.example.ranking.repository.RankingRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
+
 
 import java.util.Map;
 

@@ -13,11 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Configuration
-public class FirstSchedule {
+public class BillingSchedule {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry) {
+    public BillingSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry) {
         this.jobLauncher = jobLauncher;
         this.jobRegistry = jobRegistry;
     }
@@ -36,14 +36,10 @@ public class FirstSchedule {
                 .toJobParameters();
 
         // 첫 번째 Job 실행
-        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
+        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
         if (firstJobExecution.getStatus() == BatchStatus.COMPLETED) {
             // 두 번째 Job 실행
-            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
-            if (secondJobExecution.getStatus() == BatchStatus.COMPLETED) {
-                // 세 번째 Job 실행
-                JobExecution thirdJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
-            }
+            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
         }
     }
 }

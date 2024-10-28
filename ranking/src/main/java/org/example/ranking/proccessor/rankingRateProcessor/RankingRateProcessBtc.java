@@ -1,10 +1,10 @@
-package org.example.batch.processor.rankingProcessor;
+package org.example.ranking.proccessor.rankingRateProcessor;
+
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.batch.entity.Ranking;
-import org.example.batch.repository.RankingRepository;
-import org.example.batch.service.RankingCalculationService;
-import org.example.common.user.entity.User;
+import org.example.ranking.entity.Ranking;
+import org.example.ranking.repository.RankingRepository;
+import org.example.ranking.service.RankingCalculationService;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Component
 @StepScope
-@Slf4j
-public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepExecutionListener {
+public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, StepExecutionListener {
 
     private final RankingRepository rankingRepository;
     private final RankingCalculationService rankingCalculationService;
@@ -26,7 +26,7 @@ public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepEx
     // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
 
-    public RankingProcessorEth(RankingRepository rankingRepository, RankingCalculationService rankingCalculationService) {
+    public RankingRateProcessBtc(RankingRepository rankingRepository, RankingCalculationService rankingCalculationService) {
         this.rankingRepository = rankingRepository;
         this.rankingCalculationService = rankingCalculationService;
     }
@@ -34,21 +34,26 @@ public class RankingProcessorEth implements ItemProcessor<User, Ranking>, StepEx
     @Override
     public void beforeStep(StepExecution stepExecution) {
         this.executionContext = stepExecution.getExecutionContext();
+
     }
 
     @Override
-    public Ranking process(User user) throws Exception {
-        log.info("process start eth");
+    public Ranking process(Ranking ranking) throws Exception {
+        log.info("process start rate btc");
         LocalDateTime time = LocalDateTime.now();
-        String userEmail = user.getEmail();
-        String ethKey = user.getEmail() + "_eth" + time;
-        if (executionContext.containsKey(ethKey) &&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAt(userEmail, "ETH", time)) {
+        String userEmail = ranking.getUserEmail();
+        log.info(userEmail);
+        // BTC 랭킹 처리
+        String btcKey2 = ranking.getUserEmail() + "_btc" + time + "_ranked";
+        if (executionContext.containsKey(btcKey2) &&
+                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "BTC", time)) {
             throw new IllegalStateException("duplicated");
         }
-        double ethYield = rankingCalculationService.calculateYield(user, "ETH");
-        executionContext.put(ethKey, true); // 중복 체크용
-        return new Ranking(userEmail, "ETH", ethYield);
+//      rank.update()
+        rankingCalculationService.setRank(ranking, "BTC");
+        executionContext.put(btcKey2, true); // 중복 체크용
+
+        return ranking;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.example.batch.config;
+package org.example.ranking.config;
 
 public class CountConfig {
     public static Long count;
