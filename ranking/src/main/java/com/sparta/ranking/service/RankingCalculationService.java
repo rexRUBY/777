@@ -1,6 +1,6 @@
 package com.sparta.ranking.service;
 
-import com.sparta.ranking.config.countConfig;
+import com.sparta.ranking.config.CountConfig;
 
 import com.sparta.ranking.entity.Ranked;
 import com.sparta.ranking.entity.Ranking;
@@ -49,8 +49,8 @@ public class RankingCalculationService {
 
     public void setRank(Ranking ranking, String crtproSymbol){
         if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
-        ranking.update(countConfig.count);
-        countConfig.count++;
+        ranking.update(CountConfig.count);
+        CountConfig.count++;
 
         }
     }

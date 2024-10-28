@@ -1,6 +1,6 @@
 package com.sparta.ranking.batch;
 
-import com.sparta.ranking.config.countConfig;
+import com.sparta.ranking.config.CountConfig;
 import com.sparta.ranking.entity.Ranking;
 import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessBtc;
 import com.sparta.ranking.proccessor.rankingRateProcessor.RankingRateProcessEth;
@@ -83,7 +83,7 @@ public class RankingRateBatch {
         return new StepExecutionListener() {
             @Override
             public void beforeStep(StepExecution stepExecution) {
-                countConfig.setCount(1L); // 스텝 시작 시 count를 초기화
+                CountConfig.setCount(1L); // 스텝 시작 시 count를 초기화
             }
 
             @Override
