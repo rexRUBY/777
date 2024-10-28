@@ -1,7 +1,9 @@
-package org.example.batch.service;
+package com.sparta.ranking.service;
 
-import org.example.batch.entity.Ranked;
-import org.example.batch.entity.Ranking;
+import com.sparta.ranking.config.countConfig;
+
+import com.sparta.ranking.entity.Ranked;
+import com.sparta.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
 import org.example.common.user.entity.User;
@@ -13,7 +15,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.example.batch.config.CountConfig.count;
 
 @Component
 public class RankingCalculationService {
@@ -31,25 +32,26 @@ public class RankingCalculationService {
         if (lastMonthWallet == null || nowWallet == null) {
             throw new RuntimeException(String.format("한달전 %s 지갑의 기록이 없습니다.", cryptoSymbol));
         }*/
-        if (lastMonthWallet == null) {
+        if(lastMonthWallet == null){
             Wallet wallet = user.getWalletList().stream()
                     .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("지갑이 없습니다."));
-            lastMonthWallet = new WalletHistory(wallet);
+            lastMonthWallet= new WalletHistory(wallet);
         }
-        if (nowWallet == null) {
-            nowWallet = lastMonthWallet;
+        if(nowWallet == null){
+            nowWallet=lastMonthWallet;
         }
 
         // 수익률을 계산하여 반환
         return calculateYieldPercentage(lastMonthWallet, nowWallet, otherPriceForCrypto);
     }
 
-    public void setRank(Ranking ranking, String crtproSymbol) {
-        if (ranking.getCryptoSymbol().equals(crtproSymbol) && ranking.getRanked().equals(Ranked.ON)) {
-            ranking.update(count);
-            count++;
+    public void setRank(Ranking ranking, String crtproSymbol){
+        if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
+        ranking.update(countConfig.count);
+        countConfig.count++;
+
         }
     }
 
@@ -73,23 +75,23 @@ public class RankingCalculationService {
                 .sum();
     }
 
-    /* private WalletHistory findLatestWalletInPreviousMonth(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
-         // 전월의 첫 번째 날 계산 (예: 오늘이 10월 25일이면, 9월 1일을 계산)
-         LocalDate startDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-         // 현재 달의 첫 번째 날 계산 (예: 10월 1일)
-         LocalDate endDate = LocalDate.now().withDayOfMonth(1);
+   /* private WalletHistory findLatestWalletInPreviousMonth(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
+        // 전월의 첫 번째 날 계산 (예: 오늘이 10월 25일이면, 9월 1일을 계산)
+        LocalDate startDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        // 현재 달의 첫 번째 날 계산 (예: 10월 1일)
+        LocalDate endDate = LocalDate.now().withDayOfMonth(1);
 
-         return walletHistoryList.stream()
-                 .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
-                 .filter(w -> {
-                     LocalDate modifiedDate = w.getModifiedAt().toLocalDate();
-                     // 전월 첫째 날 이상, 당월 첫째 날 미만의 데이터를 필터링
-                     return (modifiedDate.isEqual(startDate) || modifiedDate.isAfter(startDate))
-                             && modifiedDate.isBefore(endDate);
-                 })
-                 .max(Comparator.comparing(WalletHistory::getModifiedAt))
-                 .orElse(null);
-     }*/
+        return walletHistoryList.stream()
+                .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
+                .filter(w -> {
+                    LocalDate modifiedDate = w.getModifiedAt().toLocalDate();
+                    // 전월 첫째 날 이상, 당월 첫째 날 미만의 데이터를 필터링
+                    return (modifiedDate.isEqual(startDate) || modifiedDate.isAfter(startDate))
+                            && modifiedDate.isBefore(endDate);
+                })
+                .max(Comparator.comparing(WalletHistory::getModifiedAt))
+                .orElse(null);
+    }*/
     private WalletHistory findClosestThisMonthWallet(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
         // 이번 달의 첫 번째 날
         //LocalDate firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1);
@@ -101,7 +103,6 @@ public class RankingCalculationService {
                 .max(Comparator.comparing(WalletHistory::getModifiedAt)) // 이번달1일 이전의 가장 최신의 지갑찾기
                 .orElse(null);
     }
-
     private WalletHistory findClosestLastMonthWallet(List<WalletHistory> walletHistoryList, String cryptoSymbol) {
         // 저번 달의 첫 번째 날
         //LocalDate firstDayOfCurrentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);

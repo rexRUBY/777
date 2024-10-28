@@ -1,13 +1,11 @@
-package org.example.batch.repository;
+package com.sparta.ranking.repository;
 
-import org.example.batch.entity.Ranking;
+import com.sparta.ranking.entity.Ranking;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 
-public interface RankingRepository extends JpaRepository<Ranking, Long> {
+public interface RankingRepository extends JpaRepository<Ranking,Long> {
     boolean existsByUserEmailAndCryptoSymbolAndCreatedAt(String userEmail, String cryptoSymbol, LocalDateTime time);
-
     boolean existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(String userEmail, String cryptoSymbol, LocalDateTime time);
 }

@@ -1,11 +1,10 @@
-package org.example.batch.entity;
+package com.sparta.ranking.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.common.common.entity.Timestamped;
-import org.example.common.subscriptions.entity.Subscribe;
 
 @Entity
 @Getter

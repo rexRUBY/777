@@ -1,4 +1,4 @@
-package org.example.batch.schedule;
+package com.sparta.ranking.schedule;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
@@ -22,8 +22,7 @@ public class FirstSchedule {
         this.jobRegistry = jobRegistry;
     }
 
-//    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul") // 매분 10초에 실행
-    @Scheduled(fixedDelay = 10000, zone = "Asia/Seoul") // 10초마다 실행
+    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 
@@ -36,14 +35,6 @@ public class FirstSchedule {
                 .toJobParameters();
 
         // 첫 번째 Job 실행
-        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
-        if (firstJobExecution.getStatus() == BatchStatus.COMPLETED) {
-            // 두 번째 Job 실행
-            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
-            if (secondJobExecution.getStatus() == BatchStatus.COMPLETED) {
-                // 세 번째 Job 실행
-                JobExecution thirdJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
-            }
-        }
+        jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
     }
 }
