@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class FollowerResponse {
-    private final String FollowingUserName;
+    private final String FollowerUserName;
     private final String cryptoSymbol;
 
-    public FollowerResponse(String FollowingUserName, String cryptoSymbol) {
-        this.FollowingUserName = FollowingUserName;
+    public FollowerResponse(String FollowerUserName, String cryptoSymbol) {
+        this.FollowerUserName = FollowerUserName;
         this.cryptoSymbol = cryptoSymbol;
     }
 }
