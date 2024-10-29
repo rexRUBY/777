@@ -70,7 +70,7 @@ class SubscriptionsControllerTest {
     }
 
     @Test
-    @DisplayName("구독 생성 DB에 저장 성공")
+    @DisplayName("구독 나의 following 전체 조회")
     void getFollowing() throws Exception {
         // given
         given(subscriptionsService.getFollowing(any())).willReturn(testFollowingListResponse);
@@ -80,7 +80,7 @@ class SubscriptionsControllerTest {
     }
 
     @Test
-    @DisplayName("구독 생성 DB에 저장 성공")
+    @DisplayName("구독 나의 follower 전체 조회")
     void getFollower() throws Exception {
         // given
         given(subscriptionsService.getFollower(any())).willReturn(testFollowerListResponse);
@@ -90,7 +90,7 @@ class SubscriptionsControllerTest {
     }
 
     @Test
-    @DisplayName("구독 생성 DB에 저장 성공")
+    @DisplayName("구독 취소")
     void unFollowing() throws Exception {
         // given
         given(subscriptionsService.unFollowing(any(), anyLong())).willReturn(testUnFollowResponse);
