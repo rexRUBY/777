@@ -6,13 +6,13 @@ import lombok.Getter;
 public class UnFollowResponse {
 
     private final String followingUserEmail;
-    private final String coinSymbol;
+    private final String cryptoSymbol;
     private final Double amount;
     private final Long totalPrice;
 
-    public UnFollowResponse(String followingUserEmail, String coinSymbol, Double amount, Long totalPrice) {
+    public UnFollowResponse(String followingUserEmail, String cryptoSymbol, Double amount, Long totalPrice) {
         this.followingUserEmail = followingUserEmail;
-        this.coinSymbol = coinSymbol;
+        this.cryptoSymbol = cryptoSymbol;
         this.amount = amount;
         this.totalPrice = totalPrice;
     }
