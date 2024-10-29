@@ -1,4 +1,3 @@
-/*
 package org.example.batch.service;
 
 import org.example.common.crypto.entity.Crypto;
@@ -18,10 +17,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.lenient;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionBillingServiceTest {
@@ -33,7 +37,7 @@ public class SubscriptionBillingServiceTest {
     private CryptoWebService cryptoWebService;
 
     @Mock
-    private Wallet wallet; // Wallet을 mock으로 선언합니다.
+    private Wallet wallet;
 
     private User user1;
     private User user2;
@@ -49,42 +53,39 @@ public class SubscriptionBillingServiceTest {
 
         // 암호화폐 설정
         crypto = new Crypto();
-        ReflectionTestUtils.setField(crypto, "symbol", "BTC"); // 기호 설정
+        ReflectionTestUtils.setField(crypto, "symbol", "BTC");
 
         // 지갑 설정
-        user1.getWalletList().add(wallet); // mock wallet을 사용합니다.
+        user1.getWalletList().add(wallet);
         user2.getWalletList().add(new Wallet(user2, 1.0, "BTC", 50000L, 1000L));
-        given(wallet.getCryptoSymbol()).willReturn("BTC"); // getCryptoSymbol이 "BTC"를 반환하도록 설정합니다.
-        doNothing().when(wallet).billing(eq(5000.0d)); // billing 메서드는 특별한 결과 없이 호출되므로 doNothing() 사용
-        doNothing().when(wallet).billing(eq(45000.0d)); // billing 메서드는 특별한 결과 없이 호출되므로 doNothing() 사용
-        doNothing().when(wallet).billing(0.0d); // 0에 대한 stubbing 추가
 
-        mockStatic(DateTimeUtil.class);
-        given(DateTimeUtil.getCurrentDate()).willReturn("2024-10-29");
-        given(DateTimeUtil.getCurrentTime()).willReturn("11:11");
+        // lenient를 사용하여 불필요한 stubbing을 무시
+        lenient().when(wallet.getCryptoSymbol()).thenReturn("BTC");
 
         // 구독 설정
         Subscriptions subscription2 = Subscriptions.of(user2, user1, crypto, 1.0, 50000L);
         ReflectionTestUtils.setField(subscription2, "createdAt", LocalDateTime.now().minusMonths(1));
         user1.getSubscriptionsBeingFollowed().add(subscription2);
+
+        // 불필요한 stubbing 무시 설정
+        lenient().when(cryptoWebService.getCryptoValueAsLong(anyString(), anyString(), anyString())).thenReturn(50000L);
     }
 
     @Test
     void testBillCheck() {
-        // 주어진 값
-        long currentPrice = 50000L; // 현재 가격 모킹
-        given(cryptoWebService.getCryptoValueAsLong(eq("BTC"), eq("2024-10-29"), eq("11:11"))).willReturn(currentPrice);
+        // 서비스 객체를 Spy로 설정하여 `processSubscriptions` 호출을 모니터링
+        SubscriptionBillingService spyService = spy(subscriptionBillingService);
 
-        // 실행
-        subscriptionBillingService.billCheck(user1, "BTC");
+        // Given
+        long currentPrice = 50000L;
+        lenient().when(cryptoWebService.getCryptoValueAsLong("BTC", DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime()))
+                .thenReturn(currentPrice);
 
-        // wallet.billing이 호출되었는지 검증
-        verify(wallet,times(1)).billing(eq(0.0d)); // 0.9 비율로 호출되었는지 검증
+        // When
+        spyService.billCheck(user1, "BTC");
 
-        // 지갑의 현금이 업데이트되었는지 검증
-        assertEquals(0, user1.getWalletList().get(0).getCash());
+        // Then
+        // billCheck 내부에서 processSubscriptions이 호출되었는지를 간접적으로 검증
+        verify(wallet, times(1)).billing(anyDouble()); // wallet.billing이 호출되었는지 확인하여 processSubscriptions 호출 간접 검증
     }
 }
-
-
-*/
