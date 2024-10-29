@@ -8,6 +8,7 @@ import org.example.common.auth.dto.request.SigninRequest;
 import org.example.common.auth.dto.request.SignupRequest;
 import org.example.common.auth.dto.response.SigninResponse;
 import org.example.common.auth.dto.response.SignupResponse;
+import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.common.common.config.JwtUtil;
@@ -131,7 +132,31 @@ class AuthServiceTest {
         verify(redisTemplate.opsForValue()).get(email);
         verify(passwordEncoder).encode(newPassword);
     }
+
+    @Test
+    public void 비밀번호_재설정_토큰_불일치() {
+        // given
+        String email = "test@example.com";
+        String token = "wrongToken";
+        ResetPasswordRequest request = new ResetPasswordRequest(email, token, "NewValid123@Password");
+
+        ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(email)).thenReturn("actualToken"); // 실제 토큰 설정 (다른 값 반환)
+
+        // Stubbing
+        when(userRepository.findByEmail(email)).thenReturn(java.util.Optional.of(newUser));
+
+        // when & then
+        InvalidRequestException exception = assertThrows(
+                InvalidRequestException.class,
+                () -> authService.resetPassword(request),
+                "인증번호가 유효하지 않을 경우 예외가 발생해야 한다."
+        );
+        assertEquals("인증번호가 유효하지 않습니다.", exception.getMessage());
+    }
 }
+
 
 
 
