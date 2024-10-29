@@ -115,4 +115,24 @@ public class UserServiceTest {
         // then
         assertEquals("newEncodedPassword", mockUser.getPassword());
     }
+
+    @Test
+    public void 기존과_같은_비밀번호로_변경_실패() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", authUser.getId());
+        ReflectionTestUtils.setField(mockUser, "password", "oldEncodedPassword");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("newPassword", mockUser.getPassword())).thenReturn(true);
+
+        // when & then
+        UserChangePasswordRequest passwordRequest = new UserChangePasswordRequest("oldPassword", "newPassword");
+        Exception exception = assertThrows(InvalidRequestException.class, () -> {
+            userService.changePassword(authUser, passwordRequest);
+        });
+
+        assertEquals("새 비밀번호는 기존 비밀번호와 같을 수 없습니다.", exception.getMessage());
+    }
 }
