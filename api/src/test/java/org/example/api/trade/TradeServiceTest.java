@@ -104,4 +104,42 @@ public class TradeServiceTest {
 
         assertEquals("no such user", exception.getMessage());
     }
+
+    @Test
+    public void 성공적으로_코인_판매하기() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        long cryptoId = 1L;
+
+        TradeRequestDto tradeRequestDto = new TradeRequestDto();
+        ReflectionTestUtils.setField(tradeRequestDto, "amount", 5.0);
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "SELL");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "SELF");
+
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", 1L);
+
+        Wallet wallet = new Wallet();
+        ReflectionTestUtils.setField(wallet, "user", mockUser);
+        ReflectionTestUtils.setField(wallet, "cryptoSymbol", "BTC");
+        ReflectionTestUtils.setField(wallet, "cash", 100000L); // cash 값 설정
+        ReflectionTestUtils.setField(wallet, "amount", 50.0); // 보유 코인 수량 설정
+
+        Crypto mockCrypto = new Crypto();
+        ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
+        ReflectionTestUtils.setField(mockCrypto, "symbol", "BTC");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
+        when(walletRepository.findByUserIdAndCryptoSymbol(mockUser.getId(), "BTC")).thenReturn(wallet);
+
+        // when
+        TradeResponseDto response = tradeService.postTrade(authUser, cryptoId, tradeRequestDto);
+
+        // then
+        assertNotNull(response);
+        assertEquals("BTC", response.getCryptoSymbol());
+        assertEquals("SELL", response.getBillType());
+
+    }
 }
