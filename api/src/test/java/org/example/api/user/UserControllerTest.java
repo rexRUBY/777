@@ -5,6 +5,7 @@ import org.example.api.user.controller.UserController;
 import org.example.api.user.service.UserService;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.user.dto.request.UserChangePasswordRequest;
+import org.example.common.user.dto.request.UserWithdrawRequest;
 import org.example.common.user.dto.response.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,21 @@ class UserControllerTest {
         mockMvc.perform(patch("/api/v1/users", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(passwordRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void 유저_탈퇴_성공() throws Exception {
+        // given
+        long userId = 1L;
+        UserWithdrawRequest withdrawRequest = new UserWithdrawRequest("password123");
+
+        doNothing().when(userService).withdrawUser(any(AuthUser.class), any(UserWithdrawRequest.class));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/users", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(withdrawRequest)))
                 .andExpect(status().isOk());
     }
 }
