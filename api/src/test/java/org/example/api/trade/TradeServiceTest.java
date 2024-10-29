@@ -2,6 +2,7 @@ package org.example.api.trade;
 
 import org.example.api.trade.service.TradeService;
 import org.example.common.common.dto.AuthUser;
+import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.subscriptions.repository.BillingRepository;
@@ -23,8 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,5 +82,26 @@ public class TradeServiceTest {
         // then
         assertNotNull(response);
         assertEquals("BTC", response.getCryptoSymbol());
+    }
+
+    @Test
+    public void 코인_구매시_사용자가_존재하지_않음() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        long cryptoId = 1L;
+
+        TradeRequestDto tradeRequestDto = new TradeRequestDto();
+        ReflectionTestUtils.setField(tradeRequestDto, "amount", 10.0);
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "BUY");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "SELF");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.empty());
+
+        // when & then
+        Exception exception = assertThrows(InvalidRequestException.class, () ->
+                tradeService.postTrade(authUser, cryptoId, tradeRequestDto)
+        );
+
+        assertEquals("no such user", exception.getMessage());
     }
 }
