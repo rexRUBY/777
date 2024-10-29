@@ -37,7 +37,7 @@ public class WalletService {
 
         // 각 코인에 대한 지갑 생성
         for (Crypto crypto : cryptos) {
-            Wallet wallet = new Wallet(user, 0.0, crypto.getSymbol(),1000000000L);
+            Wallet wallet = new Wallet(user, 0.0, crypto.getSymbol(), 0L, 1000000000L);
             walletRepository.save(wallet);
         }
     }

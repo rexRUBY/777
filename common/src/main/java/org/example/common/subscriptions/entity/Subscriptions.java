@@ -10,13 +10,23 @@ import org.example.common.user.entity.User;
 
 @Getter
 @Entity
-@Table(name = "following")
+@Table(name = "subscriptions")
 @NoArgsConstructor
 public class Subscriptions extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscribe")
+    private Subscribe subscribe;
+
+    @Column(name="now_price")
+    private Long nowPrice; // 구독 신청 할 때의 가격
+
+    @Column(name="final_price")
+    private Long finalPrice; //정산 될 때의 총 가격
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_user_id") // 구독할 사람 Id
@@ -33,12 +43,19 @@ public class Subscriptions extends Timestamped {
     @Column(name = "crypto_amount")
     private Double cryptoAmount;
 
-    public static Subscriptions of(User followingUser, User followerUser, Crypto crypto, Double cryptoAmount) {
+    public static Subscriptions of(User followingUser, User followerUser, Crypto crypto, Double cryptoAmount,Long nowPrice) {
         Subscriptions subscriptions = new Subscriptions();
         subscriptions.followingUser = followingUser;
         subscriptions.followerUser = followerUser;
         subscriptions.crypto = crypto;
         subscriptions.cryptoAmount = cryptoAmount;
+        subscriptions.nowPrice = nowPrice;
+        subscriptions.subscribe=Subscribe.ON;
         return subscriptions;
+    }
+
+    public void checkout(long price) {
+        this.finalPrice= (long)(price*this.cryptoAmount);
+        this.subscribe=Subscribe.OFF;
     }
 }

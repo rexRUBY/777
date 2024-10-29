@@ -2,7 +2,6 @@ package org.example.api.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.example.api.user.service.UserService;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.user.dto.request.UserChangePasswordRequest;
@@ -11,8 +10,6 @@ import org.example.common.user.dto.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
