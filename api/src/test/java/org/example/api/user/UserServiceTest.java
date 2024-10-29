@@ -2,6 +2,7 @@ package org.example.api.user;
 
 import org.example.api.user.service.UserService;
 import org.example.common.common.dto.AuthUser;
+import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.user.dto.request.UserWithdrawRequest;
 import org.example.common.user.dto.response.UserResponse;
 import org.example.common.user.entity.User;
@@ -68,5 +69,25 @@ public class UserServiceTest {
 
         // then
         assertFalse(mockUser.isUserStatus());
+    }
+
+    @Test
+    public void 비밀번호가_틀려서_탈퇴_실패() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", authUser.getId());
+        ReflectionTestUtils.setField(mockUser, "password", "encodedPassword");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("wrongPassword", mockUser.getPassword())).thenReturn(false);
+
+        // when & then
+        UserWithdrawRequest withdrawRequest = new UserWithdrawRequest("wrongPassword");
+        Exception exception = assertThrows(InvalidRequestException.class, () -> {
+            userService.withdrawUser(authUser, withdrawRequest);
+        });
+
+        assertEquals("비밀번호가 틀렸습니다.", exception.getMessage());
     }
 }
