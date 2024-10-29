@@ -3,6 +3,7 @@ package org.example.api.auth;
 import org.example.api.auth.service.AuthService;
 import org.example.api.user.service.UserService;
 import org.example.api.wallet.service.WalletService;
+import org.example.common.auth.dto.request.ResetPasswordRequest;
 import org.example.common.auth.dto.request.SigninRequest;
 import org.example.common.auth.dto.request.SignupRequest;
 import org.example.common.auth.dto.response.SigninResponse;
@@ -14,13 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -104,6 +106,30 @@ class AuthServiceTest {
         verify(passwordEncoder).matches(password, newUser.getPassword());
         verify(jwtUtil).createToken(isNull(), anyString());
         verify(jwtUtil).addJwtToCookie(anyString());
+    }
+
+    @Test
+    public void 비밀번호_재설정_성공() {
+        // given
+        String email = "test@example.com";
+        String token = "resetToken";
+        String newPassword = "NewValid123@Password";
+        ResetPasswordRequest request = new ResetPasswordRequest(email, token, newPassword);
+
+        ValueOperations<String, String> valueOperations = Mockito.mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(email)).thenReturn(token); // 토큰 반환 설정
+
+        // Stubbing
+        when(userRepository.findByEmail(email)).thenReturn(java.util.Optional.of(newUser));
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword");
+
+        // when
+        assertDoesNotThrow(() -> authService.resetPassword(request));
+
+        verify(userRepository).findByEmail(email);
+        verify(redisTemplate.opsForValue()).get(email);
+        verify(passwordEncoder).encode(newPassword);
     }
 }
 
