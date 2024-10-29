@@ -2,6 +2,7 @@ package org.example.api.crypto.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.api.crypto.service.CryptoService;
+import org.example.common.crypto.dto.CryptoListResponse;
 import org.example.common.crypto.dto.CryptoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,5 +20,10 @@ public class CryptoController {
     @GetMapping("/crypto/{cryptoId}")
     public ResponseEntity<CryptoResponse> getCryptoInfo(@PathVariable Long cryptoId) {
         return ResponseEntity.ok(this.cryptoService.getCryptoInfo(cryptoId));
+    }
+
+    @GetMapping("/cryptos/list")
+    public  ResponseEntity<CryptoListResponse> getCryptoSymbolList() {
+        return ResponseEntity.ok(this.cryptoService.getCryptoSymbolList());
     }
 }

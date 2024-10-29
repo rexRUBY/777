@@ -1,19 +1,28 @@
 package org.example.streaming.crypto;
 
+import org.example.streaming.crypto.service.CryptoService;
+import org.json.JSONObject;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class WebSocketController {
 
-    private final SimpMessagingTemplate template;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public WebSocketController(SimpMessagingTemplate template) {
-        this.template = template;
+    private final CryptoService cryptoService;
+
+    public WebSocketController(SimpMessagingTemplate messagingTemplate, CryptoService cryptoService) {
+        this.messagingTemplate = messagingTemplate;
+        this.cryptoService = cryptoService;
     }
 
-    // Finnhub WebSocket에서 메시지를 받으면 프론트로 전달
-    public void sendToClient(String message) {
-        template.convertAndSend("/topic/price", message); // 프론트엔드가 /topic/price를 구독해야함
+    public void sendToClient(String json) {
+        JSONObject jsonObject = new JSONObject(json);
+        String symbol = jsonObject.getString("symbol");
+        String price = cryptoService.getCryptoPrice(symbol);
+
+        messagingTemplate.convertAndSend("/topic/get_ticker_price/" + symbol, price);
     }
+
 }

@@ -1,5 +1,6 @@
 package org.example.streaming.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -10,16 +11,17 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${client.host.url}")
+    private String clientHostUrl;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 클라이언트가 구독할 브로커 설정
         config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // "/ws" 엔드포인트에 대해 모든 출처에서 CORS 허용
-        registry.addEndpoint("/ws").setAllowedOrigins("http://localhost:3000").withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins(clientHostUrl).withSockJS();
     }
 }

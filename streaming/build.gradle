@@ -3,11 +3,17 @@ jar.enabled = false
 
 dependencies {
 
-    implementation project(':common')
+    api project(':common')
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'io.socket:engine.io-server:6.3.2'
+    implementation 'io.socket:socket.io-server:4.1.2'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // json
     implementation 'org.json:json:20210307'

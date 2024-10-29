@@ -3,6 +3,6 @@ jar.enabled = false
 
 dependencies {
 
-    implementation project(':common')
+    api project(':common')
     implementation 'org.springframework.boot:spring-boot-starter-web'
 }
