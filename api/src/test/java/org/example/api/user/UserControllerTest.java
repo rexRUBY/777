@@ -1,7 +1,10 @@
 package org.example.api.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.api.user.controller.UserController;
 import org.example.api.user.service.UserService;
+import org.example.common.common.dto.AuthUser;
+import org.example.common.user.dto.request.UserChangePasswordRequest;
 import org.example.common.user.dto.response.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,10 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -49,5 +54,20 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.userId").value(userId))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.name").value("testUser"));
+    }
+
+    @Test
+    public void 비밀번호_변경_성공() throws Exception {
+        // given
+        long userId = 1L;
+        UserChangePasswordRequest passwordRequest = new UserChangePasswordRequest("oldPassword", "NewPassword1");
+
+        doNothing().when(userService).changePassword(any(AuthUser.class), any(UserChangePasswordRequest.class));
+
+        // when & then
+        mockMvc.perform(patch("/api/v1/users", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(passwordRequest)))
+                .andExpect(status().isOk());
     }
 }
