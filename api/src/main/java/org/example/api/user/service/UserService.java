@@ -59,7 +59,7 @@ public class UserService {
     }
 
     public static void validateNewPassword(String password) {
-        if (password.length() < 8 ||
+        if (password == null || password.length() < 8 ||
                 !password.matches(".*\\d.*") ||
                 !password.matches(".*[A-Z].*")) {
             throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하며, 숫자와 대문자를 포함해야 합니다.");
