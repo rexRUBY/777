@@ -14,7 +14,7 @@ public class DateTimeUtil {
 
     // "시:분" 형식으로 현재 시간을 반환하는 메서드
     public static String getCurrentTime() {
-        LocalDateTime now = LocalDateTime.now().minusMinutes(1);
+        LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return now.format(timeFormatter);
     }
