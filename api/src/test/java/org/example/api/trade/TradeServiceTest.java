@@ -10,7 +10,7 @@ import org.example.common.subscriptions.repository.BillingRepository;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
 import org.example.common.trade.dto.request.TradeRequestDto;
 import org.example.common.trade.dto.response.TradeResponseDto;
-import org.example.common.trade.enums.TradeFor;
+import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeType;
 import org.example.common.trade.repository.TradeRepository;
 import org.example.common.user.entity.User;
@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -250,5 +251,49 @@ public class TradeServiceTest {
 
         // when & then
         assertThrows(InvalidRequestException.class, () -> tradeService.postSubscriptionsTrade(authUser, cryptoId, subscriptionId, tradeRequestDto));
+    }
+
+    @Test
+    public void 성공적으로_특정_코인_거래_내역_조회() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        long cryptoId = 1L;
+
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", 1L);
+        ReflectionTestUtils.setField(mockUser, "name", "testUser");
+
+        Crypto mockCrypto = new Crypto();
+        ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
+        ReflectionTestUtils.setField(mockCrypto, "symbol", "BTC");
+
+        Trade trade1 = new Trade();
+        ReflectionTestUtils.setField(trade1, "crypto", mockCrypto);
+        ReflectionTestUtils.setField(trade1, "amount", 5.0);
+        ReflectionTestUtils.setField(trade1, "tradeType", TradeType.BUY);
+        ReflectionTestUtils.setField(trade1, "price", 500L);
+
+        Trade trade2 = new Trade();
+        ReflectionTestUtils.setField(trade2, "crypto", mockCrypto);
+        ReflectionTestUtils.setField(trade2, "amount", 3.0);
+        ReflectionTestUtils.setField(trade2, "tradeType", TradeType.SELL);
+        ReflectionTestUtils.setField(trade2, "price", 300L);
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
+        when(tradeRepository.findAllByCryptoAndUser(mockCrypto, mockUser)).thenReturn(List.of(trade1, trade2));
+
+        // when
+        List<TradeResponseDto> responseList = tradeService.getTradeList(authUser, cryptoId);
+
+        // then
+        assertEquals(2, responseList.size());
+        assertEquals("BTC", responseList.get(0).getCryptoSymbol());
+        assertEquals(5.0, responseList.get(0).getAmount());
+        assertEquals("BUY", responseList.get(0).getBillType());
+
+        assertEquals("BTC", responseList.get(1).getCryptoSymbol());
+        assertEquals(3.0, responseList.get(1).getAmount());
+        assertEquals("SELL", responseList.get(1).getBillType());
     }
 }
