@@ -6,6 +6,7 @@ import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.subscriptions.repository.BillingRepository;
+import org.example.common.subscriptions.repository.SubscriptionsRepository;
 import org.example.common.trade.dto.request.TradeRequestDto;
 import org.example.common.trade.dto.response.TradeResponseDto;
 import org.example.common.trade.enums.TradeFor;
@@ -49,6 +50,8 @@ public class TradeServiceTest {
     private WalletHistoryRepository walletHistoryRepository;
     @Mock
     private CryptoWebService cryptoWebService;
+    @Mock
+    private SubscriptionsRepository subscriptionsRepository;
 
     @Test
     public void 성공적으로_코인_구매() {
@@ -182,5 +185,33 @@ public class TradeServiceTest {
 
         // when & then
         assertThrows(InvalidRequestException.class, () -> tradeService.postTrade(authUser, cryptoId, tradeRequestDto));
+    }
+
+    @Test
+    public void 존재하지_않는_구독으로_거래_시_예외_발생() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        long cryptoId = 1L;
+        long invalidSubscriptionId = 999L; // 존재하지 않는 구독 ID
+
+        TradeRequestDto tradeRequestDto = new TradeRequestDto();
+        ReflectionTestUtils.setField(tradeRequestDto, "amount", 5.0);
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "SELL");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "OTHER");
+
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", 1L);
+        ReflectionTestUtils.setField(mockUser, "name", "testUser");
+
+        Crypto mockCrypto = new Crypto();
+        ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
+        ReflectionTestUtils.setField(mockCrypto, "symbol", "BTC");
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
+        when(subscriptionsRepository.findById(invalidSubscriptionId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(InvalidRequestException.class, () -> tradeService.postSubscriptionsTrade(authUser, cryptoId, invalidSubscriptionId, tradeRequestDto));
     }
 }
