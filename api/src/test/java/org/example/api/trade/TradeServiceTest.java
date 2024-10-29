@@ -5,6 +5,7 @@ import org.example.common.common.dto.AuthUser;
 import org.example.common.common.exception.InvalidRequestException;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
+import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.BillingRepository;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
 import org.example.common.trade.dto.request.TradeRequestDto;
@@ -213,5 +214,41 @@ public class TradeServiceTest {
 
         // when & then
         assertThrows(InvalidRequestException.class, () -> tradeService.postSubscriptionsTrade(authUser, cryptoId, invalidSubscriptionId, tradeRequestDto));
+    }
+
+    @Test
+    public void 구독자와_다른_사용자_거래_시_예외_발생() {
+        // given
+        AuthUser authUser = AuthUser.from(1L, "test@example.com");
+        long cryptoId = 1L;
+        long subscriptionId = 2L;
+
+        TradeRequestDto tradeRequestDto = new TradeRequestDto();
+        ReflectionTestUtils.setField(tradeRequestDto, "amount", 5.0);
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "SELL");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "OTHER");
+
+        User mockUser = new User();
+        ReflectionTestUtils.setField(mockUser, "id", 1L);
+        ReflectionTestUtils.setField(mockUser, "name", "testUser");
+
+        User differentUser = new User();
+        ReflectionTestUtils.setField(differentUser, "id", 3L);
+
+        Crypto mockCrypto = new Crypto();
+        ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
+        ReflectionTestUtils.setField(mockCrypto, "symbol", "BTC");
+
+        Subscriptions mockSubscription = new Subscriptions();
+        ReflectionTestUtils.setField(mockSubscription, "id", subscriptionId);
+        ReflectionTestUtils.setField(mockSubscription, "followingUser", differentUser); // 다른 사용자 설정
+        ReflectionTestUtils.setField(mockSubscription, "crypto", mockCrypto);
+
+        when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
+        when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
+        when(subscriptionsRepository.findById(subscriptionId)).thenReturn(Optional.of(mockSubscription));
+
+        // when & then
+        assertThrows(InvalidRequestException.class, () -> tradeService.postSubscriptionsTrade(authUser, cryptoId, subscriptionId, tradeRequestDto));
     }
 }
