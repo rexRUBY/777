@@ -66,7 +66,7 @@ class TradeControllerTest {
     }
 
     @Test
-    public void 특정_거래_목록_조회_성공() throws Exception {
+    public void 특정_사용자_거래_목록_조회_성공() throws Exception {
         // given
         long cryptoId = 1L;
         List<TradeResponseDto> responseDtoList = List.of(
