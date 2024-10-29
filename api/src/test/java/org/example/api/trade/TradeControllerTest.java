@@ -118,4 +118,28 @@ class TradeControllerTest {
                 .andExpect(jsonPath("$[2].billType").value("BUY"))
                 .andExpect(jsonPath("$[2].price").value(1500L));
     }
+
+    @Test
+    public void 구독_거래_등록_성공() throws Exception {
+        // given
+        long cryptoId = 1L;
+        long subscriptionsId = 100L;
+        TradeRequestDto tradeRequestDto = new TradeRequestDto();
+        ReflectionTestUtils.setField(tradeRequestDto, "amount", 10.0);
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "SELL");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "OTHER");
+
+        TradeResponseDto responseDto = new TradeResponseDto("BTC", 10.0, "SELL", 9000L);
+        when(tradeService.postSubscriptionsTrade(any(), eq(cryptoId), eq(subscriptionsId), any(TradeRequestDto.class))).thenReturn(responseDto);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/cryptos/{cryptoId}/trades/subscriptions/{subscritionsId}", cryptoId, subscriptionsId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(tradeRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cryptoSymbol").value("BTC"))
+                .andExpect(jsonPath("$.amount").value(10.0))
+                .andExpect(jsonPath("$.billType").value("SELL"))
+                .andExpect(jsonPath("$.price").value(9000L));
+    }
 }
