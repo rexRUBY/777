@@ -89,4 +89,33 @@ class TradeControllerTest {
                 .andExpect(jsonPath("$[1].billType").value("SELL"))
                 .andExpect(jsonPath("$[1].price").value(3000L));
     }
+
+    @Test
+    public void 모든_거래_목록_조회_성공() throws Exception {
+        // given
+        List<TradeResponseDto> responseDtoList = List.of(
+                new TradeResponseDto("BTC", 10.0, "BUY", 5000L),
+                new TradeResponseDto("ETH", 5.0, "SELL", 3000L),
+                new TradeResponseDto("LTC", 3.0, "BUY", 1500L)
+        );
+
+        when(tradeService.getAllTradeList(any())).thenReturn(responseDtoList);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/cryptos/trades")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].cryptoSymbol").value("BTC"))
+                .andExpect(jsonPath("$[0].amount").value(10.0))
+                .andExpect(jsonPath("$[0].billType").value("BUY"))
+                .andExpect(jsonPath("$[0].price").value(5000L))
+                .andExpect(jsonPath("$[1].cryptoSymbol").value("ETH"))
+                .andExpect(jsonPath("$[1].amount").value(5.0))
+                .andExpect(jsonPath("$[1].billType").value("SELL"))
+                .andExpect(jsonPath("$[1].price").value(3000L))
+                .andExpect(jsonPath("$[2].cryptoSymbol").value("LTC"))
+                .andExpect(jsonPath("$[2].amount").value(3.0))
+                .andExpect(jsonPath("$[2].billType").value("BUY"))
+                .andExpect(jsonPath("$[2].price").value(1500L));
+    }
 }
