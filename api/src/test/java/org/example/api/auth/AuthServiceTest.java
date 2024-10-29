@@ -3,7 +3,9 @@ package org.example.api.auth;
 import org.example.api.auth.service.AuthService;
 import org.example.api.user.service.UserService;
 import org.example.api.wallet.service.WalletService;
+import org.example.common.auth.dto.request.SigninRequest;
 import org.example.common.auth.dto.request.SignupRequest;
+import org.example.common.auth.dto.response.SigninResponse;
 import org.example.common.auth.dto.response.SignupResponse;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
@@ -68,7 +70,6 @@ class AuthServiceTest {
         assertNotNull(response, "SignupResponse 객체는 null이 아니어야 합니다.");
         assertEquals(token, response.getBearerToken(), "생성된 토큰이 일치해야 합니다.");
 
-        // verify interactions
         verify(passwordEncoder).encode(validPassword);
         verify(userRepository).save(any(User.class));
         verify(walletService).createWallet(any(User.class));
@@ -76,6 +77,33 @@ class AuthServiceTest {
         verify(jwtUtil).addJwtToCookie(anyString());
 
         // validateNewPassword 메서드는 호출 검증하지 않음 (정적 메서드로서 검증 불가)
+    }
+
+    @Test
+    public void 로그인_성공() {
+        // given
+        String email = "test@example.com";
+        String password = "Valid123@Password";
+        SigninRequest request = new SigninRequest(email, password);
+        String token = "generatedToken";
+
+        // Stubbing
+        when(userRepository.findByEmail(email)).thenReturn(java.util.Optional.of(newUser));
+        when(passwordEncoder.matches(password, newUser.getPassword())).thenReturn(true);
+        when(jwtUtil.createToken(isNull(), anyString())).thenReturn(token); // isNull()과 anyString() 사용
+        doNothing().when(jwtUtil).addJwtToCookie(anyString());
+
+        // when
+        SigninResponse response = authService.signin(request);
+
+        // then
+        assertNotNull(response, "SigninResponse 객체는 null이 아니어야 한다.");
+        assertEquals(token, response.getBearerToken(), "생성된 토큰이 일치해야 한다.");
+
+        verify(userRepository).findByEmail(email);
+        verify(passwordEncoder).matches(password, newUser.getPassword());
+        verify(jwtUtil).createToken(isNull(), anyString());
+        verify(jwtUtil).addJwtToCookie(anyString());
     }
 }
 
