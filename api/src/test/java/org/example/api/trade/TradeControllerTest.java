@@ -5,6 +5,7 @@ import org.example.api.trade.controller.TradeController;
 import org.example.api.trade.service.TradeService;
 import org.example.common.trade.dto.request.TradeRequestDto;
 import org.example.common.trade.dto.response.TradeResponseDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,11 +34,13 @@ class TradeControllerTest {
     @InjectMocks
     private TradeController tradeController;
 
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(tradeController).build();
+    }
+
     @Test
     public void 거래_등록_성공() throws Exception {
-        // MockMvc를 설정
-        mockMvc = MockMvcBuilders.standaloneSetup(tradeController).build();
-
         // given
         long cryptoId = 1L;
         TradeRequestDto tradeRequestDto = new TradeRequestDto();
@@ -55,7 +58,7 @@ class TradeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cryptoSymbol").value("BTC"))
                 .andExpect(jsonPath("$.amount").value(10.0))
-                .andExpect(jsonPath("$.billType").value("BUY"))
+                .andExpect(jsonPath("$.billType").value("BUY"))  // tradeType으로 변경
                 .andExpect(jsonPath("$.price").value(5000L));
     }
 }
