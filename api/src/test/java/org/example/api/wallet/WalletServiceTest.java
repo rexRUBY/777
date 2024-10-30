@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,5 +78,20 @@ public class WalletServiceTest {
         // then
         verify(walletRepository, times(cryptos.size())).save(any(Wallet.class));
     }
+
+    @Test
+    public void 지갑_조회_실패_유저_지갑_없음() {
+        // given
+        when(walletRepository.findAllByUserId(mockUser.getId())).thenReturn(new ArrayList<>());
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            walletService.getWallets(new AuthUser(mockUser.getId(), mockUser.getEmail()));
+        });
+
+        assertEquals("해당 유저의 지갑을 찾을 수 없습니다.", exception.getMessage());
+        verify(walletRepository, times(1)).findAllByUserId(mockUser.getId());
+    }
 }
+
 
