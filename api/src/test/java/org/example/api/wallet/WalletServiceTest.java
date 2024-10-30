@@ -2,6 +2,7 @@ package org.example.api.wallet;
 
 import org.example.api.wallet.service.WalletService;
 import org.example.common.common.dto.AuthUser;
+import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.user.entity.User;
 import org.example.common.wallet.dto.WalletResponse;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,4 +62,22 @@ public class WalletServiceTest {
 
         verify(walletRepository, times(1)).findAllByUserId(mockUser.getId());
     }
+
+    @Test
+    public void 지갑_생성_성공() {
+        // given
+        List<Crypto> cryptos = Arrays.asList(
+                mock(Crypto.class), // Mock 객체로 리스트 생성
+                mock(Crypto.class)
+        );
+
+        when(cryptoRepository.findAll()).thenReturn(cryptos);
+
+        // when
+        walletService.createWallet(mockUser);
+
+        // then
+        verify(walletRepository, times(cryptos.size())).save(any(Wallet.class));
+    }
 }
+
