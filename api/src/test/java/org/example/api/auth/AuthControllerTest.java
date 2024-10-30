@@ -3,7 +3,9 @@ package org.example.api.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.api.auth.controller.AuthController;
 import org.example.api.auth.service.AuthService;
+import org.example.common.auth.dto.request.SigninRequest;
 import org.example.common.auth.dto.request.SignupRequest;
+import org.example.common.auth.dto.response.SigninResponse;
 import org.example.common.auth.dto.response.SignupResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,22 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(signupRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bearerToken").value("generatedToken"));
+    }
+
+    @Test
+    public void 로그인_성공() throws Exception {
+        // given
+        SigninRequest signinRequest = new SigninRequest("test@example.com", "Valid123@Password");
+        SigninResponse signinResponse = new SigninResponse("generatedToken");
+
+        when(authService.signin(any(SigninRequest.class))).thenReturn(signinResponse);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/signin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(signinRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bearerToken").value("generatedToken"));
     }
