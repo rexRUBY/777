@@ -1,4 +1,4 @@
-package org.example.ranking.proccessor.rankingProcessor;
+package org.example.ranking.processor.rankingProcessor;
 
 
 import org.example.common.user.entity.User;

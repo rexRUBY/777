@@ -1,4 +1,4 @@
-package org.example.ranking.proccessor.rankingRateProcessor;
+package org.example.ranking.processor.rankingRateProcessor;
 
 
 import lombok.extern.slf4j.Slf4j;
