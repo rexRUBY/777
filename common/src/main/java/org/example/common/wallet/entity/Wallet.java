@@ -9,14 +9,16 @@ import org.example.common.user.entity.User;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name = "wallets")
+@Table(name = "wallets", indexes = {
+        @Index(name = "idx_user_id", columnList = "user_id")
+})
 public class Wallet extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ammount")
+    @Column(name = "amount")
     private Double amount;
 
     @Column(name = "crypto_symbol")
