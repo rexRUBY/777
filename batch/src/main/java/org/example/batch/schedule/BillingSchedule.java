@@ -23,7 +23,7 @@ public class BillingSchedule {
     }
 
 //    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul") // 매분 10초에 실행
-    @Scheduled(fixedDelay = 10000, zone = "Asia/Seoul") // 10초마다 실행
+//    @Scheduled(fixedDelay = 10000, zone = "Asia/Seoul") // 10초마다 실행
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 

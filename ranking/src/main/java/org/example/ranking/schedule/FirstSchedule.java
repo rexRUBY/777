@@ -22,7 +22,7 @@ public class FirstSchedule {
         this.jobRegistry = jobRegistry;
     }
 
-    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 

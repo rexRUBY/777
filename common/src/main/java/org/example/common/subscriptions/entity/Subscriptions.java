@@ -10,7 +10,11 @@ import org.example.common.user.entity.User;
 
 @Getter
 @Entity
-@Table(name = "subscriptions")
+@Table(name = "subscriptions", indexes = {
+        @Index(name = "idx_following_user", columnList = "following_user_id"),
+        @Index(name = "idx_follower_user", columnList = "follower_user_id"),
+        @Index(name = "idx_crypto", columnList = "crypto_id")
+})
 @NoArgsConstructor
 public class Subscriptions extends Timestamped {
 

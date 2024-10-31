@@ -16,7 +16,7 @@ public class WalletHistory extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ammount")
+    @Column(name = "amount")
     private Double amount;
 
     @Column(name = "crypto_symbol")
