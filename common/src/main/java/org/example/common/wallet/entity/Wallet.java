@@ -9,7 +9,11 @@ import org.example.common.user.entity.User;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name = "wallets")
+@Table(name = "wallets", indexes = {
+        @Index(name = "idx_wallet_user", columnList = "user_id"),
+        @Index(name = "idx_wallet_crypto", columnList = "crypto_symbol"),
+        @Index(name = "idx_wallet_id", columnList = "id")
+})
 public class Wallet extends Timestamped {
 
     @Id
@@ -17,7 +21,8 @@ public class Wallet extends Timestamped {
     private Long id;
 
     @Column(name = "amount")
-    private Double amount;
+
+    private Double amount=0.0;
 
     @Column(name = "crypto_symbol")
     private String cryptoSymbol;

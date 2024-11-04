@@ -34,4 +34,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     testImplementation 'org.springframework.batch:spring-batch-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //junit
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    // Spring Batch Integration (Partitioner 관련 기능)
+    implementation 'org.springframework.batch:spring-batch-integration'
+    // Spring Context
+    implementation 'org.springframework:spring-context'
+}
+test {
+    useJUnitPlatform() // JUnit 5 사용 설정
 }

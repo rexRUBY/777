@@ -2,10 +2,12 @@ package org.example.batch.service;
 
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.user.entity.User;
+import org.example.common.user.repository.UserRepository;
 import org.example.common.wallet.entity.Wallet;
-import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
+import org.example.common.webclient.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,25 +16,38 @@ import java.util.List;
 public class SubscriptionBillingService {
 
     private final CryptoWebService cryptoWebService;
+    private final UserRepository userRepository;
 
-    public SubscriptionBillingService(CryptoWebService cryptoWebService) {
+    public SubscriptionBillingService(CryptoWebService cryptoWebService, UserRepository userRepository) {
         this.cryptoWebService = cryptoWebService;
+        this.userRepository = userRepository;
     }
 
+    @Transactional
     public void billCheck(User user, String cryptoSymbol) {
+        Long userId = user.getId();
+        User foundUser = userRepository.findUserWithWalletList(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // subscriptionsBeingFollowed 컬렉션 로드
+        userRepository.findUserWithSubscriptionsBeingFollowed(userId);
+
+        // subscriptionsIFollow 컬렉션 로드
+        userRepository.findUserWithSubscriptionsIFollow(userId);
+
         Long price = cryptoWebService.getCryptoValueAsLong(cryptoSymbol, DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
-        List<Subscriptions> followingList = getFilteredSubscriptions(user.getSubscriptionsIFollow(), price);
-        List<Subscriptions> followerList = getFilteredSubscriptions(user.getSubscriptionsBeingFollowed(), price);
+        List<Subscriptions> followingList = getFilteredSubscriptions(foundUser.getSubscriptionsIFollow(), price);
+        List<Subscriptions> followerList = getFilteredSubscriptions(foundUser.getSubscriptionsBeingFollowed(), price);
 
         // followingList가 비어있지 않은 경우에만 처리
         if (!followingList.isEmpty()) {
-            processSubscriptions(followingList, user, cryptoSymbol, 0.9, price);
+            processSubscriptions(followingList, foundUser, cryptoSymbol, 0.9, price);
         }
 
         // followerList가 비어있지 않은 경우에만 처리
         if (!followerList.isEmpty()) {
-            processSubscriptions(followerList, user, cryptoSymbol, 0.1, price);
+            processSubscriptions(followerList, foundUser, cryptoSymbol, 0.1, price);
         }
     }
 

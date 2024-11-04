@@ -1,4 +1,4 @@
-package org.example.batch.processor.deleteSubscriptionsBilledProccessor;
+package org.example.batch.processor.deleteSubscriptionsBilledProcessor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.subscriptions.entity.Subscribe;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @StepScope
-public class DeleteSubscriptionsBilledProccessor implements ItemProcessor<Subscriptions, Subscriptions >, StepExecutionListener {
+public class DeleteSubscriptionsBilledProcessor implements ItemProcessor<Subscriptions, Subscriptions >, StepExecutionListener {
 
     @Override
     public Subscriptions  process(Subscriptions subscriptions) throws Exception {

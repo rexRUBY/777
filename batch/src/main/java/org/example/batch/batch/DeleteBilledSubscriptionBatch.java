@@ -1,7 +1,7 @@
 package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
-import org.example.batch.processor.deleteSubscriptionsBilledProccessor.DeleteSubscriptionsBilledProccessor;
+import org.example.batch.processor.deleteSubscriptionsBilledProcessor.DeleteSubscriptionsBilledProcessor;
 import org.example.common.subscriptions.entity.Billing;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.BillingRepository;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class DeleteBilledSubscriptionBatch {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
-    private final DeleteSubscriptionsBilledProccessor deleteSubscriptionsBilledProccessor;
+    private final DeleteSubscriptionsBilledProcessor deleteSubscriptionsBilledProcessor;
     private final SubscriptionsRepository subscriptionsRepository;
     private final BillingRepository billingRepository;
 
@@ -42,9 +42,9 @@ public class DeleteBilledSubscriptionBatch {
     @Bean
     public Step firstDeleteStep() {
         return new StepBuilder("firstDeleteStep", jobRepository)
-                .<Subscriptions, Subscriptions>chunk(10, platformTransactionManager)
+                .<Subscriptions, Subscriptions>chunk(1000, platformTransactionManager)
                 .reader(beforeDeleteReader()) // 구독 데이터를 읽어옴
-                .processor(deleteSubscriptionsBilledProccessor) // 구독 데이터를 처리
+                .processor(deleteSubscriptionsBilledProcessor) // 구독 데이터를 처리
                 .writer(afterDeleteWriter()) // 처리된 구독 데이터를 Billing에 저장하고 삭제
                 .build();
     }
@@ -54,7 +54,7 @@ public class DeleteBilledSubscriptionBatch {
     public RepositoryItemReader<Subscriptions> beforeDeleteReader() {
         return new RepositoryItemReaderBuilder<Subscriptions>()
                 .name("beforeDeleteReader") // 리더의 이름 설정
-                .pageSize(10) // 한 번에 10개의 구독 데이터를 읽어옴
+                .pageSize(1000) // 한 번에 10개의 구독 데이터를 읽어옴
                 .methodName("findAllBySubscribe") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
                 .sorts(Map.of("id", Sort.Direction.ASC)) // subscriptions 데이터를 ID 기준으로 오름차순 정렬

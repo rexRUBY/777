@@ -56,8 +56,10 @@ public class TradeService {
 
     @Transactional
     public TradeResponseDto postTrade(AuthUser authUser, long cryptoId, TradeRequestDto tradeRequestDto) {
-        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NullPointerException("no such user"));
-        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("no such crypto"));
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new InvalidRequestException("no such user"));
+        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("no such crypto"));
+
 
         Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 

@@ -1,4 +1,4 @@
-package org.example.ranking.proccessor.rankingRateProcessor;
+package org.example.ranking.processor.rankingRateProcessor;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +13,13 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j
 @Component
 @StepScope
-public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, StepExecutionListener {
+public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, StepExecutionListener {
 
     private final RankingRepository rankingRepository;
     private final RankingCalculationService rankingCalculationService;
@@ -26,7 +27,7 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
     // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
 
-    public RankingRateProcessEth(RankingRepository rankingRepository, RankingCalculationService rankingCalculationService) {
+    public RankingRateProcessBtc(RankingRepository rankingRepository, RankingCalculationService rankingCalculationService) {
         this.rankingRepository = rankingRepository;
         this.rankingCalculationService = rankingCalculationService;
     }
@@ -39,19 +40,20 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
 
     @Override
     public Ranking process(Ranking ranking) throws Exception {
-        log.info("process start rate eth");
-        LocalDateTime time = LocalDateTime.now();
+        log.info("process start rate btc");
+        LocalDateTime time= LocalDateTime.now().minusDays(1);
+        LocalDateTime time2= LocalDateTime.now();
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
-        // eth 랭킹 처리
-        String ethKey2 = ranking.getUserEmail() + "_eth" + time + "_ranked";
-        if (executionContext.containsKey(ethKey2) &&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "ETH", time)) {
-            throw new IllegalStateException("duplicated");
+        // BTC 랭킹 처리
+        String btcKey2 = ranking.getUserEmail() + "_btc" +time+ "_ranked";
+        if (!executionContext.containsKey(btcKey2) ) {
+            rankingCalculationService.setRank(ranking, "BTC");
+            executionContext.put(btcKey2, true); // 중복 체크용
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking, "ETH");
-        executionContext.put(ethKey2, true); // 중복 체크용
+//        !rankingRepository.existsByUserEmailAndCryptoSymbolAndUserRankNotNullAndCreatedAtBetween(userEmail, "BTC",time,time2)
+
         return ranking;
     }
 

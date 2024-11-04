@@ -29,9 +29,14 @@ dependencies {
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     //webclient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.projectreactor.netty:reactor-netty'
 
-
+    // elastic search
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+}
+test {
+    useJUnitPlatform() // JUnit 5 사용 설정
 }
