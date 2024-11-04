@@ -18,7 +18,11 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_user_email", columnList = "email"),
+        @Index(name = "idx_user_name", columnList = "name"),
+        @Index(name = "idx_user_id", columnList = "id")
+})
 public class User extends Timestamped {
 
     @Id
@@ -33,6 +37,9 @@ public class User extends Timestamped {
 
     @Column(nullable = false)
     private String name;
+
+    @Column
+    private boolean processed=false;
 
     @Column(nullable = false, name = "user_status")
     private boolean userStatus = true; // 유저 상태 (true: 활성, false: 탈퇴)
@@ -62,6 +69,7 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @BatchSize(size = 10)
     @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 2)
     private List<Wallet> walletList = new ArrayList<>();
 
     // 생성자: 필수 필드만 포함
@@ -69,6 +77,10 @@ public class User extends Timestamped {
         this.email = email;
         this.password = password;
         this.name = name;
+    }
+
+    public User(long userId) {
+        this.id=userId;
     }
 
     // 정적 팩토리 메서드
@@ -84,5 +96,9 @@ public class User extends Timestamped {
     // 유저 탈퇴 처리
     public void withdrawUser() {
         this.userStatus = false;
+    }
+
+    public void changeProcess(){
+        this.processed=true;
     }
 }

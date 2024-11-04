@@ -1,4 +1,4 @@
-package org.example.batch.processor.subscriptionBillingProccessor;
+package org.example.batch.processor.subscriptionBillingProcessor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.batch.service.SubscriptionBillingService;
@@ -15,13 +15,13 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 @StepScope
-public class EthSubscriptionBillingProccessor implements ItemProcessor<User, User>, StepExecutionListener {
+public class EthSubscriptionBillingProcessor implements ItemProcessor<User, User>, StepExecutionListener {
 
     private final SubscriptionBillingService subscriptionBillingService;
     // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
 
-    public EthSubscriptionBillingProccessor(SubscriptionBillingService subscriptionBillingService) {
+    public EthSubscriptionBillingProcessor(SubscriptionBillingService subscriptionBillingService) {
         this.subscriptionBillingService = subscriptionBillingService;
     }
 

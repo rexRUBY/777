@@ -2,10 +2,12 @@ package org.example.ranking.batch;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.common.user.repository.UserRepository;
 import org.example.ranking.config.CountConfig;
 import org.example.ranking.entity.Ranking;
-import org.example.ranking.proccessor.rankingRateProcessor.RankingRateProcessBtc;
-import org.example.ranking.proccessor.rankingRateProcessor.RankingRateProcessEth;
+import org.example.ranking.partitioning.ColumnRangePartitioner;
+import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessBtc;
+import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessEth;
 import org.example.ranking.repository.RankingRepository;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
@@ -19,7 +21,9 @@ import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 
@@ -34,39 +38,69 @@ public class RankingRateBatch {
     private final PlatformTransactionManager platformTransactionManager;
     private final RankingRateProcessBtc rankingRateProcessBtc;
     private final RankingRateProcessEth rankingRateProcessEth;
-
+    private final UserRepository userRepository;
     private final RankingRepository rankingRepository;
 
+    @Bean
+    public Step firstRateStep() {
+        return new StepBuilder("firstRateStep", jobRepository)
+                .partitioner("firstRateStep", ratePartitioner()) // 파티셔너 적용
+                .step(firstRatingStep())
+                .gridSize(10) // 파티션 수
+//                .taskExecutor(taskRateExecutor())
+                .build();
+    }
+    @Bean
+    public Step secondRateStep() {
+        return new StepBuilder("secondRateStep", jobRepository)
+                .partitioner("secondRateStep", ratePartitioner()) // 파티셔너 적용
+                .step(secondRatingStep())
+                .gridSize(10) // 파티션 수
+//                .taskExecutor(taskRateExecutor())
+                .build();
+    }
     // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의, 청크 크기는 10으로 설정
     @Bean
-    public Step firstRateStep() {//btc 정보 계산용
-        return new StepBuilder("firstRateStep", jobRepository)
-                .<Ranking, Ranking>chunk(10, platformTransactionManager)
-                .reader(beforeRateReader()) // User 데이터를 읽어옴
+    public Step firstRatingStep() {//btc 정보 계산용
+        return new StepBuilder("firstRatingStep", jobRepository)
+                .<Ranking, Ranking>chunk(5000, platformTransactionManager)
+                .reader(beforeBtcRateReader()) // User 데이터를 읽어옴
                 .processor(rankingRateProcessBtc) // User 데이터를 Ranking으로 변환
                 .writer(afterRateWriter()) // 변환된 Ranking 데이터를 저장
+//                .taskExecutor(taskRateExecutor())
                 .listener(stepExecutionListener())
                 .build();
     }
 
     @Bean
-    public Step secondRateStep() {//eth 정보 계산용
-        return new StepBuilder("secondRateStep", jobRepository)
-                .<Ranking, Ranking>chunk(10, platformTransactionManager)
-                .reader(beforeRateReader()) // User 데이터를 읽어옴
+    public Step secondRatingStep() {//eth 정보 계산용
+        return new StepBuilder("secondRatingStep", jobRepository)
+                .<Ranking, Ranking>chunk(5000, platformTransactionManager)
+                .reader(beforeEthRateReader()) // User 데이터를 읽어옴
                 .processor(rankingRateProcessEth) // User 데이터를 Ranking으로 변환
                 .writer(afterRateWriter()) // 변환된 Ranking 데이터를 저장
+//                .taskExecutor(taskRateExecutor())
                 .listener(stepExecutionListener())
                 .build();
     }
 
     // User 데이터를 읽기 위한 설정을 정의
     @Bean
-    public RepositoryItemReader<Ranking> beforeRateReader() {
+    public RepositoryItemReader<Ranking> beforeBtcRateReader() {
         return new RepositoryItemReaderBuilder<Ranking>()
                 .name("beforeRateReader")
-                .pageSize(10) // 한 번에 10개의 User 데이터를 읽어옴
-                .methodName("findAll") // rankingRepository의 메서드 이름
+                .pageSize(5000) // 한 번에 10개의 User 데이터를 읽어옴
+                .methodName("findAllByBtcSelectedFields") // rankingRepository의 메서드 이름
+                .repository(rankingRepository)
+                .sorts(Map.of("yield", Sort.Direction.DESC)) // User 데이터를 ID 기준으로 오름차순 정렬
+                .build();
+    }
+    @Bean
+    public RepositoryItemReader<Ranking> beforeEthRateReader() {
+        return new RepositoryItemReaderBuilder<Ranking>()
+                .name("beforeRateReader")
+                .pageSize(5000) // 한 번에 10개의 User 데이터를 읽어옴
+                .methodName("findAllByEthSelectedFields") // rankingRepository의 메서드 이름
                 .repository(rankingRepository)
                 .sorts(Map.of("yield", Sort.Direction.DESC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();
@@ -93,5 +127,22 @@ public class RankingRateBatch {
                 return ExitStatus.COMPLETED;
             }
         };
+    }
+    // ThreadPoolTaskExecutor 설정
+    @Bean
+    public TaskExecutor taskRateExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4); // 기본 스레드 수
+        executor.setMaxPoolSize(8); // 최대 스레드 수
+        executor.setQueueCapacity(300); // 큐 용량
+        executor.setThreadNamePrefix("RankingRateBatch-");
+        executor.initialize();
+        return executor;
+    }
+    @Bean
+    public ColumnRangePartitioner ratePartitioner() {
+        Long minId = userRepository.findMinId(); // 최소 ID 조회
+        Long maxId = 2 * userRepository.findMaxId(); // 최대 ID 조회
+        return new ColumnRangePartitioner("id", minId, maxId, 10);
     }
 }

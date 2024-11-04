@@ -1,3 +1,4 @@
+/*
 package org.example.ranking.schedule;
 
 import org.springframework.batch.core.BatchStatus;
@@ -38,3 +39,4 @@ public class FirstSchedule {
         jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
     }
 }
+*/

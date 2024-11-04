@@ -20,14 +20,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT DISTINCT u FROM User u " +
             "LEFT JOIN FETCH u.tradeList  " + // User와 Trade 조인
-            "LEFT JOIN  u.walletHistoryList ") // User와 WalletHistory 조인
-    Page<User> findAllJoinTradeJoinWallet(Pageable pageable);
+            "LEFT JOIN  u.walletHistoryList " +
+            "WHERE u.processed = false") // User와 WalletHistory 조인
+    Page<User> findAllByProcessedFalseJoinTradeJoinWallet(Pageable pageable);
 
     @Query("SELECT DISTINCT u FROM User u " +
             "LEFT JOIN FETCH u.subscriptionsIFollow  " + // User와 Trade 조인
             "LEFT JOIN u.walletList " +
             "LEFT JOIN u.subscriptionsBeingFollowed ") // User와 WalletHistory 조인
     Page<User> findAllJoinSubscriptsJoinWallet(Pageable pageable);
+
+    @Query("SELECT MIN(u.id) FROM User u")
+    Long findMinId();
+
+    @Query("SELECT MAX(u.id) FROM User u")
+    Long findMaxId();
 
 
 
@@ -46,10 +53,3 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.subscriptionsIFollow WHERE u.id = :id")
     Optional<User> findUserWithSubscriptionsIFollow(@Param("id") Long id);
 }
-
-
-
-
-
-
-

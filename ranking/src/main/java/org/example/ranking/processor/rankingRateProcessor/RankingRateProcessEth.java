@@ -1,4 +1,4 @@
-package org.example.ranking.proccessor.rankingRateProcessor;
+package org.example.ranking.processor.rankingRateProcessor;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -40,18 +41,20 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
     @Override
     public Ranking process(Ranking ranking) throws Exception {
         log.info("process start rate eth");
-        LocalDateTime time = LocalDateTime.now();
+        LocalDateTime time= LocalDateTime.now().minusDays(1);
+        LocalDateTime time2= LocalDateTime.now();
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
         // eth 랭킹 처리
-        String ethKey2 = ranking.getUserEmail() + "_eth" + time + "_ranked";
-        if (executionContext.containsKey(ethKey2) &&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "ETH", time)) {
-            throw new IllegalStateException("duplicated");
+        String ethKey2 = ranking.getUserEmail() + "_eth" + time+"_ranked";
+        if (!executionContext.containsKey(ethKey2) ) {
+            rankingCalculationService.setRank(ranking, "ETH");
+            executionContext.put(ethKey2, true);
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking, "ETH");
-        executionContext.put(ethKey2, true); // 중복 체크용
+
+//        !rankingRepository.existsByUserEmailAndCryptoSymbolAndUserRankNotNullAndCreatedAtBetween(userEmail, "ETH",time,time2)
+        // 중복 체크용
         return ranking;
     }
 
