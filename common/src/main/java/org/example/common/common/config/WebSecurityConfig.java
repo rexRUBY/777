@@ -45,6 +45,10 @@ public class WebSecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/cryptos/list").permitAll()
+                        .requestMatchers("/api/v1/cryptos/latest/price").permitAll()
+                        .requestMatchers("/api/v1/rankings/crypto/**").permitAll()
+                        .requestMatchers("/api/v1/rankings/top/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
                         .anyRequest().authenticated()

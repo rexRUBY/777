@@ -19,8 +19,9 @@ public class WebSocketController {
 
     public void sendToClient(String json) {
         JSONObject jsonObject = new JSONObject(json);
+
         String symbol = jsonObject.getString("symbol");
-        String price = cryptoService.getCryptoPrice(symbol);
+        String price = jsonObject.getString("price");
 
         messagingTemplate.convertAndSend("/topic/get_ticker_price/" + symbol, price);
     }

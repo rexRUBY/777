@@ -2,8 +2,8 @@ package org.example.ranking.proccessor.rankingRateProcessor;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.ranking.entity.Ranking;
-import org.example.ranking.repository.RankingRepository;
+import org.example.common.ranking.entity.Ranking;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.ranking.service.RankingCalculationService;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;

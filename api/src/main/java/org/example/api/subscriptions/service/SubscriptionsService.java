@@ -2,6 +2,7 @@ package org.example.api.subscriptions.service;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.common.auth.dto.request.UnFollowResponse;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.common.exception.InvalidRequestException;
@@ -18,9 +19,17 @@ import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.repository.WalletRepository;
 import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionsService {
@@ -45,7 +54,7 @@ public class SubscriptionsService {
             throw new InvalidRequestException("you can't subscribe yourself");
         }
 
-        User followingUser = userRepository.findById(followingRequest.getFollowingUserId())
+        User followingUser = userRepository.findByEmail(followingRequest.getFollowingUserEmail())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
 
         Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(),crypto.getSymbol());
@@ -63,20 +72,39 @@ public class SubscriptionsService {
         return new FollowingResponse(subscriptions.getFollowingUser().getName(), subscriptions.getCrypto().getSymbol());
     }
 
-    public FollowingListResponse getFollowing(AuthUser authUser) {
-        return new FollowingListResponse(
-                subscriptionsRepository.findAllByFollowerUserId(authUser.getId())
-                        .stream()
-                        .map(f -> new FollowingResponse(f.getFollowingUser().getName(), f.getCrypto().getSymbol()))
-                        .toList());
+    public FollowingListResponse getFollowing(AuthUser authUser, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Subscriptions> subscriptions = subscriptionsRepository.findAllByFollowerUserId(authUser.getId(), pageable);
+
+        List<FollowingResponse> followingResponses = subscriptions.stream()
+                .map(f -> new FollowingResponse(
+                        f.getFollowingUser().getName(),
+                        f.getCrypto().getSymbol(),
+                        f.getFollowingUser().getEmail(),
+                        f.getCryptoAmount(),
+                        f.getCreatedAt()
+                ))
+                .toList();
+
+        return new FollowingListResponse(followingResponses, subscriptions.getTotalPages(), subscriptions.getTotalElements());
     }
 
-    public FollowerListResponse getFollower(AuthUser authUser) {
-        return new FollowerListResponse(
-                subscriptionsRepository.findAllByFollowingUserId(authUser.getId())
-                        .stream()
-                        .map(f -> new FollowerResponse(f.getFollowerUser().getName(), f.getCrypto().getSymbol()))
-                        .toList());
+    public FollowerListResponse getFollower(AuthUser authUser, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Subscriptions> subscriptionsPage = subscriptionsRepository.findAllByFollowingUserId(authUser.getId(), pageable);
+
+        List<FollowerResponse> followers = subscriptionsPage.getContent()
+                .stream()
+                .map(f -> new FollowerResponse(
+                        f.getFollowerUser().getName(),
+                        f.getCrypto().getSymbol(),
+                        f.getFollowerUser().getEmail(),
+                        f.getCryptoAmount(),
+                        f.getCreatedAt()
+                ))
+                .toList();
+
+        return new FollowerListResponse(followers, subscriptionsPage.getTotalElements(), subscriptionsPage.getTotalPages());
     }
     @Transactional
     public UnFollowResponse unFollowing(AuthUser authUser,long subscriptionsId) {
