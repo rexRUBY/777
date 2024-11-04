@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  batch:
+    build:
+      context: .
+      dockerfile: ./batch/Dockerfile
+    image: ${STREAMING_REPOSITORY_URI}:latest
+    ports:
+      - "8083:8083"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
