@@ -39,8 +39,8 @@ public class RankingBatch {
     @Bean
     public Job firstJob(Step firstRateStep, Step secondRateStep) {
         return new JobBuilder("firstJob", jobRepository)
-//                .start(firstStep())
-                .start(firstRateStep) // RankingRateBatch 의 firstRateStep
+                .start(firstStep())
+                .next(firstRateStep) // RankingRateBatch 의 firstRateStep
                 .next(secondRateStep) // RankingRateBatch 의 secondRateStep
                 .build();
     }
