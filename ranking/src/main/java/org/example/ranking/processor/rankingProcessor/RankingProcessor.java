@@ -1,10 +1,10 @@
 package org.example.ranking.processor.rankingProcessor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
-import org.example.ranking.entity.Ranking;
-import org.example.ranking.repository.RankingRepository;
+import org.example.common.ranking.entity.Ranking;
 import org.example.ranking.service.RankingCalculationService;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -14,7 +14,6 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

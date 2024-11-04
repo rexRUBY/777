@@ -2,13 +2,13 @@ package org.example.ranking.batch;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.repository.UserRepository;
 import org.example.ranking.config.CountConfig;
 import org.example.common.ranking.entity.Ranking;
 import org.example.ranking.partitioning.ColumnRangePartitioner;
 import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessBtc;
 import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessEth;
-import org.example.ranking.repository.RankingRepository;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;

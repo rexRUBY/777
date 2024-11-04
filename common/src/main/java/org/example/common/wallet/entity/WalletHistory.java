@@ -6,12 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.common.common.entity.Timestamped;
 import org.example.common.user.entity.User;
-<<<<<<< HEAD
+
 import org.example.common.wallet.enums.ChargeStatus;
 
-=======
+
 @Setter
->>>>>>> origin/dev
 @Getter
 @Entity
 @NoArgsConstructor
@@ -56,18 +55,17 @@ public class WalletHistory extends Timestamped {
         this.cryptoPrice = wallet.getCryptoPrice();
     }
 
-<<<<<<< HEAD
     public WalletHistory(User user, String chargeAmount, ChargeStatus chargeStatus) {
         this.user = user;
         this.chargeStatus = chargeStatus;
         this.cash = Long.valueOf(chargeAmount);
-=======
+    }
+
     public WalletHistory(User user, double v, String btc, long l, long i) {
         this.user=user;
         this.amount=v;
         this.cryptoSymbol=btc;
         this.cryptoPrice=l;
         this.cash=i;
->>>>>>> origin/dev
     }
 }
