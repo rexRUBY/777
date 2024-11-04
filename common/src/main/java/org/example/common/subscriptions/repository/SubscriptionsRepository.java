@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Long> {
-    List<Subscriptions> findAllByFollowerUserId(Long FollowerUserId);
-    List<Subscriptions> findAllByFollowingUserId(Long FollowingUserId);
+    Page<Subscriptions> findAllByFollowerUserId(Long FollowerUserId, Pageable pageable);
+
+    Page<Subscriptions> findAllByFollowingUserId(Long FollowingUserId, Pageable pageable);
 
     @Query("SELECT DISTINCT s FROM Subscriptions s WHERE s.subscribe = 'OFF'")
     Page<Subscriptions> findAllBySubscribe(Pageable pageable);

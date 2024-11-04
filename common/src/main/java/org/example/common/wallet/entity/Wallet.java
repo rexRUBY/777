@@ -21,6 +21,7 @@ public class Wallet extends Timestamped {
     private Long id;
 
     @Column(name = "amount")
+
     private Double amount=0.0;
 
     @Column(name = "crypto_symbol")
@@ -62,4 +63,8 @@ public class Wallet extends Timestamped {
         this.amount=amount-cryptoAmount;
     }
 
+    public void chargeCash(String chargeAmount) {
+        Long amount = Long.parseLong(chargeAmount);
+        this.cash += amount;
+    }
 }

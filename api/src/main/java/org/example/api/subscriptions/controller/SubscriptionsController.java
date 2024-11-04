@@ -28,16 +28,22 @@ public class SubscriptionsController {
     }
 
 
-    @GetMapping("/following")
+    @GetMapping("/following/{page}/{size}")
     public ResponseEntity<FollowingListResponse> getFollowing(
-            @AuthenticationPrincipal AuthUser authUser) {
-        return ResponseEntity.ok(subscriptionsService.getFollowing(authUser));
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable int page,
+            @PathVariable int size
+    ) {
+        return ResponseEntity.ok(subscriptionsService.getFollowing(authUser, page, size));
     }
 
-    @GetMapping("/follower")
+    @GetMapping("/follower/{page}/{size}")
     public ResponseEntity<FollowerListResponse> getFollower(
-            @AuthenticationPrincipal AuthUser authUser) {
-        return ResponseEntity.ok(subscriptionsService.getFollower(authUser));
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable int page,
+            @PathVariable int size
+    ) {
+        return ResponseEntity.ok(subscriptionsService.getFollower(authUser, page, size));
     }
 
     @DeleteMapping("/{subscriptionsId}")

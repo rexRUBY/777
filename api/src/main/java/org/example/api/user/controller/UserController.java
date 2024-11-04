@@ -37,4 +37,9 @@ public class UserController {
     ) {
         userService.changePassword(authUser, userChangePasswordRequest);
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(userService.getMyInfo(authUser));
+    }
 }

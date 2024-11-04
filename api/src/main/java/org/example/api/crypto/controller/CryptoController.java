@@ -2,13 +2,11 @@ package org.example.api.crypto.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.api.crypto.service.CryptoService;
+import org.example.common.crypto.dto.CryptoLatestPriceResponseDto;
 import org.example.common.crypto.dto.CryptoListResponse;
 import org.example.common.crypto.dto.CryptoResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,5 +23,13 @@ public class CryptoController {
     @GetMapping("/cryptos/list")
     public  ResponseEntity<CryptoListResponse> getCryptoSymbolList() {
         return ResponseEntity.ok(this.cryptoService.getCryptoSymbolList());
+    }
+
+    @GetMapping("/cryptos/latest/price")
+    public ResponseEntity<CryptoLatestPriceResponseDto> getLatestCryptoPrice(
+            @RequestParam String symbol,
+            @RequestParam String limit
+    ) {
+        return ResponseEntity.ok(this.cryptoService.getLatestCryptoPrice(symbol, limit));
     }
 }

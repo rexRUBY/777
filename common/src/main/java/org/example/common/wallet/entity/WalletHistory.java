@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.common.common.entity.Timestamped;
 import org.example.common.user.entity.User;
+
+import org.example.common.wallet.enums.ChargeStatus;
+
+
 @Setter
 @Getter
 @Entity
@@ -23,6 +27,7 @@ public class WalletHistory extends Timestamped {
     private Long id;
 
     @Column(name = "amount")
+
     private Double amount=0.0;
 
     @Column(name = "crypto_symbol")
@@ -34,6 +39,10 @@ public class WalletHistory extends Timestamped {
     @Column(name = "cash")
     private Long cash;
 
+    @Column(name = "charge_status")
+    @Enumerated(EnumType.STRING)
+    private ChargeStatus chargeStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -44,6 +53,12 @@ public class WalletHistory extends Timestamped {
         this.cryptoSymbol = wallet.getCryptoSymbol();
         this.cash= wallet.getCash();
         this.cryptoPrice = wallet.getCryptoPrice();
+    }
+
+    public WalletHistory(User user, String chargeAmount, ChargeStatus chargeStatus) {
+        this.user = user;
+        this.chargeStatus = chargeStatus;
+        this.cash = Long.valueOf(chargeAmount);
     }
 
     public WalletHistory(User user, double v, String btc, long l, long i) {

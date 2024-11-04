@@ -6,9 +6,13 @@ import java.util.List;
 
 @Getter
 public class FollowingListResponse {
-    private final List<FollowingResponse> subscriptions;
+    private List<FollowingResponse> subscriptions;
+    private int totalPages;
+    private long totalElements;
 
-    public FollowingListResponse(List<FollowingResponse> subscriptions) {
-        this.subscriptions = subscriptions;
+    public FollowingListResponse(List<FollowingResponse> followingResponses, int totalPages, long totalElements) {
+        this.subscriptions = followingResponses;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
     }
 }

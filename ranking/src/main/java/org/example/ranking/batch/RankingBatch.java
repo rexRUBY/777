@@ -1,12 +1,13 @@
 package org.example.ranking.batch;
 
 import lombok.RequiredArgsConstructor;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
-import org.example.ranking.entity.Ranking;
+
+import org.example.common.ranking.entity.Ranking;
 import org.example.ranking.partitioning.ColumnRangePartitioner;
 import org.example.ranking.processor.rankingProcessor.RankingProcessor;
-import org.example.ranking.repository.RankingRepository;
 import org.example.ranking.writer.ListRankingWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
