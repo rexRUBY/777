@@ -13,6 +13,12 @@ import org.example.common.user.entity.User;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "trade", indexes = {
+        @Index(name = "idx_trade_user", columnList = "user_id"),
+        @Index(name = "idx_trade_type", columnList = "trade_type"),
+        @Index(name = "idx_trade_for", columnList = "trade_for"),
+        @Index(name = "idx_trade_id", columnList = "id")
+})
 public class Trade extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +41,7 @@ public class Trade extends Timestamped {
     @Column(name = "money_from")
     private Long moneyFrom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

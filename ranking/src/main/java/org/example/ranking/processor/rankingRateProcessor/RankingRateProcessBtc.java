@@ -13,6 +13,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -40,18 +41,18 @@ public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, S
     @Override
     public Ranking process(Ranking ranking) throws Exception {
         log.info("process start rate btc");
-        LocalDateTime time = LocalDateTime.now();
+        LocalDateTime time= LocalDateTime.now().minusDays(1);
+        LocalDateTime time2= LocalDateTime.now();
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
         // BTC 랭킹 처리
-        String btcKey2 = ranking.getUserEmail() + "_btc" + time + "_ranked";
-        if (executionContext.containsKey(btcKey2) &&
-                rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtAndUserRankNotNull(userEmail, "BTC", time)) {
-            throw new IllegalStateException("duplicated");
+        String btcKey2 = ranking.getUserEmail() + "_btc" +time+ "_ranked";
+        if (!executionContext.containsKey(btcKey2) ) {
+            rankingCalculationService.setRank(ranking, "BTC");
+            executionContext.put(btcKey2, true); // 중복 체크용
         }
 //      rank.update()
-        rankingCalculationService.setRank(ranking, "BTC");
-        executionContext.put(btcKey2, true); // 중복 체크용
+//        !rankingRepository.existsByUserEmailAndCryptoSymbolAndUserRankNotNullAndCreatedAtBetween(userEmail, "BTC",time,time2)
 
         return ranking;
     }

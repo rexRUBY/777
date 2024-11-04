@@ -35,6 +35,7 @@ public class JobController {
             // JobParameters 설정
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("date", date)
+                    .addLong("run.id", System.currentTimeMillis()) // 각 실행마다 고유한 ID 추가
                     .toJobParameters();
 
             // 첫 번째 Job 실행
