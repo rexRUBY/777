@@ -214,8 +214,8 @@ package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.batch.partitioner.UserPartitioner;
-import org.example.batch.processor.subscriptionBillingProccessor.BtcSubscriptionBillingProccessor;
-import org.example.batch.processor.subscriptionBillingProccessor.EthSubscriptionBillingProccessor;
+import org.example.batch.processor.subscriptionBillingProcessor.BtcSubscriptionBillingProcessor;
+import org.example.batch.processor.subscriptionBillingProcessor.EthSubscriptionBillingProcessor;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.springframework.batch.core.Job;
@@ -246,8 +246,8 @@ public class SubscriptionBillingBatch {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
     private final UserRepository userRepository;
-    private final BtcSubscriptionBillingProccessor btcSubscriptionBillingProcessor;
-    private final EthSubscriptionBillingProccessor ethSubscriptionBillingProcessor;
+    private final BtcSubscriptionBillingProcessor btcSubscriptionBillingProcessor;
+    private final EthSubscriptionBillingProcessor ethSubscriptionBillingProcessor;
 
     private static final long TOTAL_USERS = 10000; // 전체 사용자 수
 
