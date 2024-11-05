@@ -1,11 +1,17 @@
 package org.example.common.webclient.service;
 
 import lombok.RequiredArgsConstructor;
+<<<<<<< HEAD
+import lombok.extern.slf4j.Slf4j;
+import org.example.common.webclient.dto.CryptoWebResponse;
+=======
 import org.springframework.beans.factory.annotation.Value;
+>>>>>>> origin/dev
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.example.common.webclient.dto.CryptoWebResponse;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CryptoWebService {
@@ -16,7 +22,11 @@ public class CryptoWebService {
     private String baseUrl;
 
     public Long getCryptoValueAsLong(String coin, String date, String time) {
-        String url = baseUrl + "/get-crypto-value?coin=" + coin + "&date=" + date + "&time=" + time;
+
+        String symbol = coin.replace("USDT", "");
+
+        String url = baseUrl + "/get-crypto-value?coin=" + symbol + "&date=" + date + "&time=" + time;
+
 
         return webClient.get()
                 .uri(url)

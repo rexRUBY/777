@@ -1,6 +1,5 @@
 package org.example.streaming.crypto;
 
-import org.example.streaming.crypto.service.CryptoService;
 import org.json.JSONObject;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -10,11 +9,9 @@ public class WebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    private final CryptoService cryptoService;
-
-    public WebSocketController(SimpMessagingTemplate messagingTemplate, CryptoService cryptoService) {
+    public WebSocketController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
-        this.cryptoService = cryptoService;
+
     }
 
     public void sendToClient(String json) {
