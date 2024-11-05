@@ -26,11 +26,12 @@ public class BatchController {
                 .toJobParameters();
 
         // 첫 번째 Job 실행
-        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
-        if (firstJobExecution.getStatus() == BatchStatus.COMPLETED) {
-            // 두 번째 Job 실행
-            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
-        }
+        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("checkJob"), jobParameters);
+//        JobExecution firstJobExecution = jobLauncher.run(jobRegistry.getJob("secondJob"), jobParameters);
+//        if (firstJobExecution.getStatus() == BatchStatus.COMPLETED) {
+//            // 두 번째 Job 실행
+//            JobExecution secondJobExecution = jobLauncher.run(jobRegistry.getJob("thirdJob"), jobParameters);
+//        }
 
 
         return "ok";

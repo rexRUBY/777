@@ -48,7 +48,6 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
 
         List<Ranking> rankings = new ArrayList<>();
         String btcKey = user.getEmail() + "_btc" + time;
-//        rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtBetween(userEmail, "BTC",time,time2)
         // BTC 처리
         if (!executionContext.containsKey(btcKey)) {
             double btcYield = rankingCalculationService.calculateYield(user, "BTC");
@@ -59,7 +58,6 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
          // 중복 체크용
 
         String ethKey = user.getEmail() + "_eth" + time;
-//        rankingRepository.existsByUserEmailAndCryptoSymbolAndCreatedAtBetween(userEmail, "ETH",time,time2)
         // ETH 처리
         if (!executionContext.containsKey(ethKey)) {
             double ethYield = rankingCalculationService.calculateYield(user, "ETH");
@@ -72,7 +70,6 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
 
         return rankings; // 두 개의 Ranking 객체를 포함한 리스트 반환
     }
-
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         return ExitStatus.COMPLETED;

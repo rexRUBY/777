@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.api.subscriptions.service.SubscriptionsService;
 import org.example.common.auth.dto.request.UnFollowResponse;
 import org.example.common.common.dto.AuthUser;
+import org.example.common.dataTest.JdbcBulkInsert;
 import org.example.common.subscriptions.dto.FollowerListResponse;
 import org.example.common.subscriptions.dto.FollowingListResponse;
 import org.example.common.subscriptions.dto.FollowingRequest;
@@ -19,6 +20,12 @@ import org.springframework.web.bind.annotation.*;
 public class SubscriptionsController {
 
     private final SubscriptionsService subscriptionsService;
+    private final JdbcBulkInsert jdbcBulkInsert;
+
+    @PostMapping("/test")
+    public void createDummySubscriptions(){
+        jdbcBulkInsert.createDummySubscriptions();
+    }
 
     @PostMapping
     public ResponseEntity<FollowingResponse> subscribe(

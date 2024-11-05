@@ -47,7 +47,6 @@ public class RankingRateBatch {
                 .partitioner("firstRateStep", ratePartitioner()) // 파티셔너 적용
                 .step(firstRatingStep())
                 .gridSize(10) // 파티션 수
-//                .taskExecutor(taskRateExecutor())
                 .build();
     }
     @Bean
@@ -56,7 +55,6 @@ public class RankingRateBatch {
                 .partitioner("secondRateStep", ratePartitioner()) // 파티셔너 적용
                 .step(secondRatingStep())
                 .gridSize(10) // 파티션 수
-//                .taskExecutor(taskRateExecutor())
                 .build();
     }
     // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의, 청크 크기는 10으로 설정
@@ -67,7 +65,6 @@ public class RankingRateBatch {
                 .reader(beforeBtcRateReader()) // User 데이터를 읽어옴
                 .processor(rankingRateProcessBtc) // User 데이터를 Ranking으로 변환
                 .writer(afterRateWriter()) // 변환된 Ranking 데이터를 저장
-//                .taskExecutor(taskRateExecutor())
                 .listener(stepExecutionListener())
                 .build();
     }
@@ -79,7 +76,6 @@ public class RankingRateBatch {
                 .reader(beforeEthRateReader()) // User 데이터를 읽어옴
                 .processor(rankingRateProcessEth) // User 데이터를 Ranking으로 변환
                 .writer(afterRateWriter()) // 변환된 Ranking 데이터를 저장
-//                .taskExecutor(taskRateExecutor())
                 .listener(stepExecutionListener())
                 .build();
     }

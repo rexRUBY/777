@@ -35,6 +35,7 @@ public class UserPartitioner implements Partitioner {
     }
 }
 */
+
 package org.example.batch.partitioner;
 
 import org.springframework.batch.core.partition.support.Partitioner;

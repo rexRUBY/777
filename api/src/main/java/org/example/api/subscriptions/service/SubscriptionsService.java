@@ -106,6 +106,7 @@ public class SubscriptionsService {
 
         return new FollowerListResponse(followers, subscriptionsPage.getTotalElements(), subscriptionsPage.getTotalPages());
     }
+
     @Transactional
     public UnFollowResponse unFollowing(AuthUser authUser,long subscriptionsId) {
         User user = userRepository.findById(authUser.getId())

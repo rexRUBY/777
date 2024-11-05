@@ -10,18 +10,18 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Slf4j
 @Component
 @StepScope
-public class EthSubscriptionBillingProcessor implements ItemProcessor<User, User>, StepExecutionListener {
+public class SubscriptionBillingProcessor implements ItemProcessor<User, User>, StepExecutionListener {
 
     private final SubscriptionBillingService subscriptionBillingService;
     // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
 
-    public EthSubscriptionBillingProcessor(SubscriptionBillingService subscriptionBillingService) {
+    public SubscriptionBillingProcessor(SubscriptionBillingService subscriptionBillingService) {
         this.subscriptionBillingService = subscriptionBillingService;
     }
 
@@ -34,18 +34,24 @@ public class EthSubscriptionBillingProcessor implements ItemProcessor<User, User
     @Override
     public User process(User user) throws Exception {
         log.info("process start subscriptiopn billing");
-        LocalDateTime time = LocalDateTime.now();
+        LocalDate time = LocalDate.now();
         String userEmail = user.getEmail();
         log.info(userEmail);
+        // eth 랭킹 처리
+        String btcBillKey = userEmail + "_billed_btc" + time;
+        if (executionContext.containsKey(btcBillKey)) {
+            throw new IllegalStateException("duplicated");
+        }
+        subscriptionBillingService.billCheck(user, "BTC");
+        executionContext.put(btcBillKey, true); // 중복 체크용
+
         // eth 랭킹 처리
         String ethBillKey = userEmail + "_billed_eth" + time;
         if (executionContext.containsKey(ethBillKey)) {
             throw new IllegalStateException("duplicated");
         }
-//      rank.update()
         subscriptionBillingService.billCheck(user, "ETH");
         executionContext.put(ethBillKey, true); // 중복 체크용
-
         return user;
     }
 

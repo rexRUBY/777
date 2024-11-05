@@ -13,7 +13,10 @@ import org.example.common.user.entity.User;
 @Table(name = "subscriptions", indexes = {
         @Index(name = "idx_following_user", columnList = "following_user_id"),
         @Index(name = "idx_follower_user", columnList = "follower_user_id"),
-        @Index(name = "idx_crypto", columnList = "crypto_id")
+        @Index(name = "idx_crypto", columnList = "crypto_id"),
+        @Index(name = "idx_subscribe", columnList = "subscribe"),
+        @Index(name = "idx_now_price", columnList = "now_price")
+
 })
 @NoArgsConstructor
 public class Subscriptions extends Timestamped {
@@ -61,5 +64,9 @@ public class Subscriptions extends Timestamped {
     public void checkout(long price) {
         this.finalPrice= (long)(price*this.cryptoAmount);
         this.subscribe=Subscribe.OFF;
+    }
+    public void checking(long price){
+        this.finalPrice = (long)(price*this.cryptoAmount);
+        this.subscribe=Subscribe.PENDING;
     }
 }
