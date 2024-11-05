@@ -51,10 +51,6 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
             rankingCalculationService.setRank(ranking, "ETH");
             executionContext.put(ethKey2, true);
         }
-//      rank.update()
-
-//        !rankingRepository.existsByUserEmailAndCryptoSymbolAndUserRankNotNullAndCreatedAtBetween(userEmail, "ETH",time,time2)
-        // 중복 체크용
         return ranking;
     }
 

@@ -36,8 +36,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT MAX(u.id) FROM User u")
     Long findMaxId();
 
-
-
     @Query("SELECT DISTINCT u FROM User u " +
             "LEFT JOIN FETCH u.tradeList  " + // User와 Trade 조인
             "LEFT JOIN  u.walletHistoryList " +

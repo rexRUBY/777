@@ -1,5 +1,6 @@
 package org.example.batch.service;
 
+import org.example.common.subscriptions.entity.Subscribe;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
@@ -15,15 +16,13 @@ import java.util.List;
 @Component
 public class SubscriptionBillingService {
 
-    private final CryptoWebService cryptoWebService;
     private final UserRepository userRepository;
 
-    public SubscriptionBillingService(CryptoWebService cryptoWebService, UserRepository userRepository) {
-        this.cryptoWebService = cryptoWebService;
+    public SubscriptionBillingService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @Transactional
+//    @Transactional
     public void billCheck(User user, String cryptoSymbol) {
         Long userId = user.getId();
         User foundUser = userRepository.findUserWithWalletList(userId)
@@ -35,34 +34,28 @@ public class SubscriptionBillingService {
         // subscriptionsIFollow 컬렉션 로드
         userRepository.findUserWithSubscriptionsIFollow(userId);
 
-        Long price = cryptoWebService.getCryptoValueAsLong(cryptoSymbol, DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
-        List<Subscriptions> followingList = getFilteredSubscriptions(foundUser.getSubscriptionsIFollow(), price);
-        List<Subscriptions> followerList = getFilteredSubscriptions(foundUser.getSubscriptionsBeingFollowed(), price);
+        List<Subscriptions> followingList = getFilteredSubscriptions(foundUser.getSubscriptionsIFollow());
+        List<Subscriptions> followerList = getFilteredSubscriptions(foundUser.getSubscriptionsBeingFollowed());
 
         // followingList가 비어있지 않은 경우에만 처리
         if (!followingList.isEmpty()) {
-            processSubscriptions(followingList, foundUser, cryptoSymbol, 0.9, price);
+            processSubscriptions(followingList, foundUser, cryptoSymbol, 0.9);
         }
 
         // followerList가 비어있지 않은 경우에만 처리
         if (!followerList.isEmpty()) {
-            processSubscriptions(followerList, foundUser, cryptoSymbol, 0.1, price);
+            processSubscriptions(followerList, foundUser, cryptoSymbol, 0.1);
         }
     }
 
-    private List<Subscriptions> getFilteredSubscriptions(List<Subscriptions> subscriptions, Long price) {
+    private List<Subscriptions> getFilteredSubscriptions(List<Subscriptions> subscriptions) {
         return subscriptions.stream()
-                .filter(s -> {
-                    LocalDate createdAt = s.getCreatedAt().toLocalDate();
-                    return (createdAt.isEqual(LocalDate.now().minusMonths(1))) || // 현재로부터 한 달 전과 동일
-                            (createdAt.isAfter(LocalDate.now().minusMonths(1)) && // 한 달 이후이고
-                                    (s.getNowPrice() * 1.05) <= price); // 가격 조건
-                })
+                .filter(s -> s.getSubscribe().equals(Subscribe.PENDING))
                 .toList(); // 필터링된 구독증 목록
     }
 
-    private void processSubscriptions(List<Subscriptions> subscriptionsList, User user, String cryptoSymbol, double percentage, long price) {
+    private void processSubscriptions(List<Subscriptions> subscriptionsList, User user, String cryptoSymbol, double percentage) {
         Wallet wallet = user.getWalletList().stream()
                 .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
                 .findFirst()
@@ -71,9 +64,20 @@ public class SubscriptionBillingService {
         subscriptionsList.stream()
                 .filter(s -> s.getCrypto().getSymbol().equals(cryptoSymbol))
                 .forEach(s -> {
-                    Long totalPrice = (long) (s.getCryptoAmount() * price);
-                    s.checkout(price);
+                    Long totalPrice = s.getFinalPrice();
+                    s.checkout((long)(totalPrice/s.getCryptoAmount()));
                     wallet.billing(totalPrice * percentage);
                 });
+    }
+
+    public void dateCheck(Subscriptions subscriptions, String cryptoSymbol, Long price){
+        if(subscriptions.getCrypto().getSymbol().equals(cryptoSymbol)){
+            subscriptions.checking(price);
+        }
+    }
+    public void priceCheck(Subscriptions subscriptions, String cryptoSymbol, Long price){
+        if(subscriptions.getCrypto().getSymbol().equals(cryptoSymbol)){
+            subscriptions.checking(price);
+        }
     }
 }

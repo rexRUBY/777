@@ -11,8 +11,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum Subscribe {
     ON(Subscribe.Authority.ON),
-    OFF(Subscribe.Authority.OFF);
-
+    OFF(Subscribe.Authority.OFF),
+    PENDING(Subscribe.Authority.PENDING);
     private final String subscribe;
 
     public static Subscribe of(String role) {
@@ -25,5 +25,6 @@ public enum Subscribe {
     public static class Authority {
         public static final String ON = "ON";
         public static final String OFF = "OFF";
+        public static final String PENDING = "PENDING";
     }
 }

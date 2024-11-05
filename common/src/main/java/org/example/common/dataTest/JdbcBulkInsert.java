@@ -1,64 +1,70 @@
 package org.example.common.dataTest;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.ThreadLocalRandom;
+import org.example.common.subscriptions.entity.Subscriptions;
+import org.example.common.subscriptions.repository.SubscriptionsRepository;
+import org.example.common.user.entity.User;
+import org.example.common.crypto.entity.Crypto;
+import org.example.common.subscriptions.repository.SubscriptionsRepository;
+import org.example.common.user.repository.UserRepository;
+import org.example.common.crypto.repository.CryptoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Random;
+
+@Service
 public class JdbcBulkInsert {
-    private static final String URL = "jdbc:mysql://localhost:3306/seven";
-    private static final String USER = "root";
-    private static final String PASSWORD = "gjsl12399!";
 
-    public static void main(String[] args) {
-//        int tradeRecords = 2000000;          // trade 테이블의 총 레코드 수
-        int walletHistoryRecords = 400000;   // wallethistory 테이블의 총 레코드 수
+    @Autowired
+    private UserRepository userRepository;
 
-//        updateDatesForTables("trade", tradeRecords);
-        updateDatesForTables("wallethistory", walletHistoryRecords);
-    }
+    @Autowired
+    private SubscriptionsRepository subscriptionRepository;
 
+    @Autowired
+    private CryptoRepository cryptoRepository;
 
-    public static void updateDatesForTables(String tableName, int totalRecords) {
-        String updateQuery = "UPDATE " + tableName + " SET created_at = ?, modified_at = ? WHERE id = ?";
+    private static final int TOTAL_SUBSCRIPTIONS = 1000000; // 생성할 더미 데이터 개수
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+    @Transactional
+    public void createDummySubscriptions() {
+        List<User> users = userRepository.findAll();
+        List<Crypto> cryptos = cryptoRepository.findAll();
+        Random random = new Random();
 
-            for (int i = 1; i <= totalRecords; i++) {
-                LocalDateTime randomDateTime = getRandomDateTime();
+        for (int i = 0; i < TOTAL_SUBSCRIPTIONS; i++) {
+            // 서로 다른 followingUser와 followerUser를 선택
+            User followingUser;
+            User followerUser;
+            do {
+                followingUser = users.get(random.nextInt(users.size()));
+                followerUser = users.get(random.nextInt(users.size()));
+            } while (followingUser.equals(followerUser));
 
-                pstmt.setObject(1, randomDateTime);
-                pstmt.setObject(2, randomDateTime);
-                pstmt.setInt(3, i); // 각 레코드의 id에 맞게 수정
+            // 랜덤으로 Crypto 선택
+            Crypto crypto = cryptos.get(random.nextInt(cryptos.size()));
 
-                pstmt.addBatch();
+            // 랜덤 가격 설정
+            Long nowPrice = (long) (random.nextDouble() * 100000); // 예시로 0 ~ 100000 범위의 랜덤 가격 설정
+            Double cryptoAmount = random.nextDouble() * 3.0; // 0 ~ 3 범위의 랜덤 cryptoAmount
 
-                if (i % 1000 == 0) { // 배치 단위로 실행
-                    pstmt.executeBatch();
-                    pstmt.clearBatch();
-                }
+            // Subscription 엔티티 생성
+            Subscriptions subscription = Subscriptions.of(followingUser, followerUser, crypto, cryptoAmount, nowPrice);
+
+            // 양방향 연관관계 설정
+            followingUser.getSubscriptionsBeingFollowed().add(subscription);
+            followerUser.getSubscriptionsIFollow().add(subscription);
+
+            // Subscription 저장
+            subscriptionRepository.save(subscription);
+
+            // 배치 크기에 도달할 때마다 flush하여 메모리 사용을 최적화
+            if (i % 1000 == 0) {
+                subscriptionRepository.flush();
+                userRepository.flush();
             }
-            pstmt.executeBatch(); // 남은 배치 실행
-            System.out.println("Updated dates for " + tableName + " table.");
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-    }
-
-
-    private static LocalDateTime getRandomDateTime() {
-        LocalDateTime startDate = LocalDateTime.of(2024, Month.SEPTEMBER, 30, 23, 59);
-        LocalDateTime endDate = LocalDateTime.of(2024, Month.OCTOBER, 31, 23, 59);
-
-        long startEpoch = startDate.toEpochSecond(java.time.ZoneOffset.UTC);
-        long endEpoch = endDate.toEpochSecond(java.time.ZoneOffset.UTC);
-
-        long randomEpoch = ThreadLocalRandom.current().nextLong(startEpoch, endEpoch);
-        return LocalDateTime.ofEpochSecond(randomEpoch, 0, java.time.ZoneOffset.UTC);
     }
 }

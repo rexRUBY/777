@@ -42,6 +42,7 @@ dependencies {
     implementation 'org.springframework.batch:spring-batch-integration'
     // Spring Context
     implementation 'org.springframework:spring-context'
+
 }
 test {
     useJUnitPlatform() // JUnit 5 사용 설정
