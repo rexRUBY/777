@@ -50,7 +50,7 @@ public class SubscriptionsService {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
 
-        if(user.getId().equals(followingRequest.getFollowingUserId())){
+        if(user.getEmail().equals(followingRequest.getFollowingUserEmail())){
             throw new InvalidRequestException("you can't subscribe yourself");
         }
 

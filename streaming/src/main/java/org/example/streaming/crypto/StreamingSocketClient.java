@@ -9,21 +9,13 @@ import org.example.streaming.crypto.service.CryptoService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @ClientEndpoint
@@ -33,12 +25,18 @@ public class StreamingSocketClient {
 
     @Value("${crypto.client.secret}")
     private String cryptoClientSecret;
+    private final WebSocketController webSocketController;
 
-    @Autowired
-    private WebSocketController webSocketController;
+    private final CryptoService cryptoService;
 
-    @Autowired
-    private CryptoService cryptoService;
+    public StreamingSocketClient(
+            WebSocketController webSocketController,
+            CryptoService cryptoService
+
+    ) {
+        this.webSocketController = webSocketController;
+        this.cryptoService = cryptoService;
+    }
 
     // 메모리에 저장할 마지막 가격 정보
     private final ConcurrentHashMap<String, String> latestPriceData = new ConcurrentHashMap<>();
@@ -50,9 +48,6 @@ public class StreamingSocketClient {
         try {
             String uri = "wss://ws.finnhub.io?token=" + cryptoClientSecret;
             container.connectToServer(this, new URI(uri));
-
-            // 초마다 Redis에 저장하는 작업 스케줄링
-//            scheduler.scheduleAtFixedRate(this::saveCryptoDataToRedis, 0, 1, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,24 +118,4 @@ public class StreamingSocketClient {
             System.err.println("Unexpected error: " + e.getMessage());
         }
     }
-
-
-    // 초마다 Redis에 데이터 저장
-//    private void saveCryptoDataToRedis() {
-//        String baseCreatedAt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-//                .withZone(ZoneId.of("Asia/Seoul"))
-//                .format(Instant.now().truncatedTo(ChronoUnit.SECONDS)) + ".000Z";
-//
-//        AtomicInteger counter = new AtomicInteger(0); // 순번 생성기
-//
-//        latestPriceData.forEach((symbol, price) -> {
-//            // createdAt에 순번을 추가하여 중복 방지
-//            String uniqueCreatedAt = baseCreatedAt + ":" + counter.getAndIncrement();
-//            cryptoService.saveCryptoData(symbol, price, uniqueCreatedAt);
-//        });
-//
-//        // 메모리 초기화
-//        latestPriceData.clear();
-//    }
-
 }

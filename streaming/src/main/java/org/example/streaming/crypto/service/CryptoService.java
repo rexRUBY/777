@@ -2,7 +2,6 @@ package org.example.streaming.crypto.service;
 
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class CryptoService {
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate redisTemplate;
 
     private final CryptoRepository cryptoRepository;
 
     private static final int MAX_SIZE = 900;
 
-    public CryptoService(CryptoRepository cryptoRepository) {
+    public CryptoService(StringRedisTemplate redisTemplate, CryptoRepository cryptoRepository) {
+        this.redisTemplate = redisTemplate;
         this.cryptoRepository = cryptoRepository;
     }
 
