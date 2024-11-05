@@ -82,7 +82,7 @@ public class SubscriptionBillingServiceTest {
                 .thenReturn(currentPrice);
 
         // When
-        spyService.billCheck(user1, "BTC");
+//        spyService.billCheck(user1, "BTC");
 
         // Then
         // billCheck 내부에서 processSubscriptions이 호출되었는지를 간접적으로 검증

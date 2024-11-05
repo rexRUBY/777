@@ -51,9 +51,6 @@ public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, S
             rankingCalculationService.setRank(ranking, "BTC");
             executionContext.put(btcKey2, true); // 중복 체크용
         }
-//      rank.update()
-//        !rankingRepository.existsByUserEmailAndCryptoSymbolAndUserRankNotNullAndCreatedAtBetween(userEmail, "BTC",time,time2)
-
         return ranking;
     }
 
