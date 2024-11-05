@@ -61,7 +61,11 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("https://jhwook.github.io", "http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(
+                "https://jhwook.github.io",
+                "http://localhost:3000",
+                "https://0d7f-1-241-47-142.ngrok-free.app"
+        ));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
 

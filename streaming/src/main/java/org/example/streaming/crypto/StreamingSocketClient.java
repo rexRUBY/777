@@ -38,7 +38,6 @@ public class StreamingSocketClient {
         this.cryptoService = cryptoService;
     }
 
-    // 메모리에 저장할 마지막 가격 정보
     private final ConcurrentHashMap<String, String> latestPriceData = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -100,10 +99,9 @@ public class StreamingSocketClient {
 
                     String price = String.format("%.5f", p);
 
-                    // 메모리에 최신 데이터 저장
                     latestPriceData.put(symbol, price);
                     cryptoService.saveCurrentCryptoPrice(symbol, price);
-                    // 클라이언트에 실시간 데이터 전송
+
                     CryptoDataDto cryptoDataDto = new CryptoDataDto(symbol, price);
 
                     String json = new Gson().toJson(cryptoDataDto);
