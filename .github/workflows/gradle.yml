@@ -3,11 +3,39 @@ name: Multi-Module Build and Deploy
 on:
   push:
     branches:
-      - dev  # dev 브랜치에 push 시 트리거
-  workflow_dispatch:  # 수동 실행도 지원
+      - dev
+  workflow_dispatch:
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      batch: ${{ steps.filter.outputs.batch }}
+      ranking: ${{ steps.filter.outputs.ranking }}
+      streaming: ${{ steps.filter.outputs.streaming }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - 'docker-compose.api.yml'
+            batch:
+              - 'batch/**'
+              - 'docker-compose.batch.yml'
+            ranking:
+              - 'ranking/**'
+              - 'docker-compose.ranking.yml'
+            streaming:
+              - 'streaming/**'
+              - 'docker-compose.streaming.yml'
+
   build-and-deploy-api:
+    needs: changes
+    if: ${{ needs.changes.outputs.api == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -49,6 +77,8 @@ jobs:
           --service api-service --force-new-deployment
 
   build-and-deploy-batch:
+    needs: changes
+    if: ${{ needs.changes.outputs.batch == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -90,6 +120,8 @@ jobs:
           --service batch-service --force-new-deployment
 
   build-and-deploy-ranking:
+    needs: changes
+    if: ${{ needs.changes.outputs.ranking == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -131,6 +163,8 @@ jobs:
           --service ranking-service --force-new-deployment
 
   build-and-deploy-streaming:
+    needs: changes
+    if: ${{ needs.changes.outputs.streaming == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
