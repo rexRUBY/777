@@ -23,15 +23,19 @@ jobs:
             api:
               - 'api/**'
               - 'docker-compose.api.yml'
+              - 'common/**'        # 공통 디렉토리 포함
             batch:
               - 'batch/**'
               - 'docker-compose.batch.yml'
+              - 'common/**'        # 공통 디렉토리 포함
             ranking:
               - 'ranking/**'
               - 'docker-compose.ranking.yml'
+              - 'common/**'        # 공통 디렉토리 포함
             streaming:
               - 'streaming/**'
               - 'docker-compose.streaming.yml'
+              - 'common/**'        # 공통 디렉토리 포함
 
   build-and-deploy-api:
     needs: changes
