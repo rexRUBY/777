@@ -68,4 +68,13 @@ public class WalletHistory extends Timestamped {
         this.cryptoPrice=l;
         this.cash=i;
     }
+
+    public WalletHistory(Wallet wallet, ChargeStatus chargeStatus) {
+        this.user = wallet.getUser();
+        this.amount = wallet.getAmount();
+        this.cryptoSymbol = wallet.getCryptoSymbol();
+        this.cash= wallet.getCash();
+        this.cryptoPrice = wallet.getCryptoPrice();
+        this.chargeStatus = chargeStatus;
+    }
 }

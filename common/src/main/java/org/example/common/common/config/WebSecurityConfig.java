@@ -51,6 +51,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/v1/rankings/top/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
+                        .requestMatchers("/test/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -64,7 +65,7 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "https://jhwook.github.io",
                 "http://localhost:3000",
-                "https://0d7f-1-241-47-142.ngrok-free.app"
+                "https://013e-1-241-47-142.ngrok-free.app"
         ));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));

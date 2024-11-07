@@ -10,8 +10,8 @@ import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor
 public enum ChargeStatus {
-    CONFIRM(ChargeStatus.Authority.CONFIRM),
-    REJECT(ChargeStatus.Authority.REJECT);
+    CHARGE(ChargeStatus.Authority.CHARGE),
+    TRANSACTION(ChargeStatus.Authority.TRANSACTION);
 
     private final String chargeStatus;
 
@@ -23,7 +23,7 @@ public enum ChargeStatus {
     }
 
     public static class Authority {
-        public static final String CONFIRM = "CONFIRM";
-        public static final String REJECT = "REJECT";
+        public static final String CHARGE = "CHARGE";
+        public static final String TRANSACTION = "TRANSACTION";
     }
 }

@@ -68,7 +68,7 @@ public class WalletService {
             wallet.chargeCash(request.getChargeAmount());
         }
 
-        WalletHistory walletHistory = new WalletHistory(user, request.getChargeAmount(), ChargeStatus.CONFIRM);
+        WalletHistory walletHistory = new WalletHistory(user, request.getChargeAmount(), ChargeStatus.CHARGE);
 
         walletHistoryRepository.save(walletHistory);
 

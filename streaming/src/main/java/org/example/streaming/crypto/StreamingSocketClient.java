@@ -100,11 +100,13 @@ public class StreamingSocketClient {
                     String price = String.format("%.5f", p);
 
                     latestPriceData.put(symbol, price);
+
                     cryptoService.saveCurrentCryptoPrice(symbol, price);
 
                     CryptoDataDto cryptoDataDto = new CryptoDataDto(symbol, price);
 
                     String json = new Gson().toJson(cryptoDataDto);
+
                     webSocketController.sendToClient(json);
                 }
             } else {
