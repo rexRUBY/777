@@ -12,6 +12,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.common.dto.AuthUser;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("!streaming") // streaming 프로파일에서는 로드하지 않음
 public class JwtSecurityFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;

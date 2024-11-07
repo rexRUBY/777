@@ -3,7 +3,7 @@ name: Multi-Module Build and Deploy
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
