@@ -1,0 +1,23 @@
+bootJar.enabled = true
+jar.enabled = false
+
+dependencies {
+    api project(':common')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // kafka
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.apache.kafka:kafka-streams'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // json
+    implementation 'org.json:json:20210307'
+    implementation 'com.google.code.gson:gson:2.8.9'
+}
+
