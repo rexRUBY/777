@@ -36,6 +36,11 @@ dependencies {
 
     // elastic search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // kafka
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.apache.kafka:kafka-streams'
 }
 test {
     useJUnitPlatform() // JUnit 5 사용 설정

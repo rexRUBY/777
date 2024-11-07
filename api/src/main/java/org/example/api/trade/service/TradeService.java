@@ -23,6 +23,7 @@ import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
+import org.example.common.wallet.enums.ChargeStatus;
 import org.example.common.wallet.repository.WalletHistoryRepository;
 import org.example.common.wallet.repository.WalletRepository;
 import org.example.common.webclient.util.DateTimeUtil;
@@ -70,7 +71,7 @@ public class TradeService {
             }
             wallet.update(wallet.getAmount() + tradeRequestDto.getAmount(),
                     wallet.getCash() - (long) (price * tradeRequestDto.getAmount()), price);
-            WalletHistory walletHistory = new WalletHistory(wallet);
+            WalletHistory walletHistory = new WalletHistory(wallet, ChargeStatus.TRANSACTION);
             walletHistoryRepository.save(walletHistory);
         } else if (tradeRequestDto.getTradeType().equals(TradeType.Authority.SELL)) {
             if (wallet.getAmount() < tradeRequestDto.getAmount()) {
@@ -78,7 +79,7 @@ public class TradeService {
             }
             wallet.update((wallet.getAmount() - tradeRequestDto.getAmount()),
                     wallet.getCash() + (long) (price * tradeRequestDto.getAmount()), price);
-            WalletHistory walletHistory = new WalletHistory(wallet);
+            WalletHistory walletHistory = new WalletHistory(wallet, ChargeStatus.TRANSACTION);
             walletHistoryRepository.save(walletHistory);
         }
         Trade trade = new Trade(user, crypto, tradeRequestDto.getTradeType(), tradeRequestDto.getTradeFor(), tradeRequestDto.getAmount(), price, (long) (price * tradeRequestDto.getAmount()), user.getId());
