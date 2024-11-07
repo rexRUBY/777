@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -110,3 +109,4 @@ public class CheckDateBatch {
         };
     }
 }
+
