@@ -46,3 +46,8 @@
 - **비용 절감**: ECR 자동 이미지 삭제 및 S3 백업 설정으로 비용 효율성 확보
 
 ![CI/CD 및 배포 시스템](https://github.com/user-attachments/assets/ffdf5376-0927-4da3-b791-2d1284addf5e)
+
+### 3. 구독 정산 시스템
+- **특정 시간별로 자동 정산**: lambda에서 api 호출을 통한 실시간 가격으로 자동 정산
+
+![image](https://github.com/user-attachments/assets/7c39d853-5135-4936-88d9-cd104273bd37)
