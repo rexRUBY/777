@@ -1,6 +1,5 @@
 package org.example.api.subscriptions.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.auth.dto.request.UnFollowResponse;
@@ -28,9 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SubscriptionsService {
 

@@ -25,7 +25,6 @@ public class SubscriptionBillingProcessor implements ItemProcessor<User, User>, 
         this.subscriptionBillingService = subscriptionBillingService;
     }
 
-
     @Override
     public void beforeStep(StepExecution stepExecution) {
         this.executionContext = stepExecution.getExecutionContext();
@@ -54,6 +53,4 @@ public class SubscriptionBillingProcessor implements ItemProcessor<User, User>, 
         executionContext.put(ethBillKey, true); // 중복 체크용
         return user;
     }
-
-
 }

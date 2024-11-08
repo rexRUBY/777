@@ -35,17 +35,18 @@ public class AuthService {
     
     @Transactional
     public SignupResponse signup(SignupRequest request) {
+        //중복 이메일 체크
         validateEmail(request.getEmail());
-
+        //비밀번호 조건 체크
         userService.validateNewPassword(request.getPassword());
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         User newUser = User.of(request.getEmail(), encodedPassword, request.getName());
 
         User savedUser = userRepository.save(newUser);
-        walletService.createWallet(savedUser);
         String token = jwtUtil.createToken(savedUser.getId(), savedUser.getEmail());
+        //지갑 생성 (BTC,ETH,LPJ)
+        walletService.createWallet(savedUser);
 
-        jwtUtil.addJwtToCookie(token);
         return SignupResponse.of(token);
     }
 
@@ -57,7 +58,6 @@ public class AuthService {
         }
 
         String token = jwtUtil.createToken(user.getId(), user.getEmail());
-        jwtUtil.addJwtToCookie(token);
 
         return SigninResponse.of(token);
     }
@@ -88,10 +88,6 @@ public class AuthService {
         if (!userRepository.existsByEmail(email)) {
             throw new InvalidRequestException("가입된 사용자가 아닙니다.");
         }
-    }
-
-    private String generateRandomToken() {
-        return String.valueOf(new Random().nextInt(100000000));
     }
 
     private void validateResetToken(String email, String token) {

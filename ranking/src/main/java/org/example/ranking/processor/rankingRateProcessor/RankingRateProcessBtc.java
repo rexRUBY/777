@@ -1,9 +1,7 @@
 package org.example.ranking.processor.rankingRateProcessor;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ranking.entity.Ranking;
-import org.example.common.ranking.repository.RankingRepository;
 import org.example.ranking.service.RankingCalculationService;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -14,21 +12,18 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
 @StepScope
 public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, StepExecutionListener {
 
-    private final RankingRepository rankingRepository;
     private final RankingCalculationService rankingCalculationService;
 
     // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
 
-    public RankingRateProcessBtc(RankingRepository rankingRepository, RankingCalculationService rankingCalculationService) {
-        this.rankingRepository = rankingRepository;
+    public RankingRateProcessBtc(RankingCalculationService rankingCalculationService) {
         this.rankingCalculationService = rankingCalculationService;
     }
 
@@ -41,8 +36,7 @@ public class RankingRateProcessBtc implements ItemProcessor<Ranking, Ranking>, S
     @Override
     public Ranking process(Ranking ranking) throws Exception {
         log.info("process start rate btc");
-        LocalDateTime time= LocalDateTime.now().minusDays(1);
-        LocalDateTime time2= LocalDateTime.now();
+        LocalDate time= LocalDate.now();
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
         // BTC 랭킹 처리

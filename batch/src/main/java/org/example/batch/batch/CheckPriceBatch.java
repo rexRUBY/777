@@ -5,7 +5,6 @@ import org.example.batch.partitioner.ColumnRangePartitioner;
 import org.example.batch.processor.checkProcessor.PriceProcessor;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
-import org.example.common.webclient.service.CryptoWebService;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -31,7 +30,6 @@ public class CheckPriceBatch {
     private final PlatformTransactionManager platformTransactionManager;
     private final SubscriptionsRepository subscriptionsRepository;
     private final PriceProcessor priceProcessor;
-    private final CryptoWebService cryptoWebService;
 
     @Bean
     public Job checkJob() {

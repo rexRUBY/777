@@ -1,11 +1,10 @@
 package org.example.ranking.batch;
 
-
 import lombok.RequiredArgsConstructor;
+import org.example.common.ranking.entity.Ranking;
 import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.repository.UserRepository;
 import org.example.ranking.config.CountConfig;
-import org.example.common.ranking.entity.Ranking;
 import org.example.ranking.partitioning.ColumnRangePartitioner;
 import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessBtc;
 import org.example.ranking.processor.rankingRateProcessor.RankingRateProcessEth;
@@ -21,14 +20,10 @@ import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-
 import java.util.Map;
-
 
 @Configuration
 @RequiredArgsConstructor
@@ -124,17 +119,7 @@ public class RankingRateBatch {
             }
         };
     }
-    // ThreadPoolTaskExecutor 설정
-    @Bean
-    public TaskExecutor taskRateExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4); // 기본 스레드 수
-        executor.setMaxPoolSize(8); // 최대 스레드 수
-        executor.setQueueCapacity(300); // 큐 용량
-        executor.setThreadNamePrefix("RankingRateBatch-");
-        executor.initialize();
-        return executor;
-    }
+
     @Bean
     public ColumnRangePartitioner ratePartitioner() {
         Long minId = userRepository.findMinId(); // 최소 ID 조회

@@ -64,38 +64,6 @@ public class JwtUtil {
         throw new ServerException("Not Found Token");
     }
 
-    public void addJwtToCookie(String token) {
-        try {
-            String encodedToken = URLEncoder.encode(token, "UTF-8").replaceAll("\\+", "%20");
-
-            Cookie cookie = new Cookie("Authorization", encodedToken);
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(60 * 60);
-            cookie.setPath("/");
-
-            httpServletResponse.addCookie(cookie);
-        } catch (UnsupportedEncodingException e) {
-            log.error("JWT 쿠키 생성 중 에러 발생", e.getMessage());
-        }
-    }
-
-    public String getTokenFromRequest(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
-                    try {
-                        return URLDecoder.decode(cookie.getValue(), "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        log.error("JWT 디코딩 중 에러 발생", e.getMessage());
-                        return null;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

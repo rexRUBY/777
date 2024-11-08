@@ -1,4 +1,3 @@
-// ListRankingWriter.java
 package org.example.ranking.writer;
 
 import org.example.common.ranking.repository.RankingRepository;
@@ -22,7 +21,6 @@ public class ListRankingWriter implements ItemWriter<List<Ranking>> {
     public void write(Chunk<? extends List<Ranking>> items) throws Exception {
         for (List<Ranking> rankings : items) {
             rankingRepository.saveAll(rankings); // Ranking 저장
-            // User 처리 로직은 이곳에서 제거되었습니다.
         }
     }
 }

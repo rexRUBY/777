@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 @Controller
 @ResponseBody
 public class BatchController {
@@ -22,6 +19,7 @@ public class BatchController {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
     private final TaskExecutor taskExecutor;
+
     public BatchController(JobLauncher jobLauncher, JobRegistry jobRegistry,
                            @Qualifier("defaultTaskExecutor") TaskExecutor taskExecutor) {
         this.jobLauncher = jobLauncher;
@@ -29,33 +27,10 @@ public class BatchController {
         this.taskExecutor = taskExecutor;
     }
 
-
-    @GetMapping("/test")
-    public String test() {
-        try {
-            System.out.println("Job execution via API started");
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-            String date = dateFormat.format(new Date());
-
-            // JobParameters 설정
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("date", date)
-                    .addLong("run.id", System.currentTimeMillis()) // 각 실행마다 고유한 ID 추가
-                    .toJobParameters();
-
-            // 첫 번째 Job 실행
-            jobLauncher.run(jobRegistry.getJob("checkJob"), jobParameters);
-            return "Job executed successfully!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Job execution failed!";
-        }
-    }
     //1분에 한번씩 코인의 가격을 비교
     @GetMapping("/first")
     public String first(@RequestParam("price") Long price,
-                           @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
+                        @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
 
         // cryptoSymbol 값이 "BTC"인지 "ETH"인지 체크
         if ("BTC".equals(cryptoSymbol)) {
@@ -101,7 +76,7 @@ public class BatchController {
     //하루에 한번 날짜 체크하고 정산작업진행
     @GetMapping("/second")
     public String second(@RequestParam("price") Long price,
-                           @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
+                         @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
 
         // cryptoSymbol 값이 "BTC"인지 "ETH"인지 체크
         if ("BTC".equals(cryptoSymbol)) {

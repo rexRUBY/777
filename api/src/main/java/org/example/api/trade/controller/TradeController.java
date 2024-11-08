@@ -6,14 +6,12 @@ import org.example.common.common.dto.AuthUser;
 import org.example.common.trade.dto.request.TradeRequestDto;
 import org.example.common.trade.dto.response.TradeListResponseDto;
 import org.example.common.trade.dto.response.TradeResponseDto;
-import org.example.common.trade.dto.response.TradeResponsePageDto;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -37,7 +35,6 @@ public class TradeController {
                                                                    @RequestBody TradeRequestDto tradeRequestDto) {
         return ResponseEntity.ok(tradeService.postSubscriptionsTrade(authUser, cryptoId, subscritionsId, tradeRequestDto));
     }
-
 
     @GetMapping("/{cryptoId}/trades")
     public ResponseEntity<List<TradeResponseDto>> getTradeList(@AuthenticationPrincipal AuthUser authUser,

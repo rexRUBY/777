@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.common.common.entity.Timestamped;
 import org.example.common.user.entity.User;
-
 import org.example.common.wallet.enums.ChargeStatus;
-
 
 @Setter
 @Getter
@@ -27,7 +25,6 @@ public class WalletHistory extends Timestamped {
     private Long id;
 
     @Column(name = "amount")
-
     private Double amount=0.0;
 
     @Column(name = "crypto_symbol")
