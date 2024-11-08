@@ -12,4 +12,8 @@ public class KafkaController {
     public void testKafka(@RequestBody String orderBody) {
         this.kafkaProducerService.sendOrder(orderBody);
     }
+    @PostMapping("/test/alarm")
+    public void testAlarmKafka(@RequestBody String alarm) {
+        this.kafkaProducerService.sendAlarm("alarm-topic", alarm);
+    }
 }

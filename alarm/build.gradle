@@ -1,0 +1,20 @@
+bootJar.enabled = true
+jar.enabled = false
+
+dependencies {
+	api project(':common')
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.apache.kafka:kafka-streams'
+	implementation 'org.springframework.kafka:spring-kafka'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 웹플럭스
+//	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// 레디스
+//	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+}
