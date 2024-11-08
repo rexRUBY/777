@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RankingService {
 
     private final RankingRepository rankingRepository;

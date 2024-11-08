@@ -14,7 +14,7 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
 
     Page<Subscriptions> findAllByFollowingUserId(Long FollowingUserId, Pageable pageable);
 
-    @Query("SELECT DISTINCT s FROM Subscriptions s WHERE s.subscribe = 'OFF'")
+    @Query("SELECT DISTINCT s FROM Subscriptions s WHERE s.subscribe = 'PENDING'")
     Page<Subscriptions> findAllBySubscribe(Pageable pageable);
 
     @Query("SELECT MIN(s.id) FROM Subscriptions s")
@@ -29,7 +29,7 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
     Page<Subscriptions> findPriceByCrypto(@Param("price") Long price, @Param("cryptoSymbol") String cryptoSymbol,Pageable pageable);
 
     @Query("SELECT s FROM Subscriptions s " +
-            "WHERE (s.crypto.symbol = :cryptoSymbol AND s.createdAt < :time) " +
+            "WHERE (s.crypto.symbol = :cryptoSymbol AND s.createdAt <= :time) " +
             "AND s.subscribe = 'ON'")
     Page<Subscriptions> findTime(@Param("time")LocalDateTime time,@Param("cryptoSymbol") String cryptoSymbol,Pageable pageable);
 }

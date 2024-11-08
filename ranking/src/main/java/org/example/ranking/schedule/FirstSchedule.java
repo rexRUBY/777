@@ -1,4 +1,3 @@
-/*
 package org.example.ranking.schedule;
 
 import org.springframework.batch.core.BatchStatus;
@@ -23,7 +22,7 @@ public class FirstSchedule {
         this.jobRegistry = jobRegistry;
     }
 
-//    @Scheduled(cron = "10 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Seoul")
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 
@@ -39,4 +38,3 @@ public class FirstSchedule {
         jobLauncher.run(jobRegistry.getJob("firstJob"), jobParameters);
     }
 }
-*/

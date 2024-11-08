@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class SubscriptionBillingBatch{
+public class SubscriptionBillingBatch {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
@@ -36,6 +36,7 @@ public class SubscriptionBillingBatch{
                 .start(billingStep())
                 .build();
     }
+
     @Bean
     public Step billingStep() {
         return new StepBuilder("billingStep", jobRepository)
@@ -48,12 +49,13 @@ public class SubscriptionBillingBatch{
     @Bean
     public Step firstBillingStep() {//btc 정보 계산용
         return new StepBuilder("firstBillingStep", jobRepository)
-                .<User,User >chunk(5000, platformTransactionManager)
+                .<User, User>chunk(5000, platformTransactionManager)
                 .reader(beforeBillingReader()) // User 데이터를 읽어옴
                 .processor(subscriptionBillingProcessor) // User 데이터를 Ranking으로 변환
                 .writer(afterBillingWriter()) // 변환된 Ranking 데이터를 저장
                 .build();
     }
+
     @Bean
     public RepositoryItemReader<User> beforeBillingReader() {
         return new RepositoryItemReaderBuilder<User>()
@@ -64,6 +66,7 @@ public class SubscriptionBillingBatch{
                 .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
                 .build();
     }
+
     @Bean
     public RepositoryItemWriter<User> afterBillingWriter() {
         return new RepositoryItemWriterBuilder<User>()
@@ -71,6 +74,7 @@ public class SubscriptionBillingBatch{
                 .methodName("save") // userRepository save 메서드를 사용하여 데이터 저장
                 .build();
     }
+
     @Bean
     public ColumnRangePartitioner subPartitioner() {
         Long minId = userRepository.findMinId(); // 최소 ID 조회
