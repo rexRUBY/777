@@ -21,8 +21,7 @@ public class CryptoService {
 
     private final CryptoRepository cryptoRepository;
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public CryptoResponse getCryptoInfo(Long cryptoId) {
         Crypto crypto = this.cryptoRepository.findById(cryptoId).orElseThrow();
