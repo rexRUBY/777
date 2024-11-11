@@ -10,8 +10,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication()
 @EntityScan("org.example.common")
 @EnableAsync
-@EnableJpaRepositories(basePackages = "org.example.common")
 @EnableKafka
+@EnableJpaRepositories(basePackages = "org.example.common")
 public class OrderApplication {
 
     public static void main(String[] args) {

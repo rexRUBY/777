@@ -1,6 +1,6 @@
 package com.example.order.order;
 
-import com.example.order.trade.TradeService;
+import com.example.order.trade.service.TradeService;
 import com.example.order.wallet.WalletService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -130,6 +130,8 @@ public class OrderMatchingService {
         String orderId = (String) order.getValue();
         double availableAmount = Double.parseDouble((String) stringRedisTemplate.opsForHash().get(orderId, "amount"));
         double requestAmount = Double.parseDouble(amount);
+        String timestampStr = (String) stringRedisTemplate.opsForHash().get(orderId, "timestamp");
+        Double timestamp = Double.valueOf(timestampStr);
 
         log.info("requestAmount: " + requestAmount);
         log.info("availableAmount: " + availableAmount);
@@ -140,9 +142,12 @@ public class OrderMatchingService {
         if (availableAmount >= requestAmount) {
             stringRedisTemplate.opsForHash().put(orderId, "amount", String.valueOf(availableAmount - requestAmount));
             log.info(availableAmount + "개 중 " + requestAmount + "개 처리됨 => " + (availableAmount - requestAmount) + "개 남음");
-            // 유저 지갑 업데이트
 
-            walletService.updateWallet(userId, oppositeUserId, price, requestAmount, orderType);
+            // 유저 지갑 업데이트
+            walletService.updateWallet(userId, oppositeUserId, price, requestAmount, orderType, symbol);
+
+            // 로그 생성
+            tradeService.saveLog(userId, oppositeUserId, price, requestAmount, orderType, symbol, orderId, timestamp);
         } else {
 
             String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
@@ -156,7 +161,10 @@ public class OrderMatchingService {
             log.info(requestAmount + "개 중 " + availableAmount + "개 처리됨 => 주문 삭제 완료");
 
             // 유저 지갑 업데이트
-            walletService.updateWallet(userId, oppositeUserId, price, requestAmount, orderType);
+            walletService.updateWallet(userId, oppositeUserId, price, requestAmount, orderType, symbol);
+
+            // 로그 생성
+            tradeService.saveLog(userId, oppositeUserId, price, requestAmount, orderType, symbol, orderId, timestamp);
 
             String restAmount = String.valueOf(requestAmount - availableAmount);
             log.info(restAmount + "개 추가 " + (orderType.equals(BUY_ORDER_KEY) ? "BUY" : "SELL") + " 매칭 시작");
