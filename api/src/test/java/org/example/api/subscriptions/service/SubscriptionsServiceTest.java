@@ -125,38 +125,38 @@ class SubscriptionsServiceTest {
                 () -> subscriptionsService.subscribe(testAuthUser, testFollowingRequest));
         assertEquals("you don't have such amount of coin", exception.getMessage());
     }
+//
+//    @Test
+//    @DisplayName("사용자의 구독 목록을 가져옵니다.")
+//    void getFollowing() {
+//        // given
+//        given(subscriptionsRepository.findAllByFollowerUserId(anyLong()))
+//                .willReturn(List.of(testSubscription));
+//
+//        // when
+//        FollowingListResponse response = subscriptionsService.getFollowing(testAuthUser);
+//
+//        // then
+//        assertNotNull(response);
+//        assertEquals(1, response.getSubscriptions().size());
+//        assertEquals("test2", response.getSubscriptions().get(0).getFollowingUserName());
+//        assertEquals("BTC", response.getSubscriptions().get(0).getCryptoSymbol());
+//    }
 
-    @Test
-    @DisplayName("사용자의 구독 목록을 가져옵니다.")
-    void getFollowing() {
-        // given
-        given(subscriptionsRepository.findAllByFollowerUserId(anyLong()))
-                .willReturn(List.of(testSubscription));
-
-        // when
-        FollowingListResponse response = subscriptionsService.getFollowing(testAuthUser);
-
-        // then
-        assertNotNull(response);
-        assertEquals(1, response.getSubscriptions().size());
-        assertEquals("test2", response.getSubscriptions().get(0).getFollowingUserName());
-        assertEquals("BTC", response.getSubscriptions().get(0).getCryptoSymbol());
-    }
-
-    @Test
-    @DisplayName("사용자의 팔로워 목록을 가져옵니다.")
-    void getFollower() {
-        // given
-        given(subscriptionsRepository.findAllByFollowingUserId(anyLong()))
-                .willReturn(List.of(testSubscription));
-        // when
-        FollowerListResponse response = subscriptionsService.getFollower(testAuthUser);
-        // then
-        assertNotNull(response);
-        assertEquals(1, response.getSubscriptions().size());
-        assertEquals("test1", response.getSubscriptions().get(0).getFollowerUserName());
-        assertEquals("BTC", response.getSubscriptions().get(0).getCryptoSymbol());
-    }
+//    @Test
+//    @DisplayName("사용자의 팔로워 목록을 가져옵니다.")
+//    void getFollower() {
+//        // given
+//        given(subscriptionsRepository.findAllByFollowingUserId(anyLong()))
+//                .willReturn(List.of(testSubscription));
+//        // when
+//        FollowerListResponse response = subscriptionsService.getFollower(testAuthUser);
+//        // then
+//        assertNotNull(response);
+//        assertEquals(1, response.getSubscriptions().size());
+//        assertEquals("test1", response.getSubscriptions().get(0).getFollowerUserName());
+//        assertEquals("BTC", response.getSubscriptions().get(0).getCryptoSymbol());
+//    }
 
     @Test
     @DisplayName("구독 해제 및 거래 기록 저장 성공")

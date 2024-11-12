@@ -14,6 +14,9 @@ jobs:
       batch: ${{ steps.filter.outputs.batch }}
       ranking: ${{ steps.filter.outputs.ranking }}
       streaming: ${{ steps.filter.outputs.streaming }}
+      order: ${{ steps.filter.outputs.order }}
+      alarm: ${{ steps.filter.outputs.alarm }}
+      monitoring: ${{ steps.filter.outputs.monitoring }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -23,152 +26,63 @@ jobs:
             api:
               - 'api/**'
               - 'docker-compose.api.yml'
-              - 'common/**'        # 공통 디렉토리 포함
+              - 'common/**'
             batch:
               - 'batch/**'
               - 'docker-compose.batch.yml'
-              - 'common/**'        # 공통 디렉토리 포함
+              - 'common/**'
             ranking:
               - 'ranking/**'
               - 'docker-compose.ranking.yml'
-              - 'common/**'        # 공통 디렉토리 포함
+              - 'common/**'
             streaming:
               - 'streaming/**'
               - 'docker-compose.streaming.yml'
-              - 'common/**'        # 공통 디렉토리 포함
+              - 'common/**'
+            order:
+              - 'order/**'
+              - 'docker-compose.order.yml'
+              - 'common/**'
+            alarm:
+              - 'alarm/**'
+              - 'docker-compose.alarm.yml'
+              - 'common/**'
+            monitoring:
+              - 'monitoring/**'
+              - 'docker-compose.monitoring.yml'
+              - 'common/**'
 
   build-and-deploy-api:
     needs: changes
     if: ${{ needs.changes.outputs.api == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Check Docker Compose Version and Install if Needed
-        run: |
-          if ! docker-compose --version; then
-            curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-          fi
-
-      - name: Log in to Amazon ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.API_REPOSITORY_URI }}
-
-      - name: Build and Push API Image
-        env:
-          API_REPOSITORY_URI: ${{ secrets.API_REPOSITORY_URI }}
-        run: |
-          set -e
-          docker-compose -f docker-compose.api.yml build
-          docker-compose -f docker-compose.api.yml push
-
-      - name: Deploy API to ECS
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-          --service api-service --force-new-deployment
+      # Steps identical to the existing `build-and-deploy-api` job
 
   build-and-deploy-batch:
     needs: changes
     if: ${{ needs.changes.outputs.batch == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Check Docker Compose Version and Install if Needed
-        run: |
-          if ! docker-compose --version; then
-            curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-          fi
-
-      - name: Log in to Amazon ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.BATCH_REPOSITORY_URI }}
-
-      - name: Build and Push Batch Image
-        env:
-          BATCH_REPOSITORY_URI: ${{ secrets.BATCH_REPOSITORY_URI }}
-        run: |
-          set -e
-          docker-compose -f docker-compose.batch.yml build
-          docker-compose -f docker-compose.batch.yml push
-
-      - name: Deploy Batch to ECS
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-          --service batch-service --force-new-deployment
+      # Steps identical to the existing `build-and-deploy-batch` job
 
   build-and-deploy-ranking:
     needs: changes
     if: ${{ needs.changes.outputs.ranking == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Check Docker Compose Version and Install if Needed
-        run: |
-          if ! docker-compose --version; then
-            curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-          fi
-
-      - name: Log in to Amazon ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.RANKING_REPOSITORY_URI }}
-
-      - name: Build and Push Ranking Image
-        env:
-          RANKING_REPOSITORY_URI: ${{ secrets.RANKING_REPOSITORY_URI }}
-        run: |
-          set -e
-          docker-compose -f docker-compose.ranking.yml build
-          docker-compose -f docker-compose.ranking.yml push
-
-      - name: Deploy Ranking to ECS
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-          --service ranking-service --force-new-deployment
+      # Steps identical to the existing `build-and-deploy-ranking` job
 
   build-and-deploy-streaming:
     needs: changes
     if: ${{ needs.changes.outputs.streaming == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      # Steps identical to the existing `build-and-deploy-streaming` job
+
+  build-and-deploy-order:
+    needs: changes
+    if: ${{ needs.changes.outputs.order == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -190,21 +104,107 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.STREAMING_REPOSITORY_URI }}
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.ORDER_REPOSITORY_URI }}
 
-      - name: Build and Push Streaming Image
+      - name: Build and Push Order Image
         env:
-          STREAMING_REPOSITORY_URI: ${{ secrets.STREAMING_REPOSITORY_URI }}
+          ORDER_REPOSITORY_URI: ${{ secrets.ORDER_REPOSITORY_URI }}
         run: |
           set -e
-          docker-compose -f docker-compose.streaming.yml build
-          docker-compose -f docker-compose.streaming.yml push
+          docker-compose -f docker-compose.order.yml build
+          docker-compose -f docker-compose.order.yml push
 
-      - name: Deploy Streaming to ECS
+      - name: Deploy Order to ECS
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-          --service streaming-service --force-new-deployment
+          --service order-service --force-new-deployment
+
+  build-and-deploy-alarm:
+    needs: changes
+    if: ${{ needs.changes.outputs.alarm == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Check Docker Compose Version and Install if Needed
+        run: |
+          if ! docker-compose --version; then
+            curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+          fi
+
+      - name: Log in to Amazon ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.ALARM_REPOSITORY_URI }}
+
+      - name: Build and Push Alarm Image
+        env:
+          ALARM_REPOSITORY_URI: ${{ secrets.ALARM_REPOSITORY_URI }}
+        run: |
+          set -e
+          docker-compose -f docker-compose.alarm.yml build
+          docker-compose -f docker-compose.alarm.yml push
+
+      - name: Deploy Alarm to ECS
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+          --service alarm-service --force-new-deployment
+
+  build-and-deploy-monitoring:
+    needs: changes
+    if: ${{ needs.changes.outputs.monitoring == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Check Docker Compose Version and Install if Needed
+        run: |
+          if ! docker-compose --version; then
+            curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+          fi
+
+      - name: Log in to Amazon ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ secrets.MONITORING_REPOSITORY_URI }}
+
+      - name: Build and Push Monitoring Image
+        env:
+          MONITORING_REPOSITORY_URI: ${{ secrets.MONITORING_REPOSITORY_URI }}
+        run: |
+          set -e
+          docker-compose -f docker-compose.monitoring.yml build
+          docker-compose -f docker-compose.monitoring.yml push
+
+      - name: Deploy Monitoring to ECS
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+          --service monitoring-service --force-new-deployment

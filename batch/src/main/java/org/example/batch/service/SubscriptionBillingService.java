@@ -5,12 +5,8 @@ import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.common.wallet.entity.Wallet;
-import org.example.common.webclient.service.CryptoWebService;
-import org.example.common.webclient.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component

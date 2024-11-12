@@ -31,20 +31,14 @@ public class PriceProcessor implements ItemProcessor<Subscriptions, Subscription
 
     @Override
     public Subscriptions process(Subscriptions subscriptions) throws Exception {
-        Long btcPrice = (Long) executionContext.get("btcPrice");
-        Long ethPrice = (Long) executionContext.get("ethPrice");
+        Long price = (Long) executionContext.get("price");
 
-        String btcKey = subscriptions.getId() + "_btc";
+
+        String Key = subscriptions.getId() + "_" + subscriptions.getCrypto().getSymbol();
         // BTC 처리
-        if (!executionContext.containsKey(btcKey)) {
-            subscriptionBillingService.priceCheck(subscriptions, "BTC",btcPrice);
-            executionContext.put(btcKey, true);
-        }
-        String ethKey = subscriptions.getId() + "_eth";
-        // BTC 처리
-        if (!executionContext.containsKey(ethKey)) {
-            subscriptionBillingService.priceCheck(subscriptions, "ETH",ethPrice);
-            executionContext.put(ethKey, true);
+        if (!executionContext.containsKey(Key)) {
+            subscriptionBillingService.priceCheck(subscriptions, subscriptions.getCrypto().getSymbol(), price);
+            executionContext.put(Key, true);
         }
 
         return subscriptions;
@@ -55,4 +49,3 @@ public class PriceProcessor implements ItemProcessor<Subscriptions, Subscription
         return ExitStatus.COMPLETED;
     }
 }
-

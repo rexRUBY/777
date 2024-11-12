@@ -1,6 +1,7 @@
 package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
+import org.example.batch.partitioner.ColumnRangePartitioner;
 import org.example.batch.processor.deleteSubscriptionsBilledProcessor.DeleteSubscriptionsBilledProcessor;
 import org.example.common.subscriptions.entity.Billing;
 import org.example.common.subscriptions.entity.Subscriptions;
@@ -34,7 +35,16 @@ public class DeleteBilledSubscriptionBatch {
     @Bean
     public Job thirdJob() {
         return new JobBuilder("thirdJob", jobRepository)
-                .start(firstDeleteStep())
+                .start(checkDeleteStep())
+                .build();
+    }
+
+    @Bean
+    public Step checkDeleteStep() {
+        return new StepBuilder("checkDeleteStep", jobRepository)
+                .partitioner("checkDeleteStep", deletePartitioner()) // 파티셔너 적용
+                .step(firstDeleteStep())
+                .gridSize(10) // 파티션 수
                 .build();
     }
 
@@ -42,7 +52,7 @@ public class DeleteBilledSubscriptionBatch {
     @Bean
     public Step firstDeleteStep() {
         return new StepBuilder("firstDeleteStep", jobRepository)
-                .<Subscriptions, Subscriptions>chunk(1000, platformTransactionManager)
+                .<Subscriptions, Subscriptions>chunk(5000, platformTransactionManager)
                 .reader(beforeDeleteReader()) // 구독 데이터를 읽어옴
                 .processor(deleteSubscriptionsBilledProcessor) // 구독 데이터를 처리
                 .writer(afterDeleteWriter()) // 처리된 구독 데이터를 Billing에 저장하고 삭제
@@ -54,7 +64,7 @@ public class DeleteBilledSubscriptionBatch {
     public RepositoryItemReader<Subscriptions> beforeDeleteReader() {
         return new RepositoryItemReaderBuilder<Subscriptions>()
                 .name("beforeDeleteReader") // 리더의 이름 설정
-                .pageSize(1000) // 한 번에 10개의 구독 데이터를 읽어옴
+                .pageSize(5000) // 한 번에 10개의 구독 데이터를 읽어옴
                 .methodName("findAllBySubscribe") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
                 .sorts(Map.of("id", Sort.Direction.ASC)) // subscriptions 데이터를 ID 기준으로 오름차순 정렬
@@ -73,5 +83,12 @@ public class DeleteBilledSubscriptionBatch {
                 subscriptionsRepository.delete(subscription);
             }
         };
+    }
+
+    @Bean
+    public ColumnRangePartitioner deletePartitioner() {
+        Long minId = subscriptionsRepository.findMinId(); // 최소 ID 조회
+        Long maxId = subscriptionsRepository.findMaxId(); // 최대 ID 조회
+        return new ColumnRangePartitioner("id", minId, maxId, 10);
     }
 }

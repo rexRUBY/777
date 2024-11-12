@@ -19,9 +19,4 @@ public class Crypto extends Timestamped {
     @Column(name = "description")
     private String description;
 
-    public Crypto(long l) {
-        this.id=l;
-    }
-
-
 }

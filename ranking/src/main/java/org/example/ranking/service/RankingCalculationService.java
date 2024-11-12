@@ -1,15 +1,14 @@
 package org.example.ranking.service;
 
-
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.ranking.entity.Ranked;
+import org.example.common.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
 import org.example.common.trade.enums.TradeFor;
 import org.example.common.user.entity.User;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
 import org.example.ranking.config.CountConfig;
-import org.example.common.ranking.entity.Ranked;
-import org.example.common.ranking.entity.Ranking;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -29,10 +28,6 @@ public class RankingCalculationService {
         WalletHistory lastMonthWallet = findClosestLastMonthWallet(user.getWalletHistoryList(), cryptoSymbol);
         WalletHistory nowWallet = findClosestThisMonthWallet(user.getWalletHistoryList(), cryptoSymbol);
 
-        /*// 한 달 전 또는 현재 지갑 기록이 없는 경우 예외를 발생시킴
-        if (lastMonthWallet == null || nowWallet == null) {
-            throw new RuntimeException(String.format("한달전 %s 지갑의 기록이 없습니다.", cryptoSymbol));
-        }*/
         if(lastMonthWallet == null){
             Wallet wallet = user.getWalletList().stream()
                     .filter(w -> w.getCryptoSymbol().equals(cryptoSymbol))
@@ -93,7 +88,6 @@ public class RankingCalculationService {
                 .max(Comparator.comparing(WalletHistory::getModifiedAt)) // 저번달1일 이전의 가장 최신의 지갑찾기
                 .orElse(null);
     }
-
 
     // 두 지갑 기록을 비교하여 수익률을 계산하는 메서드
     private double calculateYieldPercentage(WalletHistory lastMonthWallet, WalletHistory nowWallet, double otherPrice) {

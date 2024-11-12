@@ -1,6 +1,5 @@
 package org.example.api.trade.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.common.dto.AuthUser;
@@ -26,8 +25,8 @@ import org.example.common.wallet.entity.WalletHistory;
 import org.example.common.wallet.enums.ChargeStatus;
 import org.example.common.wallet.repository.WalletHistoryRepository;
 import org.example.common.wallet.repository.WalletRepository;
-import org.example.common.webclient.util.DateTimeUtil;
 import org.example.common.webclient.service.CryptoWebService;
+import org.example.common.webclient.util.DateTimeUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +57,6 @@ public class TradeService {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("no such user"));
         Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("no such crypto"));
-
 
         Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
