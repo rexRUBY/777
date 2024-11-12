@@ -1,9 +1,10 @@
-package org.example.streaming.crypto;
+package org.example.streaming.crypto.client;
 
 import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.websocket.*;
+import org.example.streaming.crypto.controller.WebSocketController;
 import org.example.streaming.crypto.dto.CryptoDataDto;
 import org.example.streaming.crypto.service.CryptoService;
 import org.json.JSONArray;
