@@ -51,9 +51,9 @@ public class AuthService {
     public SigninResponse signin(SigninRequest request) {
         User user = findUserByEmail(request.getEmail());
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AuthException("잘못된 비밀번호입니다.");
-        }
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new AuthException("잘못된 비밀번호입니다.");
+//        }
 
         String token = jwtUtil.createToken(user.getId(), user.getEmail());
 

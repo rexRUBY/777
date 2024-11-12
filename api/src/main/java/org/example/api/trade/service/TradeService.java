@@ -1,5 +1,6 @@
 package org.example.api.trade.service;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.common.dto.AuthUser;
@@ -81,7 +82,16 @@ public class TradeService {
         Trade trade = new Trade(user, crypto, tradeRequestDto.getTradeType(), tradeRequestDto.getTradeFor(), tradeRequestDto.getAmount(), price, (long) (price * tradeRequestDto.getAmount()), user.getId());
         tradeRepository.save(trade);
 
+        // 모니터링 서버로 거래 메트릭 전송
+        sendTradeMetricsToMonitoringServer(crypto.getSymbol(), price, tradeRequestDto.getAmount());
+
+
         return new TradeResponseDto(crypto.getSymbol(), tradeRequestDto.getAmount(), tradeRequestDto.getTradeType(), (long) (price * tradeRequestDto.getAmount()));
+    }
+
+    private void sendTradeMetricsToMonitoringServer(String coinType, double price, double amount) {
+        String url = "http://localhost:8086/api/metrics/trade?coinType=" + coinType + "&price=" + price + "&amount=" + amount;
+        restTemplate.postForEntity(url, null, Void.class);
     }
 
     @Transactional
