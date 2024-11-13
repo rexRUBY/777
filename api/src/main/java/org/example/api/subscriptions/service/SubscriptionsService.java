@@ -56,16 +56,16 @@ public class SubscriptionsService {
         User followingUser = userRepository.findByEmail(followingRequest.getFollowingUserEmail())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
 
-        Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(),crypto.getSymbol());
+        Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(), crypto.getSymbol());
 
         if(userWallet.getAmount()< followingRequest.getCryptoAmount()){
             throw new InvalidRequestException("you don't have such amount of coin");
         }
-        Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
+        Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
         userWallet.minusCoin(followingRequest.getCryptoAmount());
 
-        Subscriptions subscriptions = Subscriptions.of(followingUser, user, crypto, followingRequest.getCryptoAmount(),price);
+        Subscriptions subscriptions = Subscriptions.of(followingUser, user, crypto, followingRequest.getCryptoAmount(), price);
         subscriptionsRepository.save(subscriptions);
         
         return new FollowingResponse(subscriptions.getFollowingUser().getName(), subscriptions.getCrypto().getSymbol());
@@ -107,27 +107,30 @@ public class SubscriptionsService {
     }
 
     @Transactional
-    public UnFollowResponse unFollowing(AuthUser authUser,long subscriptionsId) {
+    public UnFollowResponse unFollowing(AuthUser authUser, long subscriptionsId) {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
+
         Subscriptions subscriptions = subscriptionsRepository.findById(subscriptionsId)
                 .orElseThrow(() -> new InvalidRequestException("no such subscriptionId"));
+
         User followingUser = userRepository.findById(subscriptions.getFollowingUser().getId())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
-        Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(),subscriptions.getCrypto().getSymbol());
-        Wallet followingUserWallet = walletRepository.findByUserIdAndCryptoSymbol(followingUser.getId(),subscriptions.getCrypto().getSymbol());
+
+        Wallet userWallet = walletRepository.findByUserIdAndCryptoSymbol(user.getId(), subscriptions.getCrypto().getSymbol());
+        Wallet followingUserWallet = walletRepository.findByUserIdAndCryptoSymbol(followingUser.getId(), subscriptions.getCrypto().getSymbol());
         if(!subscriptions.getFollowerUser().equals(user)){
             throw new InvalidRequestException("that is not you're subscriptions");
         }
-        Long price = cryptoWebService.getCryptoValueAsLong(subscriptions.getCrypto().getSymbol(), DateTimeUtil.getCurrentDate(),DateTimeUtil.getCurrentTime());
-        Long totalPrice = (long)(subscriptions.getCryptoAmount()*price);
-        userWallet.updateCash(totalPrice*0.9,price);
-        followingUserWallet.updateCash(totalPrice*0.1,price);
+        Long price = cryptoWebService.getCryptoValueAsLong(subscriptions.getCrypto().getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
+        Long totalPrice = (long)(subscriptions.getCryptoAmount() * price);
+        userWallet.updateCash(totalPrice * 0.9, price);
+        followingUserWallet.updateCash(totalPrice * 0.1, price);
         subscriptions.checkout(price);
         Billing billing = Billing.of(subscriptions);
         billingRepository.save(billing);
         subscriptionsRepository.delete(subscriptions);
 
-        return new UnFollowResponse(followingUser.getEmail(), subscriptions.getCrypto().getSymbol(),subscriptions.getCryptoAmount(),totalPrice);
+        return new UnFollowResponse(followingUser.getEmail(), subscriptions.getCrypto().getSymbol(), subscriptions.getCryptoAmount(), totalPrice);
     }
 }

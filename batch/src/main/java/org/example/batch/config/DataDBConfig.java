@@ -19,7 +19,9 @@ import java.util.HashMap;
         entityManagerFactoryRef = "dataEntityManager",
         transactionManagerRef = "dataTransactionManager"
 )
+
 public class DataDBConfig {
+
     @Bean
     @ConfigurationProperties("spring.datasource-data")
     public DataSource dataDBSource() {

@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class WalletService {
 
     private final WalletRepository walletRepository;
@@ -59,20 +60,19 @@ public class WalletService {
     }
 
     @Transactional
-    public String chargeCash(AuthUser authUser, ChargeRequest request) {
+    public Void chargeCash(AuthUser authUser, ChargeRequest request) {
         User user = userRepository.findById(authUser.getId()).orElseThrow();
 
         List<Wallet> wallets = walletRepository.findAllByUser(user);
 
-        for(Wallet wallet : wallets) {
+        for (Wallet wallet : wallets) {
             wallet.chargeCash(request.getChargeAmount());
         }
 
         WalletHistory walletHistory = new WalletHistory(user, request.getChargeAmount(), ChargeStatus.CHARGE);
 
         walletHistoryRepository.save(walletHistory);
-
-        return "successfully charged!";
+        return null;
     }
 
     public WalletHistoryListResponseDto getWalletHistoryPage(
