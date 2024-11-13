@@ -29,7 +29,7 @@ public class BillingSchedule {
         this.taskExecutor = taskExecutor;
     }
 
-    @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul") // 매달 1일 01시에 실행
+    @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Seoul") //01시에 실행
     public void runJobs() throws Exception {
         System.out.println("Job schedule start");
 

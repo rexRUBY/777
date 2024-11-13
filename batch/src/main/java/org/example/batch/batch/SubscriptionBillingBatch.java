@@ -32,6 +32,7 @@ public class SubscriptionBillingBatch {
     private final UserRepository userRepository;
     private final SubscriptionBillingProcessor subscriptionBillingProcessor;
 
+    //체크된 모든 subscriptions들을 정산해주는 Job
     @Bean
     public Job secondJob() {
         return new JobBuilder("secondJob", jobRepository)
@@ -42,10 +43,9 @@ public class SubscriptionBillingBatch {
     @Bean
     public Step billingStep() {
         return new StepBuilder("billingStep", jobRepository)
-                .partitioner("billingStep", subPartitioner()) // 파티셔너 적용
+                .partitioner("billingStep", subPartitioner())
                 .step(firstBillingStep())
-                .gridSize(10) // 파티션 수
-                .taskExecutor(subTaskExecutor())  // 병렬 처리 TaskExecutor 설정
+                .gridSize(10)
                 .build();
     }
 
@@ -53,10 +53,10 @@ public class SubscriptionBillingBatch {
     public Step firstBillingStep() {//btc 정보 계산용
         return new StepBuilder("firstBillingStep", jobRepository)
                 .<User, User>chunk(5000, platformTransactionManager)
-                .reader(beforeBillingReader()) // User 데이터를 읽어옴
-                .processor(subscriptionBillingProcessor) // User 데이터를 Ranking으로 변환
-                .writer(afterBillingWriter()) // 변환된 Ranking 데이터를 저장
-                .taskExecutor(subTaskExecutor())  // 병렬 처리 TaskExecutor 설정
+                .reader(beforeBillingReader())
+                .processor(subscriptionBillingProcessor)
+                .writer(afterBillingWriter())
+                .taskExecutor(subTaskExecutor())
                 .build();
     }
 
@@ -64,10 +64,10 @@ public class SubscriptionBillingBatch {
     public RepositoryItemReader<User> beforeBillingReader() {
         return new RepositoryItemReaderBuilder<User>()
                 .name("beforeBillingReader")
-                .pageSize(5000) // 한 번에 10개의 User 데이터를 읽어옴
-                .methodName("findAllJoinSubscriptsJoinWallet") // UserRepository의 메서드 이름
+                .pageSize(5000)
+                .methodName("findAllJoinSubscriptsJoinWallet")
                 .repository(userRepository)
-                .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
+                .sorts(Map.of("id", Sort.Direction.ASC))
                 .build();
     }
 
@@ -75,13 +75,14 @@ public class SubscriptionBillingBatch {
     public RepositoryItemWriter<User> afterBillingWriter() {
         return new RepositoryItemWriterBuilder<User>()
                 .repository(userRepository)
-                .methodName("save") // userRepository save 메서드를 사용하여 데이터 저장
+                .methodName("save")
                 .build();
     }
+
     @Bean
     public TaskExecutor subTaskExecutor() {
         SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-        taskExecutor.setConcurrencyLimit(10); // 최대 10개의 스레드로 병렬 처리
+        taskExecutor.setConcurrencyLimit(10);
         return taskExecutor;
     }
 

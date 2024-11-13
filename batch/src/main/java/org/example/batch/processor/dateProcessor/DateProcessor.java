@@ -1,5 +1,6 @@
 package org.example.batch.processor.dateProcessor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.batch.service.SubscriptionBillingService;
 import org.example.common.subscriptions.entity.Subscriptions;
@@ -15,15 +16,11 @@ import java.time.LocalDate;
 @Slf4j
 @Component
 @StepScope
+@RequiredArgsConstructor
 public class DateProcessor implements ItemProcessor<Subscriptions, Subscriptions>, StepExecutionListener {
 
     private final SubscriptionBillingService subscriptionBillingService;
-    // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
-
-    public DateProcessor(SubscriptionBillingService subscriptionBillingService) {
-        this.subscriptionBillingService = subscriptionBillingService;
-    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -39,11 +36,11 @@ public class DateProcessor implements ItemProcessor<Subscriptions, Subscriptions
         String cryptoSymbol = executionContext.getString("cryptoSymbol");
 
         log.info(id);
-        //  랭킹 처리
+
         String btcBillKey = id + "_billed" + time;
         if (!executionContext.containsKey(btcBillKey)) {
             subscriptionBillingService.dateCheck(subscriptions, cryptoSymbol, price);
-            executionContext.put(btcBillKey, true); // 중복 체크용
+            executionContext.put(btcBillKey, true);
         }
         return subscriptions;
     }

@@ -34,7 +34,7 @@ public class BatchController {
     @GetMapping("/first")
     public String first(@RequestParam("price") Long price,
                         @RequestParam("cryptoSymbol") String cryptoSymbol,
-                        @RequestParam("time")String time) throws JobExecutionException {
+                        @RequestParam("time") String time) throws JobExecutionException {
 
         // 'time' 파라미터를 받아서 LocalDateTime으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss"); // 예: 20241130 154500
@@ -46,7 +46,7 @@ public class BatchController {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "BTC")  // Job 1은 BTC 데이터만 처리
-                    .addLocalDateTime("time",parsedTime)
+                    .addLocalDateTime("time", parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 1 실행 (병렬 실행)
@@ -57,14 +57,12 @@ public class BatchController {
                     e.printStackTrace();
                 }
             });
-
-            return "Job 1 (BTC) started";
         } else if ("ETH".equals(cryptoSymbol)) {
             // ETH일 때 실행할 코드
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "ETH")  // Job 2는 ETH 데이터만 처리
-                    .addLocalDateTime("time",parsedTime)
+                    .addLocalDateTime("time", parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 2 실행 (병렬 실행)
@@ -75,19 +73,16 @@ public class BatchController {
                     e.printStackTrace();
                 }
             });
-
-            return "Job 2 (ETH) started";
-        } else {
-            // cryptoSymbol이 BTC도 ETH도 아닌 경우
-            return "Invalid cryptoSymbol. Please provide either 'BTC' or 'ETH'.";
         }
+        return "Invalid cryptoSymbol. Please provide either 'BTC' or 'ETH'.";
+
     }
 
     //하루에 한번 날짜 체크하고 정산작업진행
     @GetMapping("/second")
     public String second(@RequestParam("price") Long price,
                          @RequestParam("cryptoSymbol") String cryptoSymbol,
-                         @RequestParam("time")String time) throws JobExecutionException {
+                         @RequestParam("time") String time) throws JobExecutionException {
         // 'time' 파라미터를 받아서 LocalDateTime으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss"); // 예: 20241130 154500
         LocalDateTime parsedTime = LocalDateTime.parse(time, formatter);
@@ -97,7 +92,7 @@ public class BatchController {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "BTC")  // Job 1은 BTC 데이터만 처리
-                    .addLocalDateTime("time",parsedTime)
+                    .addLocalDateTime("time", parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 1 실행 (병렬 실행)
@@ -108,14 +103,12 @@ public class BatchController {
                     e.printStackTrace();
                 }
             });
-
-            return "Job 1 (BTC) started";
         } else if ("ETH".equals(cryptoSymbol)) {
             // ETH일 때 실행할 코드
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "ETH")  // Job 2는 ETH 데이터만 처리
-                    .addLocalDateTime("time",parsedTime)
+                    .addLocalDateTime("time", parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 2 실행 (병렬 실행)
@@ -126,12 +119,7 @@ public class BatchController {
                     e.printStackTrace();
                 }
             });
-
-            return "Job 2 (ETH) started";
-        } else {
-            // cryptoSymbol이 BTC도 ETH도 아닌 경우
-            return "Invalid cryptoSymbol. Please provide either 'BTC' or 'ETH'.";
         }
+        return "Invalid cryptoSymbol. Please provide either 'BTC' or 'ETH'.";
     }
-
 }

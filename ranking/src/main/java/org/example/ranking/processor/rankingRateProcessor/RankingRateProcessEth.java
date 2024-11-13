@@ -1,5 +1,6 @@
 package org.example.ranking.processor.rankingRateProcessor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ranking.entity.Ranking;
 import org.example.ranking.service.RankingCalculationService;
@@ -16,21 +17,15 @@ import java.time.LocalDate;
 @Slf4j
 @Component
 @StepScope
+@RequiredArgsConstructor
 public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, StepExecutionListener {
 
     private final RankingCalculationService rankingCalculationService;
-
-    // StepExecution에서 사용할 ExecutionContext
     private ExecutionContext executionContext;
-
-    public RankingRateProcessEth(RankingCalculationService rankingCalculationService) {
-        this.rankingCalculationService = rankingCalculationService;
-    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
         this.executionContext = stepExecution.getExecutionContext();
-
     }
 
     @Override
@@ -39,7 +34,6 @@ public class RankingRateProcessEth implements ItemProcessor<Ranking, Ranking>, S
         LocalDate time= LocalDate.now();
         String userEmail = ranking.getUserEmail();
         log.info(userEmail);
-        // eth 랭킹 처리
         String ethKey2 = ranking.getUserEmail() + "_eth" + time+"_ranked";
         if (!executionContext.containsKey(ethKey2) ) {
             rankingCalculationService.setRank(ranking, "ETH");

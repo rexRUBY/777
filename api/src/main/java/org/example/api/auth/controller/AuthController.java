@@ -1,6 +1,5 @@
 package org.example.api.auth.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.api.auth.service.AuthService;

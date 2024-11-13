@@ -21,13 +21,13 @@ public class WalletController {
 
     private final WalletService walletService;
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<WalletResponse>> getWallets(@AuthenticationPrincipal AuthUser authUser) {
         return ResponseEntity.ok(walletService.getWallets(authUser));
     }
 
     @PostMapping("/charge")
-    public ResponseEntity<String> chargeCash(@AuthenticationPrincipal AuthUser authUser, @RequestBody ChargeRequest request) {
+    public ResponseEntity<Void> chargeCash(@AuthenticationPrincipal AuthUser authUser, @RequestBody ChargeRequest request) {
         return ResponseEntity.ok(walletService.chargeCash(authUser, request));
     }
 
