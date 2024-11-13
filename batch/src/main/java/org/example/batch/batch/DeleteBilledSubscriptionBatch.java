@@ -17,6 +17,8 @@ import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -45,6 +47,8 @@ public class DeleteBilledSubscriptionBatch {
                 .partitioner("checkDeleteStep", deletePartitioner()) // 파티셔너 적용
                 .step(firstDeleteStep())
                 .gridSize(10) // 파티션 수
+                .taskExecutor(delTaskExecutor())  // 병렬 처리 TaskExecutor 설정
+
                 .build();
     }
 
@@ -56,6 +60,8 @@ public class DeleteBilledSubscriptionBatch {
                 .reader(beforeDeleteReader()) // 구독 데이터를 읽어옴
                 .processor(deleteSubscriptionsBilledProcessor) // 구독 데이터를 처리
                 .writer(afterDeleteWriter()) // 처리된 구독 데이터를 Billing에 저장하고 삭제
+                .taskExecutor(delTaskExecutor())  // 병렬 처리 TaskExecutor 설정
+
                 .build();
     }
 
@@ -83,6 +89,12 @@ public class DeleteBilledSubscriptionBatch {
                 subscriptionsRepository.delete(subscription);
             }
         };
+    }
+    @Bean
+    public TaskExecutor delTaskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(10); // 최대 10개의 스레드로 병렬 처리
+        return taskExecutor;
     }
 
     @Bean

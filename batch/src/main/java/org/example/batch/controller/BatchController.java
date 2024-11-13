@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Controller
 @ResponseBody
 public class BatchController {
@@ -30,7 +33,12 @@ public class BatchController {
     //1분에 한번씩 코인의 가격을 비교
     @GetMapping("/first")
     public String first(@RequestParam("price") Long price,
-                        @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
+                        @RequestParam("cryptoSymbol") String cryptoSymbol,
+                        @RequestParam("time")String time) throws JobExecutionException {
+
+        // 'time' 파라미터를 받아서 LocalDateTime으로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss"); // 예: 20241130 154500
+        LocalDateTime parsedTime = LocalDateTime.parse(time, formatter);
 
         // cryptoSymbol 값이 "BTC"인지 "ETH"인지 체크
         if ("BTC".equals(cryptoSymbol)) {
@@ -38,6 +46,7 @@ public class BatchController {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "BTC")  // Job 1은 BTC 데이터만 처리
+                    .addLocalDateTime("time",parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 1 실행 (병렬 실행)
@@ -55,6 +64,7 @@ public class BatchController {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "ETH")  // Job 2는 ETH 데이터만 처리
+                    .addLocalDateTime("time",parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 2 실행 (병렬 실행)
@@ -76,20 +86,24 @@ public class BatchController {
     //하루에 한번 날짜 체크하고 정산작업진행
     @GetMapping("/second")
     public String second(@RequestParam("price") Long price,
-                         @RequestParam("cryptoSymbol") String cryptoSymbol) throws JobExecutionException {
-
+                         @RequestParam("cryptoSymbol") String cryptoSymbol,
+                         @RequestParam("time")String time) throws JobExecutionException {
+        // 'time' 파라미터를 받아서 LocalDateTime으로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss"); // 예: 20241130 154500
+        LocalDateTime parsedTime = LocalDateTime.parse(time, formatter);
         // cryptoSymbol 값이 "BTC"인지 "ETH"인지 체크
         if ("BTC".equals(cryptoSymbol)) {
             // BTC일 때 실행할 코드
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "BTC")  // Job 1은 BTC 데이터만 처리
+                    .addLocalDateTime("time",parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 1 실행 (병렬 실행)
             taskExecutor.execute(() -> {
                 try {
-                    jobLauncher.run(jobRegistry.getJob("job1"), jobParameters);
+                    jobLauncher.run(jobRegistry.getJob("checkDateJob"), jobParameters);
                 } catch (JobExecutionException e) {
                     e.printStackTrace();
                 }
@@ -101,12 +115,13 @@ public class BatchController {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("price", price)
                     .addString("cryptoSymbol", "ETH")  // Job 2는 ETH 데이터만 처리
+                    .addLocalDateTime("time",parsedTime)
                     .toJobParameters();
 
             // 비동기적으로 Job 2 실행 (병렬 실행)
             taskExecutor.execute(() -> {
                 try {
-                    jobLauncher.run(jobRegistry.getJob("job2"), jobParameters);
+                    jobLauncher.run(jobRegistry.getJob("checkDateJob"), jobParameters);
                 } catch (JobExecutionException e) {
                     e.printStackTrace();
                 }

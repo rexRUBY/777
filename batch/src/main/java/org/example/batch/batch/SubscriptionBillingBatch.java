@@ -16,6 +16,8 @@ import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -43,6 +45,7 @@ public class SubscriptionBillingBatch {
                 .partitioner("billingStep", subPartitioner()) // 파티셔너 적용
                 .step(firstBillingStep())
                 .gridSize(10) // 파티션 수
+                .taskExecutor(subTaskExecutor())  // 병렬 처리 TaskExecutor 설정
                 .build();
     }
 
@@ -53,6 +56,7 @@ public class SubscriptionBillingBatch {
                 .reader(beforeBillingReader()) // User 데이터를 읽어옴
                 .processor(subscriptionBillingProcessor) // User 데이터를 Ranking으로 변환
                 .writer(afterBillingWriter()) // 변환된 Ranking 데이터를 저장
+                .taskExecutor(subTaskExecutor())  // 병렬 처리 TaskExecutor 설정
                 .build();
     }
 
@@ -73,6 +77,12 @@ public class SubscriptionBillingBatch {
                 .repository(userRepository)
                 .methodName("save") // userRepository save 메서드를 사용하여 데이터 저장
                 .build();
+    }
+    @Bean
+    public TaskExecutor subTaskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(10); // 최대 10개의 스레드로 병렬 처리
+        return taskExecutor;
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package org.example.batch.batch;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.batch.partitioner.ColumnRangePartitioner;
 import org.example.batch.processor.checkProcessor.PriceProcessor;
 import org.example.common.subscriptions.entity.Subscriptions;
@@ -17,11 +18,13 @@ import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class CheckPriceBatch {
@@ -54,6 +57,7 @@ public class CheckPriceBatch {
                 .reader(beforeCheckReader(null, null)) // User 데이터를 읽어옴
                 .processor(priceProcessor) // User 데이터를 Ranking으로 변환
                 .writer(afterCheckWriter()) // 변환된 Ranking 데이터를 저장
+                .taskExecutor(priceTaskExecutor()) // TaskExecutor 설정
                 .listener(stepExecutionListener()) // 리스너 적용
                 .build();
     }
@@ -89,10 +93,19 @@ public class CheckPriceBatch {
     }
 
     @Bean
+    public TaskExecutor priceTaskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(10); // 최대 10개의 스레드로 병렬 처리
+        return taskExecutor;
+    }
+
+    @Bean
     public StepExecutionListener stepExecutionListener() {
         return new StepExecutionListener() {
             @Override
             public void beforeStep(StepExecution stepExecution) {
+                log.info("Starting step: " + stepExecution.getStepName());
+
                 // 컨트롤러에서 전달받은 파라미터값을 ExecutionContext에 저장
                 String cryptoSymbol = stepExecution.getJobExecution().getJobParameters().getString("cryptoSymbol");
                 Long price = stepExecution.getJobExecution().getJobParameters().getLong("price");
@@ -104,6 +117,7 @@ public class CheckPriceBatch {
 
             @Override
             public ExitStatus afterStep(StepExecution stepExecution) {
+                log.info("Step " + stepExecution.getStepName() + " completed with status: " + stepExecution.getExitStatus());
                 return ExitStatus.COMPLETED;
             }
         };

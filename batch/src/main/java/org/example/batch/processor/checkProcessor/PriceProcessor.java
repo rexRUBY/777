@@ -33,14 +33,12 @@ public class PriceProcessor implements ItemProcessor<Subscriptions, Subscription
     public Subscriptions process(Subscriptions subscriptions) throws Exception {
         Long price = (Long) executionContext.get("price");
 
-
         String Key = subscriptions.getId() + "_" + subscriptions.getCrypto().getSymbol();
         // BTC 처리
         if (!executionContext.containsKey(Key)) {
             subscriptionBillingService.priceCheck(subscriptions, subscriptions.getCrypto().getSymbol(), price);
             executionContext.put(Key, true);
         }
-
         return subscriptions;
     }
 
