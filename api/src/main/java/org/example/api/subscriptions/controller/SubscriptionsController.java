@@ -26,20 +26,20 @@ public class SubscriptionsController {
         return ResponseEntity.ok(subscriptionsService.subscribe(authUser, followingRequest));
     }
 
-    @GetMapping("/following/{page}/{size}")
+    @GetMapping("/following")
     public ResponseEntity<FollowingListResponse> getFollowing(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable int page,
-            @PathVariable int size
+            @RequestParam int page,
+            @RequestParam int size
     ) {
         return ResponseEntity.ok(subscriptionsService.getFollowing(authUser, page, size));
     }
 
-    @GetMapping("/follower/{page}/{size}")
+    @GetMapping("/follower")
     public ResponseEntity<FollowerListResponse> getFollower(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable int page,
-            @PathVariable int size
+            @RequestParam int page,
+            @RequestParam int size
     ) {
         return ResponseEntity.ok(subscriptionsService.getFollower(authUser, page, size));
     }

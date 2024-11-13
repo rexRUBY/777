@@ -4,6 +4,7 @@ import com.example.order.trade.service.TradeService;
 import com.example.order.wallet.WalletService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OrderMatchingService {
     private final StringRedisTemplate stringRedisTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -30,20 +32,6 @@ public class OrderMatchingService {
     private ObjectMapper objectMapper = new ObjectMapper();
     private final String BUY_ORDER_KEY = "BUY_ORDER";
     private final String SELL_ORDER_KEY = "SELL_ORDER";
-
-    public OrderMatchingService(
-            StringRedisTemplate stringRedisTemplate,
-            RedisTemplate<String, Object> redisTemplate,
-            RedissonClient redissonClient,
-            WalletService walletService,
-            TradeService tradeService
-    ) {
-        this.stringRedisTemplate = stringRedisTemplate;
-        this.redisTemplate = redisTemplate;
-        this.redissonClient = redissonClient;
-        this.walletService = walletService;
-        this.tradeService = tradeService;
-    }
 
     /* 주문이 들어옴 → 주문 체결 가능한지 확인 → 주문 체결 or OrderBook에 저장 */
 
@@ -85,7 +73,7 @@ public class OrderMatchingService {
 
         try {
             String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
-            String orderKey = symbol + oppositeOrderType;
+            String orderKey = symbol + "_" + oppositeOrderType;
             Set<ZSetOperations.TypedTuple<Object>> oppositeOrders = redisTemplate
                     .opsForZSet()
                     .rangeByScoreWithScores(

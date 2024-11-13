@@ -17,19 +17,19 @@ public class RankingController {
 
     private final RankingService rankingService;
 
-    @GetMapping("/crypto/{cryptoSymbol}/{page}/{size}")
+    @GetMapping
     public ResponseEntity<RankingListResponseDto> getRanking(
-            @PathVariable String cryptoSymbol,
-            @PathVariable int page,
-            @PathVariable int size,
+            @RequestParam String cryptoSymbol,
+            @RequestParam int page,
+            @RequestParam int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
         return ResponseEntity.ok(this.rankingService.getRanking(cryptoSymbol, page, size, startDate, endDate));
     }
 
-    @GetMapping("/top/{limit}/{symbol}")
-    public ResponseEntity<TopRankingListResponseDto> getTopRanking(@PathVariable int limit, @PathVariable String symbol) {
+    @GetMapping("/top")
+    public ResponseEntity<TopRankingListResponseDto> getTopRanking(@RequestParam int limit, @RequestParam String symbol) {
         return ResponseEntity.ok(this.rankingService.getTopRanking(limit, symbol));
     }
 }
