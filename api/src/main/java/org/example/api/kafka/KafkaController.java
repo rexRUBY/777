@@ -9,7 +9,7 @@ public class KafkaController {
     private final KafkaProducerService kafkaProducerService;
 
     @PostMapping("/test")
-    public void testKafka(@RequestBody String order) {
-        this.kafkaProducerService.sendOrder("order-topic", order);
+    public void testKafka(@RequestBody String orderBody) {
+        this.kafkaProducerService.sendOrder(orderBody);
     }
 }

@@ -67,4 +67,14 @@ public class Wallet extends Timestamped {
         Long amount = Long.parseLong(chargeAmount);
         this.cash += amount;
     }
+
+    public void buyUpdate(double price, double amount) {
+        this.cash -= (long) (price * amount);
+        this.amount += amount;
+    }
+
+    public void sellUpdate(double price, double amount) {
+        this.cash += (long) (price * amount);
+        this.amount -= amount;
+    }
 }

@@ -20,6 +20,7 @@ import java.util.List;
 public class CryptoService {
 
     private final CryptoRepository cryptoRepository;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     public CryptoResponse getCryptoInfo(Long cryptoId) {
