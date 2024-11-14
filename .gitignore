@@ -38,3 +38,4 @@ out/
 
 # Ignore monitoring log file
 /logs/monitoring-log.json
+logs/*.log
