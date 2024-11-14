@@ -18,9 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CryptoService {
     private final StringRedisTemplate redisTemplate;
-
     private final CryptoRepository cryptoRepository;
-
     private static final int MAX_SIZE = 900;
 
     public void saveCryptoData(String symbol, String price, String createdAt) {

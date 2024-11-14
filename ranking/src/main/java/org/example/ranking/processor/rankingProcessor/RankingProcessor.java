@@ -1,5 +1,6 @@
 package org.example.ranking.processor.rankingProcessor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ranking.entity.Ranking;
 import org.example.common.user.entity.User;
@@ -13,23 +14,19 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Component
 @StepScope
+@RequiredArgsConstructor
 public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, StepExecutionListener {
+
     private final UserRepository userRepository;
     private final RankingCalculationService rankingCalculationService;
-
     private ExecutionContext executionContext;
-
-    public RankingProcessor(RankingCalculationService rankingCalculationService, UserRepository userRepository) {
-        this.userRepository=userRepository;
-        this.rankingCalculationService = rankingCalculationService;
-    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -38,8 +35,7 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
 
     @Override
     public List<Ranking> process(User user) throws Exception {
-        LocalDateTime time = LocalDateTime.now().minusDays(1);
-        LocalDateTime time2 = LocalDateTime.now();
+        LocalDate time = LocalDate.now();
         String userEmail = user.getEmail();
 
         List<Ranking> rankings = new ArrayList<>();
@@ -64,6 +60,7 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
 
         return rankings; // 두 개의 Ranking 객체를 포함한 리스트 반환
     }
+
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         return ExitStatus.COMPLETED;

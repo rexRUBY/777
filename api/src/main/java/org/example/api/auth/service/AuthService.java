@@ -19,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -81,12 +79,6 @@ public class AuthService {
     private void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new InvalidRequestException("이미 사용 중인 이메일입니다.");
-        }
-    }
-
-    private void validateExistingUser(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            throw new InvalidRequestException("가입된 사용자가 아닙니다.");
         }
     }
 

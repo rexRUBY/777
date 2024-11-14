@@ -23,7 +23,7 @@ public class CryptoService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public CryptoResponse getCryptoInfo(Long cryptoId) {
-        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("No such coin"));
+        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("No such coin"));
         return new CryptoResponse(crypto);
     }
 

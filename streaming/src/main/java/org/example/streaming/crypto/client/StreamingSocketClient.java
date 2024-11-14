@@ -29,9 +29,7 @@ public class StreamingSocketClient {
     @Value("${crypto.client.secret}")
     private String cryptoClientSecret;
     private final WebSocketController webSocketController;
-
     private final CryptoService cryptoService;
-
     private final ConcurrentHashMap<String, String> latestPriceData = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 

@@ -14,4 +14,8 @@ public class KafkaProducerService {
     public void sendOrder(String orderBody) {
         kafkaTemplate.send("ORDER", orderBody);
     }
+
+    public void sendAlarm(String topic, String message) {
+        kafkaTemplate.send(topic, message);
+    }
 }

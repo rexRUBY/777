@@ -56,7 +56,7 @@ public class TradeService {
     public TradeResponseDto postTrade(AuthUser authUser, long cryptoId, TradeRequestDto tradeRequestDto) {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("no such user"));
-        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("no such crypto"));
+        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("no such crypto"));
 
         Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
@@ -80,11 +80,12 @@ public class TradeService {
         }
         Trade trade = new Trade(user, crypto, tradeRequestDto.getTradeType(), tradeRequestDto.getTradeFor(), tradeRequestDto.getAmount(), price, (long) (price * tradeRequestDto.getAmount()), user.getId());
         tradeRepository.save(trade);
+
         return new TradeResponseDto(crypto.getSymbol(), tradeRequestDto.getAmount(), tradeRequestDto.getTradeType(), (long) (price * tradeRequestDto.getAmount()));
     }
 
     @Transactional
-    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscritionsId, TradeRequestDto tradeRequestDto) {
+    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscriptionsId, TradeRequestDto tradeRequestDto) {
 
         //authuser user subscription followinguser 일치하는지확인
         User user = userRepository.findById(authUser.getId())
@@ -93,7 +94,7 @@ public class TradeService {
         Crypto crypto = cryptoRepository.findById(cryptoId)
                 .orElseThrow(() -> new NullPointerException("no such crypto"));
 
-        Subscriptions subscriptions = subscriptionsRepository.findById(subscritionsId)
+        Subscriptions subscriptions = subscriptionsRepository.findById(subscriptionsId)
                 .orElseThrow(() -> new InvalidRequestException("no such subscriptions"));
 
         if (!subscriptions.getFollowingUser().getId().equals(user.getId())) {
