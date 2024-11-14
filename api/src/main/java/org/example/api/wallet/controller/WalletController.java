@@ -31,11 +31,11 @@ public class WalletController {
         return ResponseEntity.ok(walletService.chargeCash(authUser, request));
     }
 
-    @GetMapping("/history/{page}/{size}")
+    @GetMapping("/history")
     public ResponseEntity<WalletHistoryListResponseDto> getWalletHistoryPage(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable int page,
-            @PathVariable int size,
+            @RequestParam int page,
+            @RequestParam int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {

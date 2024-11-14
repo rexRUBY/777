@@ -32,5 +32,4 @@ public class WebSocketController {
 
         messagingTemplate.convertAndSend("/topic/order_book", data);
     }
-
 }

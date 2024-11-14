@@ -13,13 +13,6 @@ public class KafkaProducerService {
 
     public void sendOrder(String orderBody) {
         kafkaTemplate.send("ORDER", orderBody);
-//        if(orderType.equals("buy")) {
-//            kafkaTemplate.send("BUY_ORDER", orderBody);
-//        }
-//
-//        if(orderType.equals("sell")) {
-//            kafkaTemplate.send("SELL_ORDER", orderBody);
-//        }
     }
 
     public void sendAlarm(String topic, String message) {

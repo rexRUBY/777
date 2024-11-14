@@ -47,12 +47,12 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.getAllTradeList(authUser));
     }
 
-    @GetMapping("/{cryptoId}/trades/pagenation/{page}/{size}")
+    @GetMapping("/trades/pagination")
     public ResponseEntity<TradeListResponseDto> getTradeListPage(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long cryptoId,
-            @PathVariable int page,
-            @PathVariable int size,
+            @RequestParam Long cryptoId,
+            @RequestParam int page,
+            @RequestParam int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
