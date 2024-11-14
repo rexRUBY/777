@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class OrderMatchingService {
     private final WalletService walletService;
     private final TradeService tradeService;
 
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private ObjectMapper objectMapper = new ObjectMapper();
     private final String BUY_ORDER_KEY = "BUY_ORDER";
     private final String SELL_ORDER_KEY = "SELL_ORDER";
@@ -50,21 +52,24 @@ public class OrderMatchingService {
             String stringAmount = amount.toString();
             Long userId = id.longValue();
             String symbol = (String) data.get("symbol");
+            boolean isTradeStatus = false;
 
-            tryMatchOrder(stringPrice, stringAmount, userId, tradeType, symbol);
+            tryMatchOrder(stringPrice, stringAmount, userId, tradeType, symbol, stringAmount, isTradeStatus);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
+// status 0
     @Async
     public void tryMatchOrder(
             String price,
             String amount,
             Long userId,
             String orderType,
-            String symbol
+            String symbol,
+            String initialAmount,
+            boolean isTradeStatus
     ) {
         String lockKey = symbol + orderType + "OrderLock:" + price;
         RLock lock = redissonClient.getLock(lockKey);
@@ -74,6 +79,7 @@ public class OrderMatchingService {
         try {
             String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
             String orderKey = symbol + "_" + oppositeOrderType;
+
             Set<ZSetOperations.TypedTuple<Object>> oppositeOrders = redisTemplate
                     .opsForZSet()
                     .rangeByScoreWithScores(
@@ -94,9 +100,13 @@ public class OrderMatchingService {
                 // 가격이 매칭되는지 확인
                 if ((orderType.equals(BUY_ORDER_KEY) && Double.parseDouble(price) >= Double.parseDouble(priceStr)) ||
                         (orderType.equals(SELL_ORDER_KEY) && Double.parseDouble(priceStr) >= Double.parseDouble(price))) {
-                    processOrderMatch(latestOppositeOrder, amount, Double.parseDouble(priceStr), orderType, userId, symbol);
+                    processOrderMatch(latestOppositeOrder, amount, Double.parseDouble(priceStr), orderType, userId, symbol, initialAmount, isTradeStatus);
                     return;
                 }
+            }
+
+            if (isTradeStatus) {
+                sendAlarmMessage(userId, symbol, String.valueOf(initialAmount), orderType);
             }
 
             // 매칭되지 않으면 새로운 주문 추가
@@ -113,7 +123,9 @@ public class OrderMatchingService {
             double price,
             String orderType,
             Long userId,
-            String symbol
+            String symbol,
+            String initialAmount,
+            boolean isTradeStatus
     ) {
         String orderId = (String) order.getValue();
         double availableAmount = Double.parseDouble((String) stringRedisTemplate.opsForHash().get(orderId, "amount"));
@@ -126,6 +138,7 @@ public class OrderMatchingService {
 
         String oppositeUserIdStr = (String) stringRedisTemplate.opsForHash().get(orderId, "userId");
         Long oppositeUserId = Long.valueOf(oppositeUserIdStr);
+        String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
 
         if (availableAmount >= requestAmount) {
             stringRedisTemplate.opsForHash().put(orderId, "amount", String.valueOf(availableAmount - requestAmount));
@@ -136,9 +149,12 @@ public class OrderMatchingService {
 
             // 로그 생성
             tradeService.saveLog(userId, oppositeUserId, price, requestAmount, orderType, symbol, orderId, timestamp);
+
+            // 알림 전송
+            sendAlarmMessage(userId, symbol, String.valueOf(requestAmount), orderType);
+            sendAlarmMessage(oppositeUserId, symbol, String.valueOf(requestAmount), oppositeOrderType);
         } else {
 
-            String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
             String orderKey = symbol + oppositeOrderType;
 
             log.info("orderType: " + orderType);
@@ -154,10 +170,14 @@ public class OrderMatchingService {
             // 로그 생성
             tradeService.saveLog(userId, oppositeUserId, price, requestAmount, orderType, symbol, orderId, timestamp);
 
+            // 알림
+            sendAlarmMessage(oppositeUserId, symbol, String.valueOf(requestAmount), oppositeOrderType);
+
             String restAmount = String.valueOf(requestAmount - availableAmount);
             log.info(restAmount + "개 추가 " + (orderType.equals(BUY_ORDER_KEY) ? "BUY" : "SELL") + " 매칭 시작");
 
-            tryMatchOrder(String.valueOf(price), restAmount, userId, orderType, symbol);
+            isTradeStatus = true;
+            tryMatchOrder(String.valueOf(price), restAmount, userId, orderType, symbol, initialAmount, isTradeStatus);
         }
     }
 
@@ -174,5 +194,11 @@ public class OrderMatchingService {
         redisTemplate.opsForHash().put(orderId, "amount", stringAmount);
         redisTemplate.opsForHash().put(orderId, "timestamp", String.valueOf(timestamp));
         redisTemplate.opsForHash().put(orderId, "userId", String.valueOf(userId));
+    }
+
+    public void sendAlarmMessage(Long userId, String symbol, String amount, String orderType) {
+        kafkaTemplate.send("alarm-topic-" + userId,
+                symbol + "가 " + amount + "개 " +
+                        (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
     }
 }
