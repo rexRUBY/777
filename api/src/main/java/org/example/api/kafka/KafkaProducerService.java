@@ -1,5 +1,7 @@
 package org.example.api.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.common.trade.dto.request.OrderRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +13,17 @@ public class KafkaProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendOrder(String orderBody) {
-        kafkaTemplate.send("ORDER", orderBody);
+    public void sendOrder(OrderRequest orderBody) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String message = objectMapper.writeValueAsString(orderBody);
+
+            String partitionKey = orderBody.getSymbol() + "-" + orderBody.getPrice();
+
+            kafkaTemplate.send("ORDER", partitionKey, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendAlarm(String topic, String message) {

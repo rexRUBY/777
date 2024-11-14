@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -26,7 +24,6 @@ import java.util.UUID;
 public class OrderMatchingService {
     private final StringRedisTemplate stringRedisTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RedissonClient redissonClient;
     private final WalletService walletService;
     private final TradeService tradeService;
 
@@ -60,7 +57,8 @@ public class OrderMatchingService {
             e.printStackTrace();
         }
     }
-// status 0
+
+    // status 0
     @Async
     public void tryMatchOrder(
             String price,
@@ -71,50 +69,42 @@ public class OrderMatchingService {
             String initialAmount,
             boolean isTradeStatus
     ) {
-        String lockKey = symbol + orderType + "OrderLock:" + price;
-        RLock lock = redissonClient.getLock(lockKey);
 
-        lock.lock();
+        String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
+        String orderKey = symbol + "_" + oppositeOrderType;
 
-        try {
-            String oppositeOrderType = (orderType.equals(BUY_ORDER_KEY)) ? SELL_ORDER_KEY : BUY_ORDER_KEY;
-            String orderKey = symbol + "_" + oppositeOrderType;
+        Set<ZSetOperations.TypedTuple<Object>> oppositeOrders = redisTemplate
+                .opsForZSet()
+                .rangeByScoreWithScores(
+                        orderKey,
+                        Double.parseDouble(price),
+                        Double.parseDouble(price)
+                );
 
-            Set<ZSetOperations.TypedTuple<Object>> oppositeOrders = redisTemplate
-                    .opsForZSet()
-                    .rangeByScoreWithScores(
-                            orderKey,
-                            Double.parseDouble(price),
-                            Double.parseDouble(price)
-                    );
+        if (oppositeOrders != null && !oppositeOrders.isEmpty()) {
+            // 가장 최근 주문 가져오기
+            ZSetOperations.TypedTuple<Object> latestOppositeOrder = oppositeOrders.iterator().next();
 
-            if (oppositeOrders != null && !oppositeOrders.isEmpty()) {
-                // 가장 최근 주문 가져오기
-                ZSetOperations.TypedTuple<Object> latestOppositeOrder = oppositeOrders.iterator().next();
+            String oppositeOrderId = (String) latestOppositeOrder.getValue();
+            String priceStr = (String) stringRedisTemplate.opsForHash().get(oppositeOrderId, "price");
 
-                String oppositeOrderId = (String) latestOppositeOrder.getValue();
-                String priceStr = (String) stringRedisTemplate.opsForHash().get(oppositeOrderId, "price");
+            log.info(orderKey + " orderId: " + oppositeOrderId);
 
-                log.info(orderKey + " orderId: " + oppositeOrderId);
-
-                // 가격이 매칭되는지 확인
-                if ((orderType.equals(BUY_ORDER_KEY) && Double.parseDouble(price) >= Double.parseDouble(priceStr)) ||
-                        (orderType.equals(SELL_ORDER_KEY) && Double.parseDouble(priceStr) >= Double.parseDouble(price))) {
-                    processOrderMatch(latestOppositeOrder, amount, Double.parseDouble(priceStr), orderType, userId, symbol, initialAmount, isTradeStatus);
-                    return;
-                }
+            // 가격이 매칭되는지 확인
+            if ((orderType.equals(BUY_ORDER_KEY) && Double.parseDouble(price) >= Double.parseDouble(priceStr)) ||
+                    (orderType.equals(SELL_ORDER_KEY) && Double.parseDouble(priceStr) >= Double.parseDouble(price))) {
+                processOrderMatch(latestOppositeOrder, amount, Double.parseDouble(priceStr), orderType, userId, symbol, initialAmount, isTradeStatus);
+                return;
             }
-
-            if (isTradeStatus) {
-                sendAlarmMessage(userId, symbol, String.valueOf(initialAmount), orderType);
-            }
-
-            // 매칭되지 않으면 새로운 주문 추가
-            log.info("매칭 결과 없음 " + orderType + " ORDER 추가 " + orderType + " Price: " + price + ", " + orderType + " Amount: " + amount);
-            addOrder(price, amount, orderType, userId, symbol);
-        } finally {
-            lock.unlock();
         }
+
+        if (isTradeStatus) {
+            sendAlarmMessage(userId, symbol, String.valueOf(initialAmount), orderType);
+        }
+
+        // 매칭되지 않으면 새로운 주문 추가
+        log.info("매칭 결과 없음 " + orderType + " ORDER 추가 " + orderType + " Price: " + price + ", " + orderType + " Amount: " + amount);
+        addOrder(price, amount, orderType, userId, symbol);
     }
 
     private void processOrderMatch(
