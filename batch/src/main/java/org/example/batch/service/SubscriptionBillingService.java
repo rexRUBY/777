@@ -1,5 +1,6 @@
 package org.example.batch.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.common.subscriptions.entity.Subscribe;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.user.entity.User;
@@ -10,15 +11,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class SubscriptionBillingService {
 
     private final UserRepository userRepository;
 
-    public SubscriptionBillingService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-//    @Transactional
     public void billCheck(User user, String cryptoSymbol) {
         Long userId = user.getId();
         User foundUser = userRepository.findUserWithWalletList(userId)
@@ -61,7 +58,7 @@ public class SubscriptionBillingService {
                 .filter(s -> s.getCrypto().getSymbol().equals(cryptoSymbol))
                 .forEach(s -> {
                     Long totalPrice = s.getFinalPrice();
-                    s.checkout((long)(totalPrice/s.getCryptoAmount()));
+                    s.checkout((long)(totalPrice / s.getCryptoAmount()));
                     wallet.billing(totalPrice * percentage);
                 });
     }
@@ -71,6 +68,7 @@ public class SubscriptionBillingService {
             subscriptions.checking(price);
         }
     }
+
     public void priceCheck(Subscriptions subscriptions, String cryptoSymbol, Long price){
         if(subscriptions.getCrypto().getSymbol().equals(cryptoSymbol)){
             subscriptions.checking(price);

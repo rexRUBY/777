@@ -1,5 +1,6 @@
 package org.example.streaming.crypto.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -7,13 +8,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class OrderBookService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-
-    public OrderBookService(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     public Map<String, List<List<Object>>> getOrderBookData(String symbol) {
 

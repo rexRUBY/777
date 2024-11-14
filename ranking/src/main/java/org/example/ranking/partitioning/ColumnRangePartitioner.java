@@ -1,24 +1,19 @@
 package org.example.ranking.partitioning;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class ColumnRangePartitioner implements Partitioner {
 
     private final String column;
     private final long minValue;
     private final long maxValue;
     private final int gridSize;
-
-    public ColumnRangePartitioner(String column, long minValue, long maxValue, int gridSize) {
-        this.column = column;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-        this.gridSize = gridSize;
-    }
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
@@ -47,5 +42,4 @@ public class ColumnRangePartitioner implements Partitioner {
 
         return partitionMap;
     }
-
 }

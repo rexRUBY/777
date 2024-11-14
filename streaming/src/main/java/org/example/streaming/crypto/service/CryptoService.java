@@ -1,5 +1,6 @@
 package org.example.streaming.crypto.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,17 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CryptoService {
     private final StringRedisTemplate redisTemplate;
-
     private final CryptoRepository cryptoRepository;
-
     private static final int MAX_SIZE = 900;
-
-    public CryptoService(StringRedisTemplate redisTemplate, CryptoRepository cryptoRepository) {
-        this.redisTemplate = redisTemplate;
-        this.cryptoRepository = cryptoRepository;
-    }
 
     public void saveCryptoData(String symbol, String price, String createdAt) {
         String key = "COIN:" + symbol;
@@ -33,8 +28,6 @@ public class CryptoService {
 
         redisTemplate.opsForList().trim(key, 0, MAX_SIZE - 1);
     }
-
-
 
     public String getCryptoPrice(String symbol) {
         return redisTemplate.opsForHash().get("STREAM_ASSET_PRICE", symbol).toString();

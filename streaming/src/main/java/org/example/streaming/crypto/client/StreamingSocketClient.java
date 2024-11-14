@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.websocket.*;
+import lombok.RequiredArgsConstructor;
 import org.example.streaming.crypto.controller.WebSocketController;
 import org.example.streaming.crypto.dto.CryptoDataDto;
 import org.example.streaming.crypto.service.CryptoService;
@@ -20,6 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Component
 @ClientEndpoint
+@RequiredArgsConstructor
 public class StreamingSocketClient {
 
     private Session session;
@@ -27,18 +29,7 @@ public class StreamingSocketClient {
     @Value("${crypto.client.secret}")
     private String cryptoClientSecret;
     private final WebSocketController webSocketController;
-
     private final CryptoService cryptoService;
-
-    public StreamingSocketClient(
-            WebSocketController webSocketController,
-            CryptoService cryptoService
-
-    ) {
-        this.webSocketController = webSocketController;
-        this.cryptoService = cryptoService;
-    }
-
     private final ConcurrentHashMap<String, String> latestPriceData = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
