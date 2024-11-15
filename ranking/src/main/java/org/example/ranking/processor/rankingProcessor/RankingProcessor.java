@@ -3,6 +3,8 @@ package org.example.ranking.processor.rankingProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ranking.entity.Ranking;
+import org.example.common.common.log.LogExecution;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.ranking.service.RankingCalculationService;
@@ -36,6 +38,7 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
     }
 
     @Override
+    @LogExecution
     public List<Ranking> process(User user) throws Exception {
         LocalDate time = LocalDate.now();
         String userEmail = user.getEmail();

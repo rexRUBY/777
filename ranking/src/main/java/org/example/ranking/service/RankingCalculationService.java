@@ -1,6 +1,7 @@
 package org.example.ranking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.common.log.LogExecution;
 import org.example.common.ranking.entity.Ranked;
 import org.example.common.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
@@ -26,6 +27,7 @@ public class RankingCalculationService {
         this.restTemplate = restTemplate;
     }
 
+    @LogExecution
     // 특정 암호화폐의 수익률을 계산하여 반환하는 메서드
     public double calculateYield(User user, String cryptoSymbol) throws RuntimeException {
         // 다른 사용자를 위한 거래 가격을 계산
@@ -60,6 +62,7 @@ public class RankingCalculationService {
         restTemplate.postForEntity(url, null, Void.class);
     }
 
+    @LogExecution
     public void setRank(Ranking ranking, String crtproSymbol){
         if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
         ranking.update(CountConfig.count);
