@@ -25,7 +25,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws").setAllowedOrigins(
                 clientHostUrl,
                 "https://0d7f-1-241-47-142.ngrok-free.app",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://localhost", // k6 테스트를 위한 추가,
+                "http://127.0.0.1"
         ).withSockJS();
     }
 }
