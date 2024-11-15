@@ -102,7 +102,7 @@ public class TradeService {
 
     @Transactional
     @LogExecution
-    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscritionsId, TradeRequestDto tradeRequestDto) {
+    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscriptionsId, TradeRequestDto tradeRequestDto) {
 
         //authuser user subscription followinguser 일치하는지확인
         User user = userRepository.findById(authUser.getId())
