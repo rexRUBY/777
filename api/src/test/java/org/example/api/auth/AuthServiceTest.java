@@ -64,7 +64,7 @@
 //        when(userRepository.save(any(User.class))).thenReturn(newUser);
 //        when(jwtUtil.createToken(isNull(), anyString())).thenReturn(token);
 //        doNothing().when(walletService).createWallet(any(User.class));
-//        doNothing().when(jwtUtil).addJwtToCookie(anyString());
+//
 //
 //        // when
 //        SignupResponse response = authService.signup(request);
@@ -77,9 +77,7 @@
 //        verify(userRepository).save(any(User.class));
 //        verify(walletService).createWallet(any(User.class));
 //        verify(jwtUtil).createToken(isNull(), anyString());
-//        verify(jwtUtil).addJwtToCookie(anyString());
 //
-//        // validateNewPassword 메서드는 호출 검증하지 않음 (정적 메서드로서 검증 불가)
 //    }
 //
 //    @Test
@@ -94,7 +92,6 @@
 //        when(userRepository.findByEmail(email)).thenReturn(java.util.Optional.of(newUser));
 //        when(passwordEncoder.matches(password, newUser.getPassword())).thenReturn(true);
 //        when(jwtUtil.createToken(isNull(), anyString())).thenReturn(token); // isNull()과 anyString() 사용
-//        doNothing().when(jwtUtil).addJwtToCookie(anyString());
 //
 //        // when
 //        SigninResponse response = authService.signin(request);
@@ -106,7 +103,6 @@
 //        verify(userRepository).findByEmail(email);
 //        verify(passwordEncoder).matches(password, newUser.getPassword());
 //        verify(jwtUtil).createToken(isNull(), anyString());
-//        verify(jwtUtil).addJwtToCookie(anyString());
 //    }
 //
 //    @Test
