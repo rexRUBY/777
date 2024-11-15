@@ -31,6 +31,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.projectreactor.netty:reactor-netty'
 
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
     // dynamoDB
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.714'
 }
