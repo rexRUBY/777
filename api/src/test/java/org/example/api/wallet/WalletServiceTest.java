@@ -5,7 +5,7 @@ import org.example.common.common.dto.AuthUser;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.user.entity.User;
-import org.example.common.wallet.dto.WalletResponse;
+import org.example.common.wallet.dto.response.WalletResponse;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.repository.WalletRepository;
 import org.junit.jupiter.api.BeforeEach;

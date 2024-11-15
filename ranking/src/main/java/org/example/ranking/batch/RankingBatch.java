@@ -2,6 +2,7 @@ package org.example.ranking.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.common.ranking.entity.Ranking;
+import org.example.common.common.log.LogExecution;
 import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
@@ -35,6 +36,7 @@ public class RankingBatch {
 
     // 순위 배치 프로세스를 위한 메인 작업(Job)을 정의
     @Bean
+    @LogExecution
     public Job firstJob(Step firstRateStep, Step secondRateStep) {
         return new JobBuilder("firstJob", jobRepository)
                 .start(firstStep())
@@ -54,7 +56,8 @@ public class RankingBatch {
 
     // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의
     @Bean
-    public Step firstRankingStep() {
+    @LogExecution
+    public Step firstRankingStep() {//btc 정보 계산용
         return new StepBuilder("firstRankingStep", jobRepository)
                 .<User, List<Ranking>>chunk(5000, platformTransactionManager)
                 .reader(beforeReader())

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.common.auth.dto.request.UnFollowResponse;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.common.exception.InvalidRequestException;
+import org.example.common.common.log.LogExecution;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.subscriptions.dto.*;
@@ -41,6 +42,7 @@ public class SubscriptionsService {
     private final BillingRepository billingRepository;
 
     @Transactional
+    @LogExecution
     public FollowingResponse subscribe(AuthUser authUser, FollowingRequest followingRequest) {
 
         Crypto crypto = cryptoRepository.findById(followingRequest.getCryptoId())
@@ -71,6 +73,7 @@ public class SubscriptionsService {
         return new FollowingResponse(subscriptions.getFollowingUser().getName(), subscriptions.getCrypto().getSymbol());
     }
 
+    @LogExecution
     public FollowingListResponse getFollowing(AuthUser authUser, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Subscriptions> subscriptions = subscriptionsRepository.findAllByFollowerUserId(authUser.getId(), pageable);
@@ -88,6 +91,7 @@ public class SubscriptionsService {
         return new FollowingListResponse(followingResponses, subscriptions.getTotalPages(), subscriptions.getTotalElements());
     }
 
+    @LogExecution
     public FollowerListResponse getFollower(AuthUser authUser, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Subscriptions> subscriptionsPage = subscriptionsRepository.findAllByFollowingUserId(authUser.getId(), pageable);
@@ -107,7 +111,8 @@ public class SubscriptionsService {
     }
 
     @Transactional
-    public UnFollowResponse unFollowing(AuthUser authUser, long subscriptionsId) {
+    @LogExecution
+    public UnFollowResponse unFollowing(AuthUser authUser,long subscriptionsId) {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("없는 유저입니다."));
 

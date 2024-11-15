@@ -1,5 +1,6 @@
 package org.example.batch.service;
 
+import org.example.common.common.log.LogExecution;
 import lombok.RequiredArgsConstructor;
 import org.example.common.subscriptions.entity.Subscribe;
 import org.example.common.subscriptions.entity.Subscriptions;
@@ -16,6 +17,7 @@ public class SubscriptionBillingService {
 
     private final UserRepository userRepository;
 
+    @LogExecution
     public void billCheck(User user, String cryptoSymbol) {
         Long userId = user.getId();
         User foundUser = userRepository.findUserWithWalletList(userId)
@@ -63,12 +65,14 @@ public class SubscriptionBillingService {
                 });
     }
 
+    @LogExecution
     public void dateCheck(Subscriptions subscriptions, String cryptoSymbol, Long price){
         if(subscriptions.getCrypto().getSymbol().equals(cryptoSymbol)){
             subscriptions.checking(price);
         }
     }
 
+    @LogExecution
     public void priceCheck(Subscriptions subscriptions, String cryptoSymbol, Long price){
         if(subscriptions.getCrypto().getSymbol().equals(cryptoSymbol)){
             subscriptions.checking(price);
