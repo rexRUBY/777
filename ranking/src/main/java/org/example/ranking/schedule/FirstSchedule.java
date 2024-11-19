@@ -1,7 +1,6 @@
 package org.example.ranking.schedule;
 
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
@@ -13,14 +12,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Configuration
+@RequiredArgsConstructor
 public class FirstSchedule {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
-
-    public FirstSchedule(JobLauncher jobLauncher, JobRegistry jobRegistry) {
-        this.jobLauncher = jobLauncher;
-        this.jobRegistry = jobRegistry;
-    }
 
     @Scheduled(cron = "0 0 0 1 * *", zone = "Asia/Seoul")
     public void runJobs() throws Exception {

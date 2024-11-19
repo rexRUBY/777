@@ -1,9 +1,11 @@
 package org.example.api.trade.service;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.common.dto.AuthUser;
 import org.example.common.common.exception.InvalidRequestException;
+import org.example.common.common.log.LogExecution;
 import org.example.common.crypto.entity.Crypto;
 import org.example.common.crypto.repository.CryptoRepository;
 import org.example.common.subscriptions.entity.Billing;
@@ -33,9 +35,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,13 +55,15 @@ public class TradeService {
     private final WalletHistoryRepository walletHistoryRepository;
     private final SubscriptionsRepository subscriptionsRepository;
     private final CryptoWebService cryptoWebService;
+    private final RestTemplate restTemplate;
 
 
     @Transactional
+    @LogExecution
     public TradeResponseDto postTrade(AuthUser authUser, long cryptoId, TradeRequestDto tradeRequestDto) {
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new InvalidRequestException("no such user"));
-        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("no such crypto"));
+        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("no such crypto"));
 
         Long price = cryptoWebService.getCryptoValueAsLong(crypto.getSymbol(), DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime());
 
@@ -80,11 +87,22 @@ public class TradeService {
         }
         Trade trade = new Trade(user, crypto, tradeRequestDto.getTradeType(), tradeRequestDto.getTradeFor(), tradeRequestDto.getAmount(), price, (long) (price * tradeRequestDto.getAmount()), user.getId());
         tradeRepository.save(trade);
+
+        // 모니터링 서버로 거래 메트릭 전송
+        sendTradeMetricsToMonitoringServer(crypto.getSymbol(), price, tradeRequestDto.getAmount());
+
+
         return new TradeResponseDto(crypto.getSymbol(), tradeRequestDto.getAmount(), tradeRequestDto.getTradeType(), (long) (price * tradeRequestDto.getAmount()));
     }
 
+    private void sendTradeMetricsToMonitoringServer(String coinType, double price, double amount) {
+        String url = "http://localhost:8086/api/metrics/trade?coinType=" + coinType + "&price=" + price + "&amount=" + amount;
+        restTemplate.postForEntity(url, null, Void.class);
+    }
+
     @Transactional
-    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscritionsId, TradeRequestDto tradeRequestDto) {
+    @LogExecution
+    public TradeResponseDto postSubscriptionsTrade(AuthUser authUser, long cryptoId, long subscriptionsId, TradeRequestDto tradeRequestDto) {
 
         //authuser user subscription followinguser 일치하는지확인
         User user = userRepository.findById(authUser.getId())
@@ -93,7 +111,7 @@ public class TradeService {
         Crypto crypto = cryptoRepository.findById(cryptoId)
                 .orElseThrow(() -> new NullPointerException("no such crypto"));
 
-        Subscriptions subscriptions = subscriptionsRepository.findById(subscritionsId)
+        Subscriptions subscriptions = subscriptionsRepository.findById(subscriptionsId)
                 .orElseThrow(() -> new InvalidRequestException("no such subscriptions"));
 
         if (!subscriptions.getFollowingUser().getId().equals(user.getId())) {
@@ -132,6 +150,7 @@ public class TradeService {
         return new TradeResponseDto(crypto.getSymbol(), tradeRequestDto.getAmount(), TradeType.Authority.SELL, price);
     }
 
+    @LogExecution
     public List<TradeResponseDto> getTradeList(AuthUser authUser, long cryptoId) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NullPointerException("no such user"));
         Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("no such crypto"));
@@ -140,7 +159,7 @@ public class TradeService {
         return tradeList.stream().map(Trade -> new TradeResponseDto(Trade.getCrypto().getSymbol(), Trade.getAmount(), String.valueOf(Trade.getTradeType()), Trade.getPrice())).toList();
     }
 
-
+    @LogExecution
     public List<TradeResponseDto> getAllTradeList(AuthUser authUser) {
         User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NullPointerException("no such user"));
         List<Trade> tradeList = tradeRepository.findAllByUser(user);
@@ -149,6 +168,7 @@ public class TradeService {
     }
 
     @Transactional
+    @LogExecution
     public TradeListResponseDto getTradeListPage(
             AuthUser authUser,
             Long cryptoId,

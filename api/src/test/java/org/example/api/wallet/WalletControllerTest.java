@@ -3,7 +3,7 @@ package org.example.api.wallet;
 import org.example.api.wallet.controller.WalletController;
 import org.example.api.wallet.service.WalletService;
 import org.example.common.common.dto.AuthUser;
-import org.example.common.wallet.dto.WalletResponse;
+import org.example.common.wallet.dto.response.WalletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,8 +47,8 @@ public class WalletControllerTest {
         // given
         AuthUser authUser = new AuthUser(1L, "test@example.com");
         List<WalletResponse> walletResponses = Arrays.asList(
-                new WalletResponse(1L, 10.0, "BTC", "test@example.com"),
-                new WalletResponse(2L, 5.0, "ETH", "test@example.com")
+                new WalletResponse(1L, 10.0, "BTC", "test@example.com", 100000L),
+                new WalletResponse(2L, 5.0, "ETH", "test@example.com", 50000L)
         );
 
         when(walletService.getWallets(any(AuthUser.class))).thenReturn(walletResponses);

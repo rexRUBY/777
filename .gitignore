@@ -35,3 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Ignore monitoring log file
+/logs/monitoring-log.json
+logs/*.log

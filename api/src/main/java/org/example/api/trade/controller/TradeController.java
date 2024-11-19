@@ -28,12 +28,12 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.postTrade(authUser, cryptoId, tradeRequestDto));
     }
 
-    @PostMapping("/{cryptoId}/trades/subscriptions/{subscritionsId}")
+    @PostMapping("/{cryptoId}/trades/subscriptions/{subscriptionsId}")
     public ResponseEntity<TradeResponseDto> postSubscriptionsTrade(@AuthenticationPrincipal AuthUser authUser,
                                                                    @PathVariable long cryptoId,
-                                                                   @PathVariable long subscritionsId,
+                                                                   @PathVariable long subscriptionsId,
                                                                    @RequestBody TradeRequestDto tradeRequestDto) {
-        return ResponseEntity.ok(tradeService.postSubscriptionsTrade(authUser, cryptoId, subscritionsId, tradeRequestDto));
+        return ResponseEntity.ok(tradeService.postSubscriptionsTrade(authUser, cryptoId, subscriptionsId, tradeRequestDto));
     }
 
     @GetMapping("/{cryptoId}/trades")
@@ -47,12 +47,12 @@ public class TradeController {
         return ResponseEntity.ok(tradeService.getAllTradeList(authUser));
     }
 
-    @GetMapping("/{cryptoId}/trades/pagenation/{page}/{size}")
+    @GetMapping("/trades/pagination")
     public ResponseEntity<TradeListResponseDto> getTradeListPage(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable Long cryptoId,
-            @PathVariable int page,
-            @PathVariable int size,
+            @RequestParam Long cryptoId,
+            @RequestParam int page,
+            @RequestParam int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {

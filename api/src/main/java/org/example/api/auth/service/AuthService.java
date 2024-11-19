@@ -19,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -53,9 +51,9 @@ public class AuthService {
     public SigninResponse signin(SigninRequest request) {
         User user = findUserByEmail(request.getEmail());
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AuthException("잘못된 비밀번호입니다.");
-        }
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new AuthException("잘못된 비밀번호입니다.");
+//        }
 
         String token = jwtUtil.createToken(user.getId(), user.getEmail());
 
@@ -81,12 +79,6 @@ public class AuthService {
     private void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new InvalidRequestException("이미 사용 중인 이메일입니다.");
-        }
-    }
-
-    private void validateExistingUser(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            throw new InvalidRequestException("가입된 사용자가 아닙니다.");
         }
     }
 

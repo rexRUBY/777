@@ -15,7 +15,7 @@ public class CryptoController {
 
     private final CryptoService cryptoService;
 
-    @GetMapping("/crypto/{cryptoId}")
+    @GetMapping("/cryptos/{cryptoId}")
     public ResponseEntity<CryptoResponse> getCryptoInfo(@PathVariable Long cryptoId) {
         return ResponseEntity.ok(this.cryptoService.getCryptoInfo(cryptoId));
     }

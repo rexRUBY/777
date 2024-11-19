@@ -17,6 +17,8 @@ import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -42,9 +44,9 @@ public class DeleteBilledSubscriptionBatch {
     @Bean
     public Step checkDeleteStep() {
         return new StepBuilder("checkDeleteStep", jobRepository)
-                .partitioner("checkDeleteStep", deletePartitioner()) // 파티셔너 적용
+                .partitioner("checkDeleteStep", deletePartitioner())
                 .step(firstDeleteStep())
-                .gridSize(10) // 파티션 수
+                .gridSize(10)
                 .build();
     }
 
@@ -56,6 +58,7 @@ public class DeleteBilledSubscriptionBatch {
                 .reader(beforeDeleteReader()) // 구독 데이터를 읽어옴
                 .processor(deleteSubscriptionsBilledProcessor) // 구독 데이터를 처리
                 .writer(afterDeleteWriter()) // 처리된 구독 데이터를 Billing에 저장하고 삭제
+                .taskExecutor(delTaskExecutor())  // 병렬 처리 TaskExecutor 설정
                 .build();
     }
 
@@ -63,11 +66,11 @@ public class DeleteBilledSubscriptionBatch {
     @Bean
     public RepositoryItemReader<Subscriptions> beforeDeleteReader() {
         return new RepositoryItemReaderBuilder<Subscriptions>()
-                .name("beforeDeleteReader") // 리더의 이름 설정
-                .pageSize(5000) // 한 번에 10개의 구독 데이터를 읽어옴
+                .name("beforeDeleteReader")
+                .pageSize(5000)
                 .methodName("findAllBySubscribe") // subscriptionsRepository의 메서드 이름
                 .repository(subscriptionsRepository)
-                .sorts(Map.of("id", Sort.Direction.ASC)) // subscriptions 데이터를 ID 기준으로 오름차순 정렬
+                .sorts(Map.of("id", Sort.Direction.ASC))
                 .build();
     }
 
@@ -83,6 +86,13 @@ public class DeleteBilledSubscriptionBatch {
                 subscriptionsRepository.delete(subscription);
             }
         };
+    }
+
+    @Bean
+    public TaskExecutor delTaskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(10); // 최대 10개의 스레드로 병렬 처리
+        return taskExecutor;
     }
 
     @Bean

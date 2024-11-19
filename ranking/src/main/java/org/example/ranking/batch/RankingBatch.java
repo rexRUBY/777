@@ -2,6 +2,7 @@ package org.example.ranking.batch;
 
 import lombok.RequiredArgsConstructor;
 import org.example.common.ranking.entity.Ranking;
+import org.example.common.common.log.LogExecution;
 import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
@@ -35,6 +36,7 @@ public class RankingBatch {
 
     // 순위 배치 프로세스를 위한 메인 작업(Job)을 정의
     @Bean
+    @LogExecution
     public Job firstJob(Step firstRateStep, Step secondRateStep) {
         return new JobBuilder("firstJob", jobRepository)
                 .start(firstStep())
@@ -42,23 +44,25 @@ public class RankingBatch {
                 .next(secondRateStep) // RankingRateBatch 의 secondRateStep
                 .build();
     }
+
     @Bean
     public Step firstStep() {
         return new StepBuilder("firstStep", jobRepository)
-                .partitioner("firstStep", partitioner()) // 파티셔너 적용
+                .partitioner("firstStep", partitioner())
                 .step(firstRankingStep())
-                .gridSize(10) // 파티션 수
+                .gridSize(10)
                 .build();
     }
 
-    // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의, 청크 크기는 10으로 설정
+    // User 데이터를 읽고 처리 후 Ranking으로 저장하는 단계를 정의
     @Bean
+    @LogExecution
     public Step firstRankingStep() {//btc 정보 계산용
         return new StepBuilder("firstRankingStep", jobRepository)
                 .<User, List<Ranking>>chunk(5000, platformTransactionManager)
-                .reader(beforeReader()) // User 데이터를 읽어옴
-                .processor(rankingProcessor) // User 데이터를 Ranking으로 변환
-                .writer(afterWriter()) // 변환된 Ranking 데이터를 저장
+                .reader(beforeReader())
+                .processor(rankingProcessor)
+                .writer(afterWriter())
                 .build();
     }
 
@@ -67,10 +71,10 @@ public class RankingBatch {
     public RepositoryItemReader<User> beforeReader() {
         return new RepositoryItemReaderBuilder<User>()
                 .name("beforeReader")
-                .pageSize(5000) // 한 번에 10개의 User 데이터를 읽어옴
+                .pageSize(5000)
                 .methodName("findAllByProcessedFalseJoinTradeJoinWallet") // UserRepository의 메서드 이름
                 .repository(userRepository)
-                .sorts(Map.of("id", Sort.Direction.ASC)) // User 데이터를 ID 기준으로 오름차순 정렬
+                .sorts(Map.of("id", Sort.Direction.ASC))
                 .build();
     }
 

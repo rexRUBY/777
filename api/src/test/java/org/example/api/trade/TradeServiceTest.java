@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,8 @@ public class TradeServiceTest {
     private CryptoWebService cryptoWebService;
     @Mock
     private SubscriptionsRepository subscriptionsRepository;
+    @Mock
+    private RestTemplate restTemplate;
 
     @Test
     public void 성공적으로_코인_구매() {
@@ -63,18 +66,17 @@ public class TradeServiceTest {
 
         TradeRequestDto tradeRequestDto = new TradeRequestDto();
         ReflectionTestUtils.setField(tradeRequestDto, "amount", 10.0);
-        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "BUY");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", TradeType.Authority.BUY);
         ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "SELF");
 
         User mockUser = new User();
         ReflectionTestUtils.setField(mockUser, "id", 1L);
-        ReflectionTestUtils.setField(mockUser, "name", "testUser");
 
         Wallet wallet = new Wallet();
         ReflectionTestUtils.setField(wallet, "user", mockUser);
         ReflectionTestUtils.setField(wallet, "cryptoSymbol", "BTC");
-        ReflectionTestUtils.setField(wallet, "cash", 100000L);
-        ReflectionTestUtils.setField(wallet, "amount", 50.0); // 보유 코인 수량 설정
+        ReflectionTestUtils.setField(wallet, "cash", 200000L); // 구매 조건 충족
+        ReflectionTestUtils.setField(wallet, "amount", 50.0);
 
         Crypto mockCrypto = new Crypto();
         ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
@@ -83,6 +85,8 @@ public class TradeServiceTest {
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
         when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
         when(walletRepository.findByUserIdAndCryptoSymbol(mockUser.getId(), "BTC")).thenReturn(wallet);
+        when(cryptoWebService.getCryptoValueAsLong("BTC", DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime()))
+                .thenReturn(10000L);
 
         // when
         TradeResponseDto response = tradeService.postTrade(authUser, cryptoId, tradeRequestDto);
@@ -90,6 +94,8 @@ public class TradeServiceTest {
         // then
         assertNotNull(response);
         assertEquals("BTC", response.getCryptoSymbol());
+        assertEquals(10.0, response.getAmount());
+        assertEquals(100000L, response.getPrice()); // price * amount 계산값
     }
 
     @Test
@@ -121,7 +127,7 @@ public class TradeServiceTest {
 
         TradeRequestDto tradeRequestDto = new TradeRequestDto();
         ReflectionTestUtils.setField(tradeRequestDto, "amount", 5.0);
-        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", "SELL");
+        ReflectionTestUtils.setField(tradeRequestDto, "tradeType", TradeType.Authority.SELL);
         ReflectionTestUtils.setField(tradeRequestDto, "tradeFor", "SELF");
 
         User mockUser = new User();
@@ -130,8 +136,8 @@ public class TradeServiceTest {
         Wallet wallet = new Wallet();
         ReflectionTestUtils.setField(wallet, "user", mockUser);
         ReflectionTestUtils.setField(wallet, "cryptoSymbol", "BTC");
-        ReflectionTestUtils.setField(wallet, "cash", 100000L); // cash 값 설정
-        ReflectionTestUtils.setField(wallet, "amount", 50.0); // 보유 코인 수량 설정
+        ReflectionTestUtils.setField(wallet, "cash", 100000L);
+        ReflectionTestUtils.setField(wallet, "amount", 50.0);
 
         Crypto mockCrypto = new Crypto();
         ReflectionTestUtils.setField(mockCrypto, "id", cryptoId);
@@ -140,6 +146,8 @@ public class TradeServiceTest {
         when(userRepository.findById(authUser.getId())).thenReturn(Optional.of(mockUser));
         when(cryptoRepository.findById(cryptoId)).thenReturn(Optional.of(mockCrypto));
         when(walletRepository.findByUserIdAndCryptoSymbol(mockUser.getId(), "BTC")).thenReturn(wallet);
+        when(cryptoWebService.getCryptoValueAsLong("BTC", DateTimeUtil.getCurrentDate(), DateTimeUtil.getCurrentTime()))
+                .thenReturn(10000L);
 
         // when
         TradeResponseDto response = tradeService.postTrade(authUser, cryptoId, tradeRequestDto);
@@ -147,8 +155,8 @@ public class TradeServiceTest {
         // then
         assertNotNull(response);
         assertEquals("BTC", response.getCryptoSymbol());
-        assertEquals("SELL", response.getBillType());
-
+        assertEquals(5.0, response.getAmount());
+        assertEquals(50000L, response.getPrice()); // price * amount 계산값
     }
 
     @Test

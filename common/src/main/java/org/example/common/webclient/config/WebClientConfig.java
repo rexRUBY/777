@@ -18,8 +18,8 @@ public class WebClientConfig {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(
                         HttpClient.create()
-                                .responseTimeout(Duration.ofSeconds(1000))
-                                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100000)
+                                .responseTimeout(Duration.ofSeconds(10))
+                                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100)
                 ))
                 .build();
     }

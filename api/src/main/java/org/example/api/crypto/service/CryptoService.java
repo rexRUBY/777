@@ -9,7 +9,6 @@ import org.example.common.crypto.repository.CryptoRepository;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +23,7 @@ public class CryptoService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public CryptoResponse getCryptoInfo(Long cryptoId) {
-        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(()->new NullPointerException("No such coin"));
+        Crypto crypto = cryptoRepository.findById(cryptoId).orElseThrow(() -> new NullPointerException("No such coin"));
         return new CryptoResponse(crypto);
     }
 
@@ -59,5 +58,4 @@ public class CryptoService {
         // 최신 가격 데이터 반환
         return new CryptoLatestPriceResponseDto(symbol, prices);
     }
-
 }

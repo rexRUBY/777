@@ -15,10 +15,11 @@ import java.util.HashMap;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = {"org.example.ranking.repository","org.example.common"},
+        basePackages = {"org.example.common"},
         entityManagerFactoryRef = "dataEntityManager",
         transactionManagerRef = "dataTransactionManager"
 )
+
 public class DataDBConfig {
     @Bean
     @ConfigurationProperties("spring.datasource-data")
