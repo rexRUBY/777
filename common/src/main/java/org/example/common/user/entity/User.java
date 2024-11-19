@@ -107,4 +107,22 @@ public class User extends Timestamped {
         this.password = password;
         this.name = name;
     }
+
+    public User(Long id, String email, String password, String name, boolean userStatus) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.userStatus = userStatus;
+    }
+
+    public static User fromUserDocument(UserDocument userDocument) {
+        return new User(
+                Long.valueOf(userDocument.getId()), // String ID를 Long으로 변환
+                userDocument.getEmail(),
+                userDocument.getPassword(),
+                userDocument.getName(),
+                userDocument.isUserStatus()
+        );
+    }
 }

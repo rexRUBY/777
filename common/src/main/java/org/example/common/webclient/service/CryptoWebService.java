@@ -2,18 +2,16 @@ package org.example.common.webclient.service;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CryptoWebService {
@@ -45,14 +43,12 @@ public class CryptoWebService {
         Item item = table.getItem(spec);
 
         if (item == null) {
-            log.error("No data found for " + coin + ", " + date + ":" + time);
             throw new RuntimeException("No data found for coin: " + coin + " at datetime: " + date + ":" + time);
         }
 
         // 결과 검증 및 반환
         try {
             Long price = item.getLong("price");
-            log.info("Retrieved price for crypto_id: {} and datetime: {}: {}", coin, 8374917, price);
             return price;
         } catch (NumberFormatException e) {
             throw new RuntimeException("Invalid number format for price in DynamoDB for coin: " + coin);
