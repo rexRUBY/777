@@ -19,6 +19,9 @@ public class KafkaProducerConfig {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.ACKS_CONFIG, "all");
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);  // idempotence 활성화
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "order-transactions"); // 트랜잭션 활성화
         return new DefaultKafkaProducerFactory<>(config);
     }
 

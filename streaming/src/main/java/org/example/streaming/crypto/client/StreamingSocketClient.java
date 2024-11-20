@@ -126,4 +126,37 @@ public class StreamingSocketClient {
         }
         batchedData.clear();
     }
+//    private void convertDataTypeAndStoreLocally(JSONObject data) {
+//        try {
+//            if (data.has("data")) {
+//                JSONArray dataArray = data.getJSONArray("data");
+//
+//                for (int i = 0; i < dataArray.length(); i++) {
+//                    JSONObject item = dataArray.getJSONObject(i);
+//                    String symbol = item.getString("s");
+//                    double p = item.getDouble("p");
+//
+//                    symbol = symbol.split(":")[1];
+//
+//                    String price = String.format("%.5f", p);
+//
+//                    latestPriceData.put(symbol, price);
+//
+//                    cryptoService.saveCurrentCryptoPrice(symbol, price);
+//
+//                    CryptoDataDto cryptoDataDto = new CryptoDataDto(symbol, price);
+//
+//                    String json = new Gson().toJson(cryptoDataDto);
+//
+//                    webSocketController.sendToClient(json);
+//                }
+//            } else {
+//                System.out.println("\"data\" key not found in JSON.");
+//            }
+//        } catch (JSONException e) {
+//            System.err.println("JSON parsing error: " + e.getMessage());
+//        } catch (Exception e) {
+//            System.err.println("Unexpected error: " + e.getMessage());
+//        }
+//    }
 }

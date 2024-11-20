@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +36,8 @@ public class OrderMatchingService {
 
     /* 주문이 들어옴 → 주문 체결 가능한지 확인 → 주문 체결 or OrderBook에 저장 */
 
-    @KafkaListener(topics = "ORDER", groupId = "order-group")
-    public void orderListener(String message) {
+    @KafkaListener(topics = "ORDER", groupId = "order-group", containerFactory = "kafkaListenerContainerFactory")
+    public void orderListener(String message, Acknowledgment acknowledgment) {
         System.out.println("ORDER received: " + message);
 
         try {
@@ -50,9 +51,10 @@ public class OrderMatchingService {
             String stringAmount = amount.toString();
             Long userId = id.longValue();
             String symbol = (String) data.get("symbol");
-            boolean isTradeStatus = false;
 
             tryMatchOrder(stringPrice, stringAmount, userId, tradeType, symbol);
+
+            acknowledgment.acknowledge();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -199,10 +201,10 @@ public class OrderMatchingService {
     }
 
     public void sendAlarmMessage(Long userId, String symbol, String amount, String orderType) {
-//        kafkaTemplate.send("alarm-topic-" + userId,
-//                symbol + "가 " + amount + "개 " +
-//                        (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
-        log.info(userId + "의 " + symbol + "가 " + amount + "개 " +
-                (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
+        kafkaTemplate.send("alarm-topic-" + userId,
+                symbol + "가 " + amount + "개 " +
+                        (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
+//        log.info(userId + "의 " + symbol + "가 " + amount + "개 " +
+//                (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
     }
 }

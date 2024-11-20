@@ -17,19 +17,18 @@ public class WalletService {
 
     @Transactional
     public void updateWallet(Long userId, Long oppositeUserId, double price, double amount, String orderKey, String symbol) {
-//        Wallet wallet = walletRepository.findByUserIdAndCryptoSymbol(userId, symbol);
-//        Wallet oppositeWallet = walletRepository.findByUserIdAndCryptoSymbol(oppositeUserId, symbol);
-//
-//        switch (orderKey) {
-//            case BUY_ORDER_KEY -> {
-//                wallet.buyUpdate(price, amount);
-//                oppositeWallet.sellUpdate(price, amount);
-//            }
-//            case SELL_ORDER_KEY -> {
-//                wallet.sellUpdate(price, amount);
-//                oppositeWallet.buyUpdate(price, amount);
-//            }
-//        }
-        System.out.println("지갑 업데이트 완료");
+        Wallet wallet = walletRepository.findByUserIdAndCryptoSymbol(userId, symbol);
+        Wallet oppositeWallet = walletRepository.findByUserIdAndCryptoSymbol(oppositeUserId, symbol);
+
+        switch (orderKey) {
+            case BUY_ORDER_KEY -> {
+                wallet.buyUpdate(price, amount);
+                oppositeWallet.sellUpdate(price, amount);
+            }
+            case SELL_ORDER_KEY -> {
+                wallet.sellUpdate(price, amount);
+                oppositeWallet.buyUpdate(price, amount);
+            }
+        }
     }
 }

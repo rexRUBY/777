@@ -20,7 +20,10 @@ public class KafkaProducerService {
 
             String partitionKey = orderBody.getSymbol() + "-" + orderBody.getPrice();
 
-            kafkaTemplate.send("ORDER", partitionKey, message);
+            kafkaTemplate.executeInTransaction(kafkaTemplate -> {
+                kafkaTemplate.send("ORDER", partitionKey, message);
+                return true;
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
