@@ -1,6 +1,7 @@
 package com.example.order.order;
 
 import com.example.order.order.dto.OrderMatchResult;
+import com.example.order.trade.entity.TradeLog;
 import com.example.order.trade.service.TradeService;
 import com.example.order.wallet.WalletService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,10 +16,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -152,11 +155,7 @@ public class OrderMatchingService {
             stringRedisTemplate.opsForHash().put(orderId, "amount", String.valueOf(availableAmount - requestAmount));
 //            log.info(availableAmount + "개 중 " + requestAmount + "개 처리됨 => " + (availableAmount - requestAmount) + "개 남음");
 
-            // 유저 지갑 업데이트
-            walletService.updateWallet(userId, oppositeUserId, price, requestAmount, orderType, symbol);
-
-            // 로그 생성
-            tradeService.saveLog(userId, oppositeUserId, price, requestAmount, orderType, symbol, orderId, timestamp);
+            processWalletUpdateAndSaveTradeLog(userId, oppositeUserId, price, availableAmount, orderType, symbol, orderId, timestamp);
 
             // 알림 전송
             sendAlarmMessage(userId, symbol, String.valueOf(requestAmount), orderType);
@@ -171,11 +170,7 @@ public class OrderMatchingService {
 
 //            log.info(requestAmount + "개 중 " + availableAmount + "개 처리됨 => 주문 삭제 완료");
 
-            // 유저 지갑 업데이트
-            walletService.updateWallet(userId, oppositeUserId, price, availableAmount, orderType, symbol);
-
-            // 로그 생성
-            tradeService.saveLog(userId, oppositeUserId, price, availableAmount, orderType, symbol, orderId, timestamp);
+            processWalletUpdateAndSaveTradeLog(userId, oppositeUserId, price, availableAmount, orderType, symbol, orderId, timestamp);
 
             // 알림
             sendAlarmMessage(oppositeUserId, symbol, String.valueOf(availableAmount), oppositeOrderType);
@@ -206,5 +201,44 @@ public class OrderMatchingService {
                         (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
 //        log.info(userId + "의 " + symbol + "가 " + amount + "개 " +
 //                (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
+    }
+
+    public void processWalletUpdateAndSaveTradeLog(
+            Long userId,
+            Long oppositeUserId,
+            double price,
+            double amount,
+            String orderKey,
+            String symbol,
+            String orderId,
+            Number timestamp
+    ) {
+        // Wallet 업데이트
+        CompletableFuture<Void> walletUpdateFuture = CompletableFuture.runAsync(() -> {
+            try {
+                walletService.updateWallet(userId, oppositeUserId, price, amount, orderKey, symbol);
+            } catch (Exception e) {
+                tradeService.saveLog(userId, oppositeUserId, price, amount, orderKey, symbol, orderId, timestamp, "REJECTED");
+                log.error("Wallet 업데이트 실패: userId={}, oppositeUserId={}, error={}", userId, oppositeUserId, e.getMessage());
+                throw new RuntimeException("Wallet 업데이트 실패", e);
+            }
+        });
+
+        // 로그 저장 비동기 처리
+        CompletableFuture<Void> logSaveFuture = CompletableFuture.runAsync(() -> {
+            try {
+                tradeService.saveLog(userId, oppositeUserId, price, amount, orderKey, symbol, orderId, timestamp, "MATCHED");
+            } catch (Exception e) {
+                // 로그 저장 실패 시 Wallet 업데이트 롤백
+                walletService.rollbackWalletUpdate(userId, oppositeUserId, price, amount, orderKey, symbol);
+                throw e;
+            }
+        });
+
+        try {
+            CompletableFuture.allOf(walletUpdateFuture, logSaveFuture).join();
+        } catch (Exception e) {
+            log.error("전체 작업에서 예외 발생: {}", e.getMessage());
+        }
     }
 }

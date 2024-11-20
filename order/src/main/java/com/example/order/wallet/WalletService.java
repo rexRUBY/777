@@ -3,6 +3,7 @@ package com.example.order.wallet;
 import lombok.RequiredArgsConstructor;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.repository.WalletRepository;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,23 @@ public class WalletService {
             case SELL_ORDER_KEY -> {
                 wallet.sellUpdate(price, amount);
                 oppositeWallet.buyUpdate(price, amount);
+            }
+        }
+    }
+
+    @Transactional
+    public void rollbackWalletUpdate(Long userId, Long oppositeUserId, double price, double amount, String orderKey, String symbol) {
+        Wallet wallet = walletRepository.findByUserIdAndCryptoSymbol(userId, symbol);
+        Wallet oppositeWallet = walletRepository.findByUserIdAndCryptoSymbol(oppositeUserId, symbol);
+
+        switch (orderKey) {
+            case BUY_ORDER_KEY -> {
+                wallet.sellUpdate(price, amount); // 되돌리기
+                oppositeWallet.buyUpdate(price, amount);
+            }
+            case SELL_ORDER_KEY -> {
+                wallet.buyUpdate(price, amount); // 되돌리기
+                oppositeWallet.sellUpdate(price, amount);
             }
         }
     }
