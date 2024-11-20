@@ -103,7 +103,7 @@
 
 
 ## 인프라 설계도
-![image](https://github.com/user-attachments/assets/5a6b40fc-2997-48c7-8a28-0178a2b7fd04)
+![image](https://github.com/user-attachments/assets/9708714f-62b6-445e-924d-4975ddecabae)
 
 
 # 기술 스택
@@ -213,7 +213,7 @@
 | **정산 최적화**      | Spring Batch를 통한 대규모 데이터 정산 최적화              | 정승헌        | 전현욱, 박예서, 박철희, 이상민 |
 | **실시간 정산 시스템**  | EventBridge와 Lambda를 사용한 실시간 정산 최적화          | 정승헌        | 전현욱, 박예서, 박철희, 이상민 |
 
-### Github Links (간략화)
+### Github Links
 
 - [정승헌](https://github.com/wjdtmdgjs-1)
 - [박예서](http://github.com/rexRUBY)
