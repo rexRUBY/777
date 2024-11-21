@@ -3,6 +3,8 @@ package org.example.ranking.processor.rankingProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.ranking.entity.Ranking;
+import org.example.common.common.log.LogExecution;
+import org.example.common.ranking.repository.RankingRepository;
 import org.example.common.user.entity.User;
 import org.example.common.user.repository.UserRepository;
 import org.example.ranking.service.RankingCalculationService;
@@ -12,7 +14,9 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,6 +38,7 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
     }
 
     @Override
+    @LogExecution
     public List<Ranking> process(User user) throws Exception {
         LocalDate time = LocalDate.now();
         String userEmail = user.getEmail();
@@ -64,5 +69,22 @@ public class RankingProcessor implements ItemProcessor<User, List<Ranking>>, Ste
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         return ExitStatus.COMPLETED;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void processDailyRanking() {
+        List<User> users = userRepository.findAll();
+
+        users.forEach(user -> {
+            user.getWalletList().forEach(wallet -> {
+                String cryptoSymbol = wallet.getCryptoSymbol();
+                try {
+                    rankingCalculationService.calculateYield(user, cryptoSymbol);
+                } catch (Exception e) {
+                    System.err.println("Error calculating yield for user " + user.getEmail() + " and crypto " + cryptoSymbol);
+                }
+            });
+        });
     }
 }

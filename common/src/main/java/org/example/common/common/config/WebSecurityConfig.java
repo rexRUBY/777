@@ -52,6 +52,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
                         .requestMatchers("/test/**").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
+                        .requestMatchers("/api/metrics/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

@@ -1,6 +1,7 @@
 package org.example.ranking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.common.common.log.LogExecution;
 import org.example.common.ranking.entity.Ranked;
 import org.example.common.ranking.entity.Ranking;
 import org.example.common.trade.entity.Trade;
@@ -10,6 +11,7 @@ import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.entity.WalletHistory;
 import org.example.ranking.config.CountConfig;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -19,6 +21,13 @@ import java.util.List;
 @Component
 public class RankingCalculationService {
 
+    private final RestTemplate restTemplate;
+
+    public RankingCalculationService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    @LogExecution
     // 특정 암호화폐의 수익률을 계산하여 반환하는 메서드
     public double calculateYield(User user, String cryptoSymbol) throws RuntimeException {
         // 다른 사용자를 위한 거래 가격을 계산
@@ -40,9 +49,20 @@ public class RankingCalculationService {
         }
 
         // 수익률을 계산하여 반환
-        return calculateYieldPercentage(lastMonthWallet, nowWallet, otherPriceForCrypto);
+        double yield = calculateYieldPercentage(lastMonthWallet, nowWallet, otherPriceForCrypto);
+
+        // 모니터링 서버로 수익률 전송
+        sendYieldToMonitoringServer(user.getEmail(), cryptoSymbol, yield);
+
+        return yield;
     }
 
+    private void sendYieldToMonitoringServer(String userEmail, String cryptoSymbol, double yield) {
+        String url = "http://localhost:8086/api/metrics/yield?userEmail=" + userEmail + "&cryptoSymbol=" + cryptoSymbol + "&yield=" + yield;
+        restTemplate.postForEntity(url, null, Void.class);
+    }
+
+    @LogExecution
     public void setRank(Ranking ranking, String crtproSymbol){
         if(ranking.getCryptoSymbol().equals(crtproSymbol)&&ranking.getRanked().equals(Ranked.ON)){
         ranking.update(CountConfig.count);

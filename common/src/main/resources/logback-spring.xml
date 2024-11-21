@@ -1,0 +1,63 @@
+<configuration>
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Timestamp -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- 기본 로그 정보 -->
+                <logLevel />
+                <message />
+                <loggerName />
+
+                <!-- MDC 필드 -->
+                <mdc>
+                    <includeKey>module</includeKey>
+                    <includeKey>method</includeKey>
+                    <includeKey>aop_type</includeKey>
+                </mdc>
+                <arguments />
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- File Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/my-app.log</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Timestamp -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- 기본 로그 정보 -->
+                <logLevel />
+                <message />
+                <loggerName />
+
+                <!-- MDC 필드 -->
+                <mdc>
+                    <includeKey>module</includeKey>
+                    <includeKey>method</includeKey>
+                    <includeKey>aop_type</includeKey>
+                </mdc>
+                <arguments />
+            </providers>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>./logs/my-app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

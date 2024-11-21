@@ -1,0 +1,14 @@
+bootJar.enabled = true
+jar.enabled = false
+
+dependencies {
+    api project(':common')
+
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+
+}
+
+

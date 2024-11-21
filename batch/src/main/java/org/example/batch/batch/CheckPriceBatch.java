@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.batch.partitioner.ColumnRangePartitioner;
 import org.example.batch.processor.checkProcessor.PriceProcessor;
+import org.example.common.common.log.LogExecution;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.example.common.subscriptions.repository.SubscriptionsRepository;
 import org.springframework.batch.core.*;
@@ -36,6 +37,7 @@ public class CheckPriceBatch {
 
     // 구독당시 코인의 가격과 현재 가격을 비교하여 상승률이 5%가 되는 것을 체크하기 위한 Job
     @Bean
+    @LogExecution
     public Job checkJob() {
         return new JobBuilder("checkJob", jobRepository)
                 .start(checkStep())
@@ -43,6 +45,7 @@ public class CheckPriceBatch {
     }
 
     @Bean
+    @LogExecution
     public Step checkStep() {
         return new StepBuilder("checkStep", jobRepository)
                 .partitioner("checkStep", pricePartitioner())

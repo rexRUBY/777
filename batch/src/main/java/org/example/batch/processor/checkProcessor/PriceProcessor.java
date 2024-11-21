@@ -3,6 +3,7 @@ package org.example.batch.processor.checkProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.batch.service.SubscriptionBillingService;
+import org.example.common.common.log.LogExecution;
 import org.example.common.subscriptions.entity.Subscriptions;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -29,6 +30,7 @@ public class PriceProcessor implements ItemProcessor<Subscriptions, Subscription
     }
 
     @Override
+    @LogExecution
     public Subscriptions process(Subscriptions subscriptions) throws Exception {
         Long price = (Long) executionContext.get("price");
 
