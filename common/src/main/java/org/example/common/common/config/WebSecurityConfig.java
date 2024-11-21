@@ -67,7 +67,10 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "https://jhwook.github.io",
                 "http://localhost:3000",
-                "https://013e-1-241-47-142.ngrok-free.app"
+                "https://013e-1-241-47-142.ngrok-free.app",
+                "http://localhost:8083", // k6 테스트를 위한 추가,
+                "http://localhost",
+                "http://127.0.0.1"
         ));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));

@@ -30,6 +30,22 @@ public class WalletService {
                 oppositeWallet.buyUpdate(price, amount);
             }
         }
-        System.out.println("지갑 업데이트 완료");
+    }
+
+    @Transactional
+    public void rollbackWalletUpdate(Long userId, Long oppositeUserId, double price, double amount, String orderKey, String symbol) {
+        Wallet wallet = walletRepository.findByUserIdAndCryptoSymbol(userId, symbol);
+        Wallet oppositeWallet = walletRepository.findByUserIdAndCryptoSymbol(oppositeUserId, symbol);
+
+        switch (orderKey) {
+            case BUY_ORDER_KEY -> {
+                wallet.sellUpdate(price, amount); // 되돌리기
+                oppositeWallet.buyUpdate(price, amount);
+            }
+            case SELL_ORDER_KEY -> {
+                wallet.buyUpdate(price, amount); // 되돌리기
+                oppositeWallet.sellUpdate(price, amount);
+            }
+        }
     }
 }
