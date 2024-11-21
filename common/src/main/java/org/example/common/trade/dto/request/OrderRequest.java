@@ -9,5 +9,4 @@ public class OrderRequest {
     private String tradeType;
     private String symbol;
     private Long userId;
-
 }

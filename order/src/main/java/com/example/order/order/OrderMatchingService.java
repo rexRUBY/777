@@ -1,7 +1,6 @@
 package com.example.order.order;
 
 import com.example.order.order.dto.OrderMatchResult;
-import com.example.order.trade.entity.TradeLog;
 import com.example.order.trade.service.TradeService;
 import com.example.order.wallet.WalletService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,7 +15,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +37,7 @@ public class OrderMatchingService {
 
     /* 주문이 들어옴 → 주문 체결 가능한지 확인 → 주문 체결 or OrderBook에 저장 */
 
-    @KafkaListener(topics = "ORDER", groupId = "order-group", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "ORDER", groupId = "order-group", containerFactory = "kafkaListenerContainerFactory", concurrency = "5")
     public void orderListener(String message, Acknowledgment acknowledgment) {
         System.out.println("ORDER received: " + message);
 
@@ -97,8 +95,6 @@ public class OrderMatchingService {
                 String oppositeOrderId = (String) latestOppositeOrder.getValue();
                 String priceStr = (String) stringRedisTemplate.opsForHash().get(oppositeOrderId, "price");
 
-//            log.info(orderKey + " orderId: " + oppositeOrderId);
-
                 // 가격이 매칭되는지 확인
                 if ((orderType.equals(BUY_ORDER_KEY) && Double.parseDouble(price) >= Double.parseDouble(priceStr)) ||
                         (orderType.equals(SELL_ORDER_KEY) && Double.parseDouble(priceStr) >= Double.parseDouble(price))) {
@@ -126,7 +122,6 @@ public class OrderMatchingService {
             }
 
             // 매칭되지 않으면 새로운 주문 추가
-//        log.info("매칭 결과 없음 " + orderType + " ORDER 추가 " + orderType + " Price: " + price + ", " + orderType + " Amount: " + amount);
             addOrder(price, String.valueOf(remainingAmount), orderType, userId, symbol);
 
             break;
@@ -153,7 +148,6 @@ public class OrderMatchingService {
 
         if (availableAmount >= requestAmount) {
             stringRedisTemplate.opsForHash().put(orderId, "amount", String.valueOf(availableAmount - requestAmount));
-//            log.info(availableAmount + "개 중 " + requestAmount + "개 처리됨 => " + (availableAmount - requestAmount) + "개 남음");
 
             processWalletUpdateAndSaveTradeLog(userId, oppositeUserId, price, availableAmount, orderType, symbol, orderId, timestamp);
 
@@ -168,14 +162,11 @@ public class OrderMatchingService {
 
             redisTemplate.opsForZSet().remove(orderKey, orderId);
 
-//            log.info(requestAmount + "개 중 " + availableAmount + "개 처리됨 => 주문 삭제 완료");
-
             processWalletUpdateAndSaveTradeLog(userId, oppositeUserId, price, availableAmount, orderType, symbol, orderId, timestamp);
 
             // 알림
             sendAlarmMessage(oppositeUserId, symbol, String.valueOf(availableAmount), oppositeOrderType);
 
-//            log.info(restAmount + "개 추가 " + (orderType.equals(BUY_ORDER_KEY) ? "BUY" : "SELL") + " 매칭 시작");
             return requestAmount - availableAmount;
         }
     }
@@ -199,8 +190,6 @@ public class OrderMatchingService {
         kafkaTemplate.send("alarm-topic-" + userId,
                 symbol + "가 " + amount + "개 " +
                         (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
-//        log.info(userId + "의 " + symbol + "가 " + amount + "개 " +
-//                (orderType.equals(BUY_ORDER_KEY) ? "매수 " : "매도 ") + "체결되었습니다.");
     }
 
     public void processWalletUpdateAndSaveTradeLog(
@@ -213,6 +202,7 @@ public class OrderMatchingService {
             String orderId,
             Number timestamp
     ) {
+
         // Wallet 업데이트
         CompletableFuture<Void> walletUpdateFuture = CompletableFuture.runAsync(() -> {
             try {

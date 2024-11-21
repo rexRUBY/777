@@ -13,7 +13,7 @@ public class KafkaProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendOrder(OrderRequest orderBody) {
+    public String sendOrder(OrderRequest orderBody) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String message = objectMapper.writeValueAsString(orderBody);
@@ -24,8 +24,14 @@ public class KafkaProducerService {
                 kafkaTemplate.send("ORDER", partitionKey, message);
                 return true;
             });
+
+            // 메시지를 Kafka로 전송
+            kafkaTemplate.send("ORDER", partitionKey, message);
+
+            return "Order processed successfully";
         } catch (Exception e) {
             e.printStackTrace();
+            return "Order failed";
         }
     }
 

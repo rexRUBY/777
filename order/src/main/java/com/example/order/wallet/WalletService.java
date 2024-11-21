@@ -3,7 +3,6 @@ package com.example.order.wallet;
 import lombok.RequiredArgsConstructor;
 import org.example.common.wallet.entity.Wallet;
 import org.example.common.wallet.repository.WalletRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
