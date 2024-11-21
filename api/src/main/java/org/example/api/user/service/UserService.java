@@ -48,7 +48,6 @@ public class UserService {
             throw new InvalidRequestException("잘못된 비밀번호입니다.");
         }
 
-        validateNewPassword(request.getNewPassword());
         user.changePassword(passwordEncoder.encode(request.getNewPassword()));
     }
 
@@ -56,14 +55,6 @@ public class UserService {
         return userRepository.findById(userId)
                 .filter(User::isUserStatus)
                 .orElseThrow(() -> new InvalidRequestException("유효하지 않은 사용자입니다."));
-    }
-
-    public static void validateNewPassword(String password) {
-        if (password == null || password.length() < 8 ||
-                !password.matches(".*\\d.*") ||
-                !password.matches(".*[A-Z].*")) {
-            throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하며, 숫자와 대문자를 포함해야 합니다.");
-        }
     }
 
     public UserResponse getMyInfo(AuthUser authUser) {

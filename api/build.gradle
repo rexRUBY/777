@@ -42,6 +42,9 @@ dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.kafka:kafka-streams'
 
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
