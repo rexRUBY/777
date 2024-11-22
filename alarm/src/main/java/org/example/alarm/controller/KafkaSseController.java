@@ -16,10 +16,10 @@ public class KafkaSseController {
     private final KafkaSseService kafkaSseService;
 
     @GetMapping(
-            value = "/topics/{topic}/subscribe",
+            value = "/alarms/{userId}",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE
     )
-    public Flux<ServerSentEvent<String>> streamMessages(@PathVariable String topic) {
-        return kafkaSseService.streamMessages(topic);
+    public Flux<ServerSentEvent<String>> streamMessages(@PathVariable String userId) {
+        return kafkaSseService.streamMessages("alarm-topic-" + userId);
     }
 }
